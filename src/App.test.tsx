@@ -33,4 +33,24 @@ describe('App', () => {
     expect(screen.getByText('단기 급등세 속 과열 신호 감지')).toBeInTheDocument();
     expect(screen.getByText('차트 영역')).toBeInTheDocument();
   });
+
+  it('shows a Korean error panel when the backend fails', async () => {
+    const user = userEvent.setup();
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: false,
+        status: 500,
+        text: () => Promise.resolve('backend unavailable'),
+      }),
+    );
+
+    render(<App />);
+
+    await user.click(screen.getByRole('button', { name: '리포트 조회' }));
+
+    await waitFor(() => {
+      expect(screen.getByText('리포트 조회 실패: backend unavailable')).toBeInTheDocument();
+    });
+  });
 });
