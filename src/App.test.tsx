@@ -161,4 +161,26 @@ describe('App routing', () => {
     });
     expect(screen.getByText('차트 영역')).toBeInTheDocument();
   });
+
+  it('keeps report filters collapsed until the user opens them', async () => {
+    const user = userEvent.setup();
+    storeSession();
+    window.history.pushState({}, '', '/reports');
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve({ items: [sampleReport], page: 1, pageSize: 10, total: 1, totalPages: 1 }),
+      }),
+    );
+
+    render(<App />);
+
+    expect(await screen.findByRole('button', { name: '필터 열기' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: '필터 적용' })).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: '필터 열기' }));
+
+    expect(screen.getByRole('button', { name: '필터 적용' })).toBeInTheDocument();
+  });
 });

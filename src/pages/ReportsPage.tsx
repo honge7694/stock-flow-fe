@@ -36,6 +36,10 @@ function formatSource(source: ReportSource) {
   return source === 'manual' ? '직접 생성' : '예약 생성';
 }
 
+function formatStatus(status: ReportStatus) {
+  return status === 'completed' ? '완료' : '실패';
+}
+
 function formatInstrumentTitle(report: ReportResponse) {
   return report.instrument?.name ? `${report.instrument.name} (${report.ticker})` : report.ticker;
 }
@@ -66,10 +70,23 @@ function getPageItems(page: number, totalPages: number) {
   return items;
 }
 
+function getActiveFilterChips(filters: ReportListQuery) {
+  const chips: string[] = [];
+
+  if (filters.ticker) chips.push(filters.ticker);
+  if (filters.status) chips.push(formatStatus(filters.status));
+  if (filters.source) chips.push(formatSource(filters.source));
+  if (filters.includeAi !== undefined) chips.push(`AI ${filters.includeAi ? '포함' : '제외'}`);
+  if (filters.from || filters.to) chips.push(`${filters.from ?? '시작일'} - ${filters.to ?? '종료일'}`);
+
+  return chips;
+}
+
 export function ReportsPage({ accessToken }: ReportsPageProps) {
   const [reportList, setReportList] = useState<ReportListResponse>(emptyReportList);
   const [filters, setFilters] = useState<ReportListQuery>({});
   const [appliedFilters, setAppliedFilters] = useState<ReportListQuery>({});
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [pagination, setPagination] = useState<{ page: number; pageSize: ReportPageSize }>({
     page: 1,
     pageSize: 10,
@@ -82,6 +99,7 @@ export function ReportsPage({ accessToken }: ReportsPageProps) {
   const rangeStart = reportList.total === 0 ? 0 : (reportList.page - 1) * reportList.pageSize + 1;
   const rangeEnd = Math.min(reportList.page * reportList.pageSize, reportList.total);
   const isFiltered = Object.keys(appliedFilters).length > 0;
+  const activeFilterChips = getActiveFilterChips(appliedFilters);
 
   useEffect(() => {
     if (!accessToken) return;
@@ -118,13 +136,20 @@ export function ReportsPage({ accessToken }: ReportsPageProps) {
   function handleFilterSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setAppliedFilters(cleanFilters(filters));
+    setIsFilterOpen(false);
     setPagination((current) => ({ ...current, page: 1 }));
   }
 
   function resetFilters() {
     setFilters({});
     setAppliedFilters({});
+    setIsFilterOpen(false);
     setPagination((current) => ({ ...current, page: 1 }));
+  }
+
+  function toggleFilters() {
+    setFilters(appliedFilters);
+    setIsFilterOpen((current) => !current);
   }
 
   function changePage(page: number) {
@@ -160,84 +185,115 @@ export function ReportsPage({ accessToken }: ReportsPageProps) {
               <span className="card-label">FILTERS</span>
               <h2>목록 필터</h2>
             </div>
-            <span className="pill">총 {reportList.total}개</span>
-          </div>
-          <div className="filter-grid">
-            <label>
-              <span>종목</span>
-              <input
-                value={filters.ticker ?? ''}
-                placeholder="예: AAPL"
-                onChange={(event) => setFilters({ ...filters, ticker: event.target.value })}
-              />
-            </label>
-            <label>
-              <span>상태</span>
-              <select
-                value={filters.status ?? ''}
-                onChange={(event) =>
-                  setFilters({ ...filters, status: (event.target.value || undefined) as ReportStatus | undefined })
-                }
+            <div className="active-filter-strip" aria-label="적용된 필터">
+              {activeFilterChips.length ? (
+                activeFilterChips.map((chip) => (
+                  <span className="pill pill-accent" key={chip}>
+                    {chip}
+                  </span>
+                ))
+              ) : (
+                <span className="pill">전체 리포트</span>
+              )}
+            </div>
+            <div className="filter-heading-actions">
+              <span className="pill">총 {reportList.total}개</span>
+              {isFiltered ? (
+                <button type="button" className="secondary-button" onClick={resetFilters}>
+                  필터 초기화
+                </button>
+              ) : null}
+              <button
+                type="button"
+                className="secondary-button"
+                aria-expanded={isFilterOpen}
+                aria-controls="report-filter-fields"
+                onClick={toggleFilters}
               >
-                <option value="">전체</option>
-                <option value="completed">완료</option>
-                <option value="failed">실패</option>
-              </select>
-            </label>
-            <label>
-              <span>생성 방식</span>
-              <select
-                value={filters.source ?? ''}
-                onChange={(event) =>
-                  setFilters({ ...filters, source: (event.target.value || undefined) as ReportSource | undefined })
-                }
-              >
-                <option value="">전체</option>
-                <option value="manual">직접 생성</option>
-                <option value="scheduled">예약 생성</option>
-              </select>
-            </label>
-            <label>
-              <span>AI 포함</span>
-              <select
-                value={filters.includeAi === undefined ? '' : String(filters.includeAi)}
-                onChange={(event) =>
-                  setFilters({
-                    ...filters,
-                    includeAi: event.target.value === '' ? undefined : event.target.value === 'true',
-                  })
-                }
-              >
-                <option value="">전체</option>
-                <option value="true">포함</option>
-                <option value="false">제외</option>
-              </select>
-            </label>
-            <label>
-              <span>시작일</span>
-              <input
-                type="date"
-                value={filters.from ?? ''}
-                onChange={(event) => setFilters({ ...filters, from: event.target.value })}
-              />
-            </label>
-            <label>
-              <span>종료일</span>
-              <input
-                type="date"
-                value={filters.to ?? ''}
-                onChange={(event) => setFilters({ ...filters, to: event.target.value })}
-              />
-            </label>
+                {isFilterOpen ? '필터 닫기' : '필터 열기'}
+              </button>
+            </div>
           </div>
-          <div className="filter-actions">
-            <button type="submit" disabled={status === 'loading'}>
-              필터 적용
-            </button>
-            <button type="button" className="secondary-button" onClick={resetFilters}>
-              초기화
-            </button>
-          </div>
+          {isFilterOpen ? (
+            <div className="filter-panel-body" id="report-filter-fields">
+              <div className="filter-grid">
+                <label>
+                  <span>종목</span>
+                  <input
+                    value={filters.ticker ?? ''}
+                    placeholder="예: AAPL"
+                    onChange={(event) => setFilters({ ...filters, ticker: event.target.value })}
+                  />
+                </label>
+                <label>
+                  <span>상태</span>
+                  <select
+                    value={filters.status ?? ''}
+                    onChange={(event) =>
+                      setFilters({ ...filters, status: (event.target.value || undefined) as ReportStatus | undefined })
+                    }
+                  >
+                    <option value="">전체</option>
+                    <option value="completed">완료</option>
+                    <option value="failed">실패</option>
+                  </select>
+                </label>
+                <label>
+                  <span>생성 방식</span>
+                  <select
+                    value={filters.source ?? ''}
+                    onChange={(event) =>
+                      setFilters({ ...filters, source: (event.target.value || undefined) as ReportSource | undefined })
+                    }
+                  >
+                    <option value="">전체</option>
+                    <option value="manual">직접 생성</option>
+                    <option value="scheduled">예약 생성</option>
+                  </select>
+                </label>
+                <label>
+                  <span>AI 포함</span>
+                  <select
+                    value={filters.includeAi === undefined ? '' : String(filters.includeAi)}
+                    onChange={(event) =>
+                      setFilters({
+                        ...filters,
+                        includeAi: event.target.value === '' ? undefined : event.target.value === 'true',
+                      })
+                    }
+                  >
+                    <option value="">전체</option>
+                    <option value="true">포함</option>
+                    <option value="false">제외</option>
+                  </select>
+                </label>
+                <label>
+                  <span>시작일</span>
+                  <input
+                    type="date"
+                    value={filters.from ?? ''}
+                    onChange={(event) => setFilters({ ...filters, from: event.target.value })}
+                  />
+                </label>
+                <label>
+                  <span>종료일</span>
+                  <input
+                    type="date"
+                    value={filters.to ?? ''}
+                    onChange={(event) => setFilters({ ...filters, to: event.target.value })}
+                  />
+                </label>
+              </div>
+              <div className="filter-actions">
+                <button type="submit" disabled={status === 'loading'}>
+                  필터 적용
+                </button>
+                <button type="button" className="secondary-button" onClick={resetFilters}>
+                  필터 초기화
+                </button>
+              </div>
+            </div>
+          ) : null}
         </form>
 
         {status === 'loading' ? <p>리포트 목록을 불러오는 중입니다.</p> : null}
