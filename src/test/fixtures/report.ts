@@ -1,44 +1,136 @@
 import type { ReportResponse } from '../../types/report';
 
 export const sampleReport: ReportResponse = {
+  id: 'report-uuid',
   ticker: '000660.KS',
   from: '2026-04-01',
   to: '2026-06-21',
-  ai: true,
   generatedAt: '2026-06-21T08:59:44.592Z',
-  candles: [
-    { time: '2026-06-18', open: 2556000, high: 2738000, low: 2556000, close: 2685000, volume: 5808765 },
-    { time: '2026-06-19', open: 2824000, high: 2891000, low: 2688000, close: 2764000, volume: 7478195 },
-  ],
-  indicators: {
-    sma20: [{ time: '2026-06-19', value: 2247700 }],
-    sma50: [{ time: '2026-06-19', value: 1738380 }],
-    rsi14: [{ time: '2026-06-19', value: 73.715861 }],
-    macd: [{ time: '2026-06-19', macd: 234738.331499, signal: 207516.808941, histogram: 27221.522558 }],
-    volume: [{ time: '2026-06-19', value: 7478195 }],
-  },
-  aiAnalysis: {
-    status: 'available',
-    analysis: {
-      beginnerExplanation: {
-        summary: '최근 약 2.5개월 동안 주가가 급격히 상승한 흐름을 보이고 있습니다.',
-        sma: '현재 주가는 20일선과 50일선보다 위에 위치해 상승 배열을 보여줍니다.',
-        rsi: 'RSI는 과매수 구간으로 분류되는 70을 초과했습니다.',
-        macd: 'MACD는 상승 모멘텀이 유지되고 있음을 보여줍니다.',
-        volume: '거래량이 평균보다 증가하며 상승 흐름을 지지합니다.',
+  source: 'manual',
+  status: 'completed',
+  includeAi: true,
+  reportPeriod: null,
+  errorMessage: null,
+  payload: {
+    ticker: '000660.KS',
+    from: '2026-04-01',
+    to: '2026-06-21',
+    generatedAt: '2026-06-21T08:59:44.592Z',
+    candles: [
+      { time: '2026-06-18', open: 2556000, high: 2738000, low: 2556000, close: 2685000, volume: 5808765 },
+      { time: '2026-06-19', open: 2824000, high: 2891000, low: 2688000, close: 2764000, volume: 7478195 },
+    ],
+    indicators: {
+      sma20: [{ time: '2026-06-19', value: 2247700 }],
+      sma50: [{ time: '2026-06-19', value: 1738380 }],
+      rsi14: [{ time: '2026-06-19', value: 73.715861 }],
+      macd: [{ time: '2026-06-19', macd: 234738.331499, signal: 207516.808941, histogram: 27221.522558 }],
+      volume: [{ time: '2026-06-19', value: 7478195 }],
+    },
+    summary: {
+      metrics: {
+        latestClose: 2764000,
+        latestVolume: 7478195,
+        candleCount: 2,
+        periodChange: 79000,
+        periodChangePercent: 2.94,
+        latestSma20: 2247700,
+        latestSma50: 1738380,
+        latestRsi14: 73.715861,
+        latestMacd: {
+          macd: 234738.331499,
+          signal: 207516.808941,
+          histogram: 27221.522558,
+        },
+        averageVolume: 6643480,
+        recentVolumeVsAverage: 1.13,
       },
-      checklist: {
-        trend: { status: 'positive', title: '강한 상승 추세 지속', explanation: '단기/중기적으로 우상향 흐름입니다.' },
-        momentum: { status: 'caution', title: '과매수 신호', explanation: '단기 조정 가능성에 대비해야 합니다.' },
-        volume: { status: 'positive', title: '평균 대비 높은 거래량', explanation: '거래량이 상승 흐름을 지지합니다.' },
-        risk: { status: 'caution', title: '높은 변동성', explanation: '급격한 가격 변동 위험이 있습니다.' },
+      availability: {
+        hasRsi: true,
+        hasMacd: true,
       },
-      report: {
-        headline: '단기 급등세 속 과열 신호 감지',
-        summary: '강한 상승 추세와 과매수 신호가 동시에 관찰됩니다.',
-        observations: ['주가가 분석 기간 동안 크게 상승했습니다.', 'RSI가 70을 상회합니다.'],
-        nextThingsToWatch: ['20일 이동평균선 지지 여부', '거래량 유지 여부'],
-        disclaimer: '본 분석은 교육용 자료이며 투자 권유가 아닙니다.',
+      sections: {
+        price: '캔들 차트 위에 SMA 20, SMA 50을 함께 표시해 가격 흐름과 평균선의 관계를 관찰합니다.',
+        rsi: 'RSI는 최근 상승폭과 하락폭의 상대적 강도를 0-100 범위로 표현하는 교육용 관찰 지표입니다.',
+        macd: 'MACD, signal, histogram을 함께 보며 단기/장기 EMA 차이의 변화를 확인합니다.',
+        volume: '거래량은 가격 움직임과 함께 해석할 때 시장 참여 강도를 살펴보는 참고 데이터입니다.',
+      },
+      guideItems: [
+        {
+          title: '캔들',
+          body: '캔들은 하루의 시가, 고가, 저가, 종가를 보여줍니다.',
+        },
+        {
+          title: 'MACD',
+          body: 'MACD는 단기 평균과 장기 평균의 차이를 관찰하는 지표입니다.',
+        },
+      ],
+      disclaimer: '이 설명은 차트 학습을 돕기 위한 안내이며, 투자 조언이 아닙니다.',
+    },
+    aiAnalysis: {
+      status: 'available',
+      analysis: {
+        beginnerExplanation: {
+          summary: '최근 약 2.5개월 동안 주가가 급격히 상승한 흐름을 보이고 있습니다.',
+          sma: '현재 주가는 20일선과 50일선보다 위에 위치해 상승 배열을 보여줍니다.',
+          rsi: 'RSI는 과매수 구간으로 분류되는 70을 초과했습니다.',
+          macd: 'MACD는 상승 모멘텀이 유지되고 있음을 보여줍니다.',
+          volume: '거래량이 평균보다 증가하며 상승 흐름을 지지합니다.',
+        },
+        indicatorSummary: {
+          title: '상승 흐름 속 단기 확인이 필요한 구간',
+          summary: '추세, 모멘텀, 거래량, 변동성을 함께 보면 장기 흐름은 남아 있지만 단기 확인이 필요한 상태입니다.',
+          keyTakeaways: [
+            '추세는 장기 평균선과 단기 평균선의 위치를 함께 확인합니다.',
+            '모멘텀은 RSI와 MACD가 같은 방향을 가리키는지 봅니다.',
+            '거래량 증가는 관심 집중을 뜻할 수 있지만 방향성을 보장하지 않습니다.',
+          ],
+        },
+        checklist: {
+          trend: {
+            status: 'positive',
+            title: '강한 상승 추세 지속',
+            summary: '단기/중기적으로 우상향 흐름입니다.',
+            evidence: ['주가가 20일선과 50일선 위에 있습니다.'],
+            interpretation: '평균선 기준으로 상승 흐름이 유지되는지 관찰할 수 있습니다.',
+            watchPoints: ['20일 이동평균선 이탈 여부'],
+            dataLimitations: ['짧은 기간의 평균선은 변동성에 민감합니다.'],
+          },
+          momentum: {
+            status: 'caution',
+            title: '과매수 신호',
+            summary: 'RSI가 높은 구간에 있어 단기 흐름 확인이 필요합니다.',
+            evidence: ['RSI가 70을 상회합니다.'],
+            interpretation: '상승폭이 컸던 구간 이후에는 속도 조절 여부를 함께 봅니다.',
+            watchPoints: ['RSI 둔화 여부', '가격 변동성 확대 여부'],
+            dataLimitations: ['RSI만으로 향후 가격 방향을 판단할 수 없습니다.'],
+          },
+          volume: {
+            status: 'positive',
+            title: '평균 대비 높은 거래량',
+            summary: '거래량이 상승 흐름과 함께 증가했습니다.',
+            evidence: ['최근 거래량이 평균보다 높습니다.'],
+            interpretation: '가격 움직임과 함께 참여 강도를 살펴보는 참고 데이터입니다.',
+            watchPoints: ['거래량 유지 여부'],
+            dataLimitations: ['거래량 증가는 여러 원인으로 발생할 수 있습니다.'],
+          },
+          risk: {
+            status: 'caution',
+            title: '높은 변동성',
+            summary: '급격한 가격 변동 구간입니다.',
+            evidence: ['분석 기간 중 가격 변동폭이 컸습니다.'],
+            interpretation: '변동성이 커진 구간에서는 지표 해석의 불확실성도 함께 커집니다.',
+            watchPoints: ['일별 변동폭 축소 여부'],
+            dataLimitations: ['과거 변동성이 미래 변동성을 보장하지 않습니다.'],
+          },
+        },
+        report: {
+          headline: '단기 급등세 속 과열 신호 감지',
+          summary: '강한 상승 추세와 과매수 신호가 동시에 관찰됩니다.',
+          observations: ['주가가 분석 기간 동안 크게 상승했습니다.', 'RSI가 70을 상회합니다.'],
+          nextThingsToWatch: ['20일 이동평균선 지지 여부', '거래량 유지 여부'],
+          disclaimer: '본 분석은 교육용 자료이며 투자 권유가 아닙니다.',
+        },
       },
     },
   },

@@ -1,9 +1,9 @@
 import { createChart, type IChartApi, type Time } from 'lightweight-charts';
 import { useEffect, useRef } from 'react';
-import type { LinePoint, ReportResponse } from '../types/report';
+import type { LinePoint, ReportPayload } from '../types/report';
 
 type ReportChartsProps = {
-  report: ReportResponse;
+  payload: ReportPayload;
 };
 
 function cleanLine(points: LinePoint[]) {
@@ -38,66 +38,105 @@ function useChart(render: (chart: IChartApi) => void) {
   return containerRef;
 }
 
-export function ReportCharts({ report }: ReportChartsProps) {
+export function ReportCharts({ payload }: ReportChartsProps) {
+  const summary = payload.summary;
+  const guideByTitle = new Map(summary?.guideItems.map((item) => [item.title.toLowerCase(), item]) ?? []);
+  const candleGuide = guideByTitle.get('캔들');
+  const movingAverageGuide = guideByTitle.get('이동평균선') ?? guideByTitle.get('sma');
+  const rsiGuide = guideByTitle.get('rsi') ?? guideByTitle.get('rsi14');
+  const macdGuide = guideByTitle.get('macd');
+  const volumeGuide = guideByTitle.get('거래량') ?? guideByTitle.get('volume');
   const priceRef = useChart((chart) => {
     chart.addCandlestickSeries().setData(
-      report.candles.map((candle) => ({
+      payload.candles.map((candle) => ({
         ...candle,
         time: candle.time as Time,
       })),
     );
-    chart.addLineSeries({ color: '#00d992', lineWidth: 2 }).setData(cleanLine(report.indicators.sma20));
-    chart.addLineSeries({ color: '#8b949e', lineWidth: 2 }).setData(cleanLine(report.indicators.sma50));
+    chart.addLineSeries({ color: '#00d992', lineWidth: 2 }).setData(cleanLine(payload.indicators.sma20));
+    chart.addLineSeries({ color: '#8b949e', lineWidth: 2 }).setData(cleanLine(payload.indicators.sma50));
   });
 
   const rsiRef = useChart((chart) => {
-    chart.addLineSeries({ color: '#00d992', lineWidth: 2 }).setData(cleanLine(report.indicators.rsi14));
+    chart.addLineSeries({ color: '#00d992', lineWidth: 2 }).setData(cleanLine(payload.indicators.rsi14));
   });
 
   const macdRef = useChart((chart) => {
     chart.addLineSeries({ color: '#00d992', lineWidth: 2 }).setData(
-      report.indicators.macd
+      payload.indicators.macd
         .filter((point) => point.macd !== null)
         .map((point) => ({ time: point.time as Time, value: point.macd as number })),
     );
     chart.addLineSeries({ color: '#8b949e', lineWidth: 2 }).setData(
-      report.indicators.macd
+      payload.indicators.macd
         .filter((point) => point.signal !== null)
         .map((point) => ({ time: point.time as Time, value: point.signal as number })),
     );
     chart.addHistogramSeries({ color: '#10b981' }).setData(
-      report.indicators.macd
+      payload.indicators.macd
         .filter((point) => point.histogram !== null)
         .map((point) => ({ time: point.time as Time, value: point.histogram as number })),
     );
   });
 
   const volumeRef = useChart((chart) => {
-    chart.addHistogramSeries({ color: '#00d992' }).setData(cleanLine(report.indicators.volume));
+    chart.addHistogramSeries({ color: '#00d992' }).setData(cleanLine(payload.indicators.volume));
   });
 
   return (
-    <section className="content-section">
-      <p className="eyebrow">TECHNICAL CHARTS</p>
-      <h2>가격과 지표</h2>
+    <section className="content-section price-report-section">
+      <p className="eyebrow">PRICE REPORT</p>
+      <h2>가격 리포트</h2>
       <div className="chart-stack">
         <article className="chart-card">
-          <h3>Price / SMA</h3>
+          <div className="chart-card-heading">
+            <h3>가격 / 이동평균선</h3>
+            {summary?.sections.price ? <p>{summary.sections.price}</p> : null}
+            {candleGuide ? <p className="chart-guide-note">{candleGuide.body}</p> : null}
+            {movingAverageGuide ? <p className="chart-guide-note">{movingAverageGuide.body}</p> : null}
+          </div>
           <div ref={priceRef} />
         </article>
         <article className="chart-card">
-          <h3>RSI 14</h3>
+          <div className="chart-card-heading">
+            <div className="chart-heading-row">
+              <h3>RSI 14</h3>
+              {summary ? (
+                <span className={`pill ${summary.availability.hasRsi ? 'pill-accent' : ''}`}>
+                  {summary.availability.hasRsi ? '데이터 있음' : '데이터 부족'}
+                </span>
+              ) : null}
+            </div>
+            {summary?.sections.rsi ? <p>{summary.sections.rsi}</p> : null}
+            {rsiGuide ? <p className="chart-guide-note">{rsiGuide.body}</p> : null}
+          </div>
           <div ref={rsiRef} />
         </article>
         <article className="chart-card">
-          <h3>MACD</h3>
+          <div className="chart-card-heading">
+            <div className="chart-heading-row">
+              <h3>MACD</h3>
+              {summary ? (
+                <span className={`pill ${summary.availability.hasMacd ? 'pill-accent' : ''}`}>
+                  {summary.availability.hasMacd ? '데이터 있음' : '데이터 부족'}
+                </span>
+              ) : null}
+            </div>
+            {summary?.sections.macd ? <p>{summary.sections.macd}</p> : null}
+            {macdGuide ? <p className="chart-guide-note">{macdGuide.body}</p> : null}
+          </div>
           <div ref={macdRef} />
         </article>
         <article className="chart-card">
-          <h3>Volume</h3>
+          <div className="chart-card-heading">
+            <h3>거래량</h3>
+            {summary?.sections.volume ? <p>{summary.sections.volume}</p> : null}
+            {volumeGuide ? <p className="chart-guide-note">{volumeGuide.body}</p> : null}
+          </div>
           <div ref={volumeRef} />
         </article>
       </div>
+      {summary?.disclaimer ? <p className="disclaimer price-disclaimer">{summary.disclaimer}</p> : null}
     </section>
   );
 }
