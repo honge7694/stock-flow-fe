@@ -159,12 +159,25 @@ li {
 }
 
 .sidebar-toggle-button {
-  min-width: 34px;
-  min-height: 34px;
+  display: inline-grid;
+  width: 40px;
+  min-width: 40px;
+  height: 40px;
+  min-height: 40px;
+  place-items: center;
   border: 1px solid var(--border);
   background: transparent;
   color: var(--body);
   padding: 0;
+}
+
+.sidebar-toggle-button span {
+  display: block;
+  color: inherit;
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1;
+  transform: translateY(-1px);
 }
 
 .sidebar-toggle-button:hover,
@@ -1495,7 +1508,8 @@ button:disabled {
 }
 
 @media (max-width: 1080px) {
-  .app-shell {
+  .app-shell,
+  .app-shell:has(.app-sidebar-collapsed) {
     grid-template-columns: 1fr;
   }
 
