@@ -171,20 +171,21 @@ li {
   padding: 0;
 }
 
-.sidebar-toggle-button span {
-  display: block;
-  color: inherit;
-  font-size: 22px;
-  font-weight: 800;
-  line-height: 1;
-  transform: translateY(-1px);
-}
-
 .sidebar-toggle-button:hover,
 .sidebar-toggle-button:focus {
   border-color: rgba(0, 217, 146, 0.55);
   background: rgba(0, 217, 146, 0.08);
   color: var(--primary);
+}
+
+.sidebar-toggle-icon {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
 }
 
 .app-sidebar-collapsed .brand-header {
@@ -312,9 +313,27 @@ li {
   place-items: center;
   border: 1px solid var(--border);
   border-radius: 6px;
+  color: rgba(0, 217, 146, 0.78);
+}
+
+.nav-icon-svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.9;
+}
+
+.nav-tabs a.active .nav-icon {
+  border-color: rgba(0, 217, 146, 0.48);
   color: var(--primary);
-  font-size: 12px;
-  font-weight: 800;
+}
+
+.nav-tabs a:hover .nav-icon {
+  border-color: rgba(0, 217, 146, 0.42);
+  color: var(--primary);
 }
 
 .nav-label {
@@ -336,8 +355,8 @@ li {
 }
 
 .app-sidebar-collapsed .nav-icon {
-  width: 28px;
-  height: 28px;
+  width: 30px;
+  height: 30px;
 }
 
 .auth-panel-login,
@@ -1531,6 +1550,10 @@ button:disabled {
     display: flex;
     justify-items: stretch;
     gap: 14px;
+  }
+
+  .sidebar-toggle-button {
+    display: none;
   }
 
   .app-sidebar-collapsed .brand-copy {

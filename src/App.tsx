@@ -10,13 +10,41 @@ import { StocksPage } from './pages/StocksPage';
 import type { User } from './types/report';
 
 type AuthState = 'idle' | 'loading';
+type NavIconName = 'dashboard' | 'stocks' | 'reportCreate' | 'reports';
 
 const navItems = [
-  { to: '/dashboard', label: '대시보드', shortLabel: 'D', end: false },
-  { to: '/stocks', label: '관심 종목', shortLabel: 'S', end: false },
-  { to: '/reports/new', label: '리포트 생성', shortLabel: '+', end: false },
-  { to: '/reports', label: '리포트 목록', shortLabel: 'R', end: true },
-];
+  { to: '/dashboard', label: '대시보드', icon: 'dashboard', end: false },
+  { to: '/stocks', label: '관심 종목', icon: 'stocks', end: false },
+  { to: '/reports/new', label: '리포트 생성', icon: 'reportCreate', end: false },
+  { to: '/reports', label: '리포트 목록', icon: 'reports', end: true },
+] satisfies Array<{ to: string; label: string; icon: NavIconName; end: boolean }>;
+
+const navIconPaths: Record<NavIconName, string[]> = {
+  dashboard: ['M4 5h6v6H4z', 'M14 5h6v4h-6z', 'M14 13h6v6h-6z', 'M4 15h6v4H4z'],
+  stocks: ['M4 17l4.5-4.5 3 3L18 9', 'M15 9h3v3'],
+  reportCreate: ['M6 4h8l4 4v12H6z', 'M14 4v5h4', 'M9 14h6', 'M12 11v6'],
+  reports: ['M7 4h10v16H7z', 'M10 8h4', 'M10 12h4', 'M10 16h3', 'M5 7h2', 'M17 7h2'],
+};
+
+function SidebarNavIcon({ name }: { name: NavIconName }) {
+  return (
+    <svg className="nav-icon-svg" viewBox="0 0 24 24" focusable="false">
+      {navIconPaths[name].map((path) => (
+        <path d={path} key={path} />
+      ))}
+    </svg>
+  );
+}
+
+function SidebarToggleIcon({ isCollapsed }: { isCollapsed: boolean }) {
+  return (
+    <svg className="sidebar-toggle-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path d="M4 5v14" />
+      <path d="M9 6h11v12H9z" />
+      <path d={isCollapsed ? 'M14 9l3 3-3 3' : 'M16 9l-3 3 3 3'} />
+    </svg>
+  );
+}
 
 function readStoredUser() {
   const storedUser = localStorage.getItem('stock-flow-user');
@@ -127,7 +155,7 @@ export default function App() {
                 aria-expanded={!isSidebarCollapsed}
                 onClick={toggleSidebar}
               >
-                <span aria-hidden="true">{isSidebarCollapsed ? '›' : '‹'}</span>
+                <SidebarToggleIcon isCollapsed={isSidebarCollapsed} />
               </button>
               <div className="mobile-account-shell">
                 <AuthPanel
@@ -145,7 +173,7 @@ export default function App() {
             {navItems.map((item) => (
               <NavLink to={item.to} end={item.end} aria-label={item.label} title={item.label} key={item.to}>
                 <span className="nav-icon" aria-hidden="true">
-                  {item.shortLabel}
+                  <SidebarNavIcon name={item.icon} />
                 </span>
                 <span className="nav-label">{item.label}</span>
               </NavLink>
