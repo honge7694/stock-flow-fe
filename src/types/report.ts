@@ -18,6 +18,7 @@ export type User = {
 export type ReportSource = 'manual' | 'scheduled';
 export type ReportStatus = 'completed' | 'failed';
 export type ReportPeriod = '1m' | '3m' | '6m' | '1y';
+export type ReportPageSize = 5 | 10 | 30 | 50;
 export type InstrumentMetadataStatus = 'resolved' | 'partial' | 'unknown';
 
 export type ReportInstrument = {
@@ -30,6 +31,8 @@ export type ReportInstrument = {
 };
 
 export type ReportListQuery = {
+  page?: number;
+  pageSize?: ReportPageSize;
   ticker?: string;
   status?: ReportStatus;
   source?: ReportSource;
@@ -206,4 +209,12 @@ export type ReportResponse = {
   reportPeriod: ReportPeriod | null;
   payload: ReportPayload | null;
   errorMessage: string | null;
+};
+
+export type ReportListResponse = {
+  items: ReportResponse[];
+  page: number;
+  pageSize: ReportPageSize;
+  total: number;
+  totalPages: number;
 };

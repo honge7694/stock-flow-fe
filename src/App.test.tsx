@@ -142,7 +142,12 @@ describe('App routing', () => {
       const url = String(input);
       return Promise.resolve({
         ok: true,
-        json: () => Promise.resolve(url.endsWith('/reports/report-uuid') ? sampleReport : [sampleReport]),
+        json: () =>
+          Promise.resolve(
+            url.includes('/reports/report-uuid')
+              ? sampleReport
+              : { items: [sampleReport], page: 1, pageSize: 10, total: 1, totalPages: 1 },
+          ),
       });
     });
     vi.stubGlobal('fetch', fetchMock);

@@ -1,4 +1,4 @@
-import type { ReportListQuery, ReportRequest, ReportResponse } from '../types/report';
+import type { ReportListQuery, ReportListResponse, ReportRequest, ReportResponse } from '../types/report';
 
 function apiUrl(path: string, apiBaseUrl: string) {
   return `${apiBaseUrl.replace(/\/$/, '')}${path}`;
@@ -13,6 +13,8 @@ function authHeaders(accessToken: string) {
 function reportsPath(query?: ReportListQuery) {
   const params = new URLSearchParams();
 
+  if (query?.page) params.set('page', String(query.page));
+  if (query?.pageSize) params.set('pageSize', String(query.pageSize));
   if (query?.ticker?.trim()) params.set('ticker', query.ticker.trim().toUpperCase());
   if (query?.status) params.set('status', query.status);
   if (query?.source) params.set('source', query.source);
@@ -74,7 +76,7 @@ export async function fetchReports(
     headers: authHeaders(accessToken),
   });
 
-  return readJson<ReportResponse[]>(response, '리포트 목록 조회 실패');
+  return readJson<ReportListResponse>(response, '리포트 목록 조회 실패');
 }
 
 export async function fetchReportById(

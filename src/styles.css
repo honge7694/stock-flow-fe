@@ -579,6 +579,22 @@ button:disabled {
   min-width: 110px;
 }
 
+.empty-list-state {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.015);
+  color: var(--mute);
+  padding: 28px 18px;
+  text-align: center;
+}
+
+.empty-list-state p {
+  margin: 0;
+}
+
 .filter-chip,
 .pill {
   display: inline-flex;
@@ -659,6 +675,80 @@ button:disabled {
 .date-cell {
   justify-self: end;
   font-size: 13px;
+}
+
+.pagination-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 16px;
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+}
+
+.pagination-summary,
+.pagination-controls,
+.pagination-pages,
+.pagination-summary label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pagination-summary {
+  flex-wrap: wrap;
+  color: var(--mute);
+  font-size: 13px;
+}
+
+.pagination-summary label span {
+  color: var(--body);
+}
+
+.pagination-summary select {
+  min-height: 36px;
+  border: 1px solid var(--border-strong);
+  border-radius: 7px;
+  background: var(--canvas-soft);
+  color: var(--ink);
+  padding: 7px 10px;
+}
+
+.pagination-controls button,
+.pagination-page {
+  min-height: 36px;
+  border: 1px solid var(--border);
+  background: var(--canvas-soft);
+  color: var(--body);
+  padding: 7px 11px;
+}
+
+.pagination-controls button:hover,
+.pagination-page:hover {
+  border-color: rgba(0, 217, 146, 0.42);
+  background: rgba(0, 217, 146, 0.06);
+}
+
+.pagination-controls button:disabled {
+  background: transparent;
+}
+
+.pagination-page.is-active {
+  border-color: rgba(0, 217, 146, 0.58);
+  background: rgba(0, 217, 146, 0.12);
+  color: var(--primary);
+}
+
+.pagination-ellipsis,
+.pagination-mobile-page {
+  color: var(--mute);
+  font-size: 13px;
+  padding: 0 2px;
+}
+
+.pagination-mobile-page {
+  display: none;
 }
 
 .stock-row {
@@ -1436,6 +1526,38 @@ button:disabled {
 
   .filter-actions button {
     width: 100%;
+  }
+
+  .pagination-footer,
+  .pagination-summary,
+  .pagination-controls {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .pagination-summary label {
+    justify-content: space-between;
+  }
+
+  .pagination-controls {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  }
+
+  .pagination-pages {
+    display: none;
+  }
+
+  .pagination-mobile-page {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    white-space: nowrap;
+  }
+
+  .pagination-controls button {
+    min-height: 40px;
   }
 
   .report-row {

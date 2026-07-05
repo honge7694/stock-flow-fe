@@ -120,7 +120,7 @@ describe('report list and detail', () => {
   });
 
   it('fetches reports with authorization', async () => {
-    const reports = [{ id: 'report-1', ticker: 'AAPL' }];
+    const reports = { items: [{ id: 'report-1', ticker: 'AAPL' }], page: 1, pageSize: 10, total: 1, totalPages: 1 };
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,
       json: () => Promise.resolve(reports),
@@ -136,7 +136,7 @@ describe('report list and detail', () => {
   });
 
   it('fetches reports with query filters', async () => {
-    const reports = [{ id: 'report-1', ticker: 'AAPL' }];
+    const reports = { items: [{ id: 'report-1', ticker: 'AAPL' }], page: 2, pageSize: 30, total: 31, totalPages: 2 };
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,
       json: () => Promise.resolve(reports),
@@ -145,6 +145,8 @@ describe('report list and detail', () => {
     vi.stubGlobal('fetch', fetchMock);
 
     await fetchReports('jwt-token', 'http://localhost:3000', {
+      page: 2,
+      pageSize: 30,
       ticker: ' aapl ',
       status: 'completed',
       source: 'manual',
@@ -154,7 +156,7 @@ describe('report list and detail', () => {
     });
 
     expect(fetchMock).toHaveBeenCalledWith(
-      'http://localhost:3000/reports?ticker=AAPL&status=completed&source=manual&includeAi=true&from=2025-01-01&to=2025-12-31',
+      'http://localhost:3000/reports?page=2&pageSize=30&ticker=AAPL&status=completed&source=manual&includeAi=true&from=2025-01-01&to=2025-12-31',
       {
         headers: { Authorization: 'Bearer jwt-token' },
       },
