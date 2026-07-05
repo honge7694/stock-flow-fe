@@ -1,0 +1,24 @@
+name: Wake backend
+
+on:
+  schedule:
+    # 07:55 Asia/Seoul is 22:55 UTC on the previous day.
+    - cron: '55 22 * * *'
+  workflow_dispatch:
+
+jobs:
+  wake:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Call backend health check
+        env:
+          STOCK_FLOW_API_BASE_URL: ${{ secrets.STOCK_FLOW_API_BASE_URL }}
+        run: |
+          if [ -z "$STOCK_FLOW_API_BASE_URL" ]; then
+            echo "STOCK_FLOW_API_BASE_URL secret is required."
+            exit 1
+          fi
+
+          API_BASE_URL="${STOCK_FLOW_API_BASE_URL%/}"
+          curl --fail --show-error --silent --retry 3 --retry-delay 10 "$API_BASE_URL/healthz"
