@@ -11,6 +11,13 @@ import type { User } from './types/report';
 
 type AuthState = 'idle' | 'loading';
 
+const navItems = [
+  { to: '/dashboard', label: '대시보드', shortLabel: 'D', end: false },
+  { to: '/stocks', label: '관심 종목', shortLabel: 'S', end: false },
+  { to: '/reports/new', label: '리포트 생성', shortLabel: '+', end: false },
+  { to: '/reports', label: '리포트 목록', shortLabel: 'R', end: true },
+];
+
 function readStoredUser() {
   const storedUser = localStorage.getItem('stock-flow-user');
   if (!storedUser) return null;
@@ -28,6 +35,9 @@ export default function App() {
   const [authErrorMessage, setAuthErrorMessage] = useState<string>();
   const [accessToken, setAccessToken] = useState(() => localStorage.getItem('stock-flow-token') ?? '');
   const [user, setUser] = useState<User | null>(() => readStoredUser());
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(
+    () => localStorage.getItem('stock-flow-sidebar-collapsed') === 'true',
+  );
 
   useEffect(() => {
     if (!accessToken) return;
@@ -71,6 +81,14 @@ export default function App() {
     localStorage.removeItem('stock-flow-user');
   }
 
+  function toggleSidebar() {
+    setIsSidebarCollapsed((current) => {
+      const next = !current;
+      localStorage.setItem('stock-flow-sidebar-collapsed', String(next));
+      return next;
+    });
+  }
+
   if (!accessToken) {
     return (
       <BrowserRouter>
@@ -91,14 +109,26 @@ export default function App() {
   return (
     <BrowserRouter>
       <main className="app-shell">
-        <aside className="app-sidebar">
+        <aside className={isSidebarCollapsed ? 'app-sidebar app-sidebar-collapsed' : 'app-sidebar'}>
           <div className="brand-block">
             <div className="brand-header">
               <div className="brand-copy">
                 <p className="eyebrow">STOCK FLOW</p>
+                <span className="brand-mark" aria-hidden="true">
+                  SF
+                </span>
                 <strong>교육용 차트 리포트</strong>
                 <span>과거 데이터 기반 학습 도구</span>
               </div>
+              <button
+                type="button"
+                className="sidebar-toggle-button"
+                aria-label={isSidebarCollapsed ? '사이드바 펼치기' : '사이드바 접기'}
+                aria-expanded={!isSidebarCollapsed}
+                onClick={toggleSidebar}
+              >
+                <span aria-hidden="true">{isSidebarCollapsed ? '›' : '‹'}</span>
+              </button>
               <div className="mobile-account-shell">
                 <AuthPanel
                   isLoading={authStatus === 'loading'}
@@ -112,12 +142,14 @@ export default function App() {
             </div>
           </div>
           <nav className="nav-tabs" aria-label="주요 화면">
-            <NavLink to="/dashboard">대시보드</NavLink>
-            <NavLink to="/stocks">관심 종목</NavLink>
-            <NavLink to="/reports/new">리포트 생성</NavLink>
-            <NavLink to="/reports" end>
-              리포트 목록
-            </NavLink>
+            {navItems.map((item) => (
+              <NavLink to={item.to} end={item.end} aria-label={item.label} title={item.label} key={item.to}>
+                <span className="nav-icon" aria-hidden="true">
+                  {item.shortLabel}
+                </span>
+                <span className="nav-label">{item.label}</span>
+              </NavLink>
+            ))}
           </nav>
           <p className="shell-disclaimer">투자 조언이나 매매 추천을 제공하지 않습니다.</p>
         </aside>

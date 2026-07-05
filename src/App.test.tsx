@@ -62,6 +62,20 @@ describe('App routing', () => {
     expect(screen.getByRole('link', { name: '리포트 목록' })).not.toHaveAttribute('aria-current');
   });
 
+  it('toggles and persists the sidebar collapsed state', async () => {
+    const user = userEvent.setup();
+    storeSession();
+    window.history.pushState({}, '', '/dashboard');
+
+    render(<App />);
+
+    await user.click(screen.getByRole('button', { name: '사이드바 접기' }));
+
+    expect(screen.getByRole('button', { name: '사이드바 펼치기' })).toBeInTheDocument();
+    expect(localStorage.getItem('stock-flow-sidebar-collapsed')).toBe('true');
+    expect(screen.getByRole('link', { name: '대시보드' })).toHaveAttribute('aria-current', 'page');
+  });
+
   it('shows stocks from the watchlist route', async () => {
     storeSession();
     window.history.pushState({}, '', '/stocks');

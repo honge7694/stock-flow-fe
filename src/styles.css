@@ -99,6 +99,11 @@ li {
   display: grid;
   min-height: 100vh;
   grid-template-columns: 260px minmax(0, 1fr);
+  transition: grid-template-columns 180ms ease;
+}
+
+.app-shell:has(.app-sidebar-collapsed) {
+  grid-template-columns: 76px minmax(0, 1fr);
 }
 
 .app-sidebar {
@@ -111,6 +116,14 @@ li {
   border-right: 1px solid var(--border);
   background: rgba(10, 12, 13, 0.92);
   padding: 28px 18px;
+  transition:
+    gap 180ms ease,
+    padding 180ms ease;
+}
+
+.app-sidebar-collapsed {
+  gap: 18px;
+  padding: 24px 14px;
 }
 
 .brand-block {
@@ -130,6 +143,56 @@ li {
 .brand-copy {
   display: grid;
   gap: 4px;
+  min-width: 0;
+}
+
+.brand-mark {
+  display: none;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  border: 1px solid rgba(0, 217, 146, 0.4);
+  border-radius: 8px;
+  background: rgba(0, 217, 146, 0.08);
+  color: var(--primary);
+  font-weight: 800;
+}
+
+.sidebar-toggle-button {
+  min-width: 34px;
+  min-height: 34px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--body);
+  padding: 0;
+}
+
+.sidebar-toggle-button:hover,
+.sidebar-toggle-button:focus {
+  border-color: rgba(0, 217, 146, 0.55);
+  background: rgba(0, 217, 146, 0.08);
+  color: var(--primary);
+}
+
+.app-sidebar-collapsed .brand-header {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+}
+
+.app-sidebar-collapsed .brand-copy {
+  justify-items: center;
+}
+
+.app-sidebar-collapsed .brand-copy .eyebrow,
+.app-sidebar-collapsed .brand-copy strong,
+.app-sidebar-collapsed .brand-copy span:not(.brand-mark),
+.app-sidebar-collapsed .shell-disclaimer {
+  display: none;
+}
+
+.app-sidebar-collapsed .brand-mark {
+  display: grid;
 }
 
 .brand-block strong {
@@ -214,6 +277,7 @@ li {
   border: 1px solid transparent;
   color: var(--body);
   padding: 10px 12px;
+  gap: 10px;
 }
 
 .nav-tabs a.active {
@@ -225,6 +289,42 @@ li {
 .nav-tabs a:hover {
   border-color: var(--border-strong);
   color: var(--ink-strong);
+}
+
+.nav-icon {
+  display: inline-grid;
+  width: 22px;
+  height: 22px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--primary);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.nav-label {
+  min-width: 0;
+}
+
+.app-sidebar-collapsed .nav-tabs a {
+  justify-content: center;
+  padding: 10px 0;
+}
+
+.app-sidebar-collapsed .nav-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.app-sidebar-collapsed .nav-icon {
+  width: 28px;
+  height: 28px;
 }
 
 .auth-panel-login,
@@ -1406,6 +1506,50 @@ button:disabled {
     border-right: 0;
     border-bottom: 1px solid var(--border);
     padding: 18px;
+  }
+
+  .app-sidebar-collapsed {
+    gap: 28px;
+    padding: 18px;
+  }
+
+  .app-sidebar-collapsed .brand-header {
+    display: flex;
+    justify-items: stretch;
+    gap: 14px;
+  }
+
+  .app-sidebar-collapsed .brand-copy {
+    justify-items: start;
+  }
+
+  .app-sidebar-collapsed .brand-copy .eyebrow,
+  .app-sidebar-collapsed .brand-copy strong,
+  .app-sidebar-collapsed .brand-copy span:not(.brand-mark) {
+    display: initial;
+  }
+
+  .app-sidebar-collapsed .brand-mark {
+    display: none;
+  }
+
+  .app-sidebar-collapsed .nav-tabs a {
+    justify-content: center;
+    padding: 10px 12px;
+  }
+
+  .app-sidebar-collapsed .nav-label {
+    position: static;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
+  }
+
+  .app-sidebar-collapsed .nav-icon {
+    width: 22px;
+    height: 22px;
   }
 
   .shell-disclaimer {
