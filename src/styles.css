@@ -637,7 +637,12 @@ button:disabled {
 
 .danger-button {
   border-color: rgba(239, 107, 107, 0.55);
+  background: transparent;
   color: #fecaca;
+}
+
+.danger-button:hover {
+  background: rgba(239, 107, 107, 0.08);
 }
 
 .text-link {
@@ -850,6 +855,38 @@ button:disabled {
 .report-delete-button {
   min-height: 36px;
   padding: 7px 11px;
+}
+
+.report-delete-trigger {
+  align-self: center;
+  min-width: 64px;
+}
+
+.report-delete-confirm {
+  display: grid;
+  min-width: 210px;
+  gap: 9px;
+  justify-items: end;
+  border: 1px solid rgba(239, 107, 107, 0.28);
+  border-radius: 8px;
+  background: rgba(239, 107, 107, 0.055);
+  padding: 10px;
+}
+
+.report-delete-confirm span {
+  color: #fecaca;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.report-delete-confirm-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.report-delete-confirm-actions button {
+  min-height: 34px;
+  padding: 7px 10px;
 }
 
 .pagination-footer {
@@ -1926,6 +1963,20 @@ button:disabled {
 
   .date-cell {
     justify-self: start;
+  }
+
+  .report-delete-trigger,
+  .report-delete-confirm {
+    width: 100%;
+  }
+
+  .report-delete-confirm {
+    justify-items: stretch;
+  }
+
+  .report-delete-confirm-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
   }
 
   .row-actions {
