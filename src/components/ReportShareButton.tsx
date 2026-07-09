@@ -1,17 +1,19 @@
 import { useState } from 'react';
+import type { RefObject } from 'react';
 import type { ReportPayload, ReportResponse } from '../types/report';
 import { shareReport, type ShareReportResult } from '../utils/shareReport';
 
 type ReportShareButtonProps = {
   report: ReportResponse;
   payload: ReportPayload;
+  captureTargetRef?: RefObject<HTMLElement | null>;
 };
 
 function getSuccessMessage(result: ShareReportResult) {
   return result === 'shared' ? '공유창을 열었습니다.' : '공유 이미지를 다운로드했습니다.';
 }
 
-export function ReportShareButton({ report, payload }: ReportShareButtonProps) {
+export function ReportShareButton({ report, payload, captureTargetRef }: ReportShareButtonProps) {
   const [status, setStatus] = useState<'idle' | 'loading'>('idle');
   const [message, setMessage] = useState<string>();
 
@@ -20,7 +22,7 @@ export function ReportShareButton({ report, payload }: ReportShareButtonProps) {
     setMessage(undefined);
 
     try {
-      const result = await shareReport(report, payload);
+      const result = await shareReport(report, payload, captureTargetRef?.current);
       setMessage(getSuccessMessage(result));
     } catch (error) {
       setMessage(error instanceof Error ? error.message : '공유 이미지를 만들지 못했습니다.');
@@ -40,7 +42,11 @@ export function ReportShareButton({ report, payload }: ReportShareButtonProps) {
         <button type="button" className="primary-button" disabled={status === 'loading'} onClick={handleShare}>
           {status === 'loading' ? '이미지 생성 중...' : '공유'}
         </button>
-        {message ? <p className="form-message">{message}</p> : null}
+        {message ? (
+          <p className="form-message" data-share-exclude="true">
+            {message}
+          </p>
+        ) : null}
       </div>
     </section>
   );

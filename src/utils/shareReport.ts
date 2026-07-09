@@ -1,3 +1,4 @@
+import { toBlob } from 'html-to-image';
 import type { ReportPayload, ReportResponse } from '../types/report';
 
 type ShareMetric = {
@@ -349,9 +350,32 @@ function downloadBlob(blob: Blob, filename: string) {
   URL.revokeObjectURL(url);
 }
 
-export async function shareReport(report: ReportResponse, payload: ReportPayload): Promise<ShareReportResult> {
+async function captureReportElement(element: HTMLElement) {
+  const blob = await toBlob(element, {
+    backgroundColor: '#07100d',
+    cacheBust: true,
+    pixelRatio: 2,
+    filter: (node) => {
+      if (!(node instanceof HTMLElement)) return true;
+      return node.dataset.shareExclude !== 'true';
+    },
+    style: {
+      margin: '0',
+      width: `${element.scrollWidth}px`,
+    },
+  });
+
+  if (!blob) throw new Error('공유 이미지를 생성하지 못했습니다.');
+  return blob;
+}
+
+export async function shareReport(
+  report: ReportResponse,
+  payload: ReportPayload,
+  captureTarget?: HTMLElement | null,
+): Promise<ShareReportResult> {
   const card = buildShareReportCard(report, payload);
-  const blob = await canvasToBlob(createReportCanvas(card));
+  const blob = captureTarget ? await captureReportElement(captureTarget) : await canvasToBlob(createReportCanvas(card));
   const filename = `stock-flow-${report.ticker}-${report.id}.png`;
   const file = new File([blob], filename, { type: 'image/png' });
 
