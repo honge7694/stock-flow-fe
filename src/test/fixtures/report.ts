@@ -9,6 +9,7 @@ export const sampleReport: ReportResponse = {
   source: 'manual',
   status: 'completed',
   includeAi: true,
+  aiStatus: 'available',
   reportPeriod: null,
   errorMessage: null,
   payload: {

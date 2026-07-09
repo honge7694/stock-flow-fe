@@ -637,7 +637,12 @@ button:disabled {
 
 .danger-button {
   border-color: rgba(239, 107, 107, 0.55);
+  background: transparent;
   color: #fecaca;
+}
+
+.danger-button:hover {
+  background: rgba(239, 107, 107, 0.08);
 }
 
 .text-link {
@@ -793,14 +798,24 @@ button:disabled {
 }
 
 .report-row {
-  grid-template-columns: minmax(220px, 1fr) minmax(280px, auto) minmax(180px, auto);
+  grid-template-columns: minmax(0, 1fr) auto;
   min-height: 78px;
   text-decoration: none;
 }
 
-.report-row:hover {
+.report-row:hover,
+.report-row:focus-within {
   border-color: rgba(0, 217, 146, 0.42);
   background: rgba(0, 217, 146, 0.035);
+}
+
+.report-row-link-body {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) minmax(280px, auto) minmax(180px, auto);
+  gap: 12px;
+  align-items: center;
+  color: inherit;
+  text-decoration: none;
 }
 
 .report-row-main,
@@ -835,6 +850,43 @@ button:disabled {
 .date-cell {
   justify-self: end;
   font-size: 13px;
+}
+
+.report-delete-button {
+  min-height: 36px;
+  padding: 7px 11px;
+}
+
+.report-delete-trigger {
+  align-self: center;
+  min-width: 64px;
+}
+
+.report-delete-confirm {
+  display: grid;
+  min-width: 210px;
+  gap: 9px;
+  justify-items: end;
+  border: 1px solid rgba(239, 107, 107, 0.28);
+  border-radius: 8px;
+  background: rgba(239, 107, 107, 0.055);
+  padding: 10px;
+}
+
+.report-delete-confirm span {
+  color: #fecaca;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.report-delete-confirm-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.report-delete-confirm-actions button {
+  min-height: 34px;
+  padding: 7px 10px;
 }
 
 .pagination-footer {
@@ -1081,9 +1133,87 @@ button:disabled {
   padding: 10px 12px;
 }
 
+.report-share-panel {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  padding: 18px;
+}
+
+.report-share-panel h2,
+.report-share-panel p {
+  margin: 0;
+}
+
+.report-share-panel h2 {
+  margin-top: 6px;
+}
+
+.report-share-panel h2 + p {
+  margin-top: 8px;
+  color: var(--mute);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.report-share-actions {
+  display: grid;
+  min-width: 180px;
+  justify-items: end;
+  gap: 8px;
+}
+
+.report-share-actions .form-message {
+  margin: 0;
+  text-align: right;
+}
+
 .price-disclaimer {
   color: var(--mute);
   font-size: 13px;
+}
+
+.price-report-section {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  padding: 20px;
+}
+
+.price-report-section-collapsed {
+  background: var(--canvas-soft);
+}
+
+.price-report-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: center;
+}
+
+.price-report-header .eyebrow,
+.price-report-header h2,
+.price-report-summary {
+  margin: 0;
+}
+
+.price-report-header h2 {
+  margin-top: 6px;
+}
+
+.price-report-summary {
+  margin-top: 8px;
+  color: var(--mute);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.price-report-toggle {
+  min-width: 88px;
 }
 
 .ai-report-section {
@@ -1111,6 +1241,39 @@ button:disabled {
   border-color: rgba(0, 217, 146, 0.28);
   background: linear-gradient(135deg, rgba(0, 217, 146, 0.1), rgba(15, 18, 19, 0.96));
   padding: 20px 22px;
+}
+
+.ai-unavailable-card {
+  display: grid;
+  gap: 10px;
+  border: 1px solid rgba(227, 179, 65, 0.42);
+  border-radius: 8px;
+  background: rgba(227, 179, 65, 0.06);
+  padding: 20px 22px;
+}
+
+.ai-unavailable-card h3 {
+  margin: 0;
+  color: var(--ink-strong);
+  font-size: 20px;
+}
+
+.ai-unavailable-card p {
+  margin: 0;
+  color: var(--body);
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.ai-unavailable-card .ai-error-message {
+  width: fit-content;
+  max-width: 100%;
+  border: 1px solid rgba(227, 179, 65, 0.32);
+  border-radius: 8px;
+  background: rgba(10, 14, 15, 0.5);
+  color: #f3d58a;
+  padding: 9px 11px;
+  overflow-wrap: anywhere;
 }
 
 .ai-summary-card h3 {
@@ -1358,6 +1521,7 @@ button:disabled {
 .chart-stack {
   display: grid;
   gap: 14px;
+  margin-top: 18px;
 }
 
 .chart-card-heading {
@@ -1682,6 +1846,33 @@ button:disabled {
     margin-top: 16px;
   }
 
+  .price-report-section {
+    padding: 16px;
+  }
+
+  .price-report-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .price-report-toggle {
+    width: 100%;
+  }
+
+  .report-share-panel {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .report-share-actions {
+    min-width: 0;
+    justify-items: stretch;
+  }
+
+  .report-share-actions .form-message {
+    text-align: left;
+  }
+
   .surface-panel {
     padding: 18px;
   }
@@ -1794,12 +1985,31 @@ button:disabled {
     align-items: start;
   }
 
+  .report-row-link-body {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
   .report-row-meta {
     gap: 7px;
   }
 
   .date-cell {
     justify-self: start;
+  }
+
+  .report-delete-trigger,
+  .report-delete-confirm {
+    width: 100%;
+  }
+
+  .report-delete-confirm {
+    justify-items: stretch;
+  }
+
+  .report-delete-confirm-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
   }
 
   .row-actions {

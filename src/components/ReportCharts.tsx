@@ -1,5 +1,5 @@
 import { createChart, type IChartApi, type Time } from 'lightweight-charts';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { LinePoint, ReportPayload } from '../types/report';
 
 type ReportChartsProps = {
@@ -39,6 +39,7 @@ function useChart(render: (chart: IChartApi) => void) {
 }
 
 export function ReportCharts({ payload }: ReportChartsProps) {
+  const [isExpanded, setIsExpanded] = useState(false);
   const summary = payload.summary;
   const guideByTitle = new Map(summary?.guideItems.map((item) => [item.title.toLowerCase(), item]) ?? []);
   const candleGuide = guideByTitle.get('캔들');
@@ -84,59 +85,75 @@ export function ReportCharts({ payload }: ReportChartsProps) {
   });
 
   return (
-    <section className="content-section price-report-section">
-      <p className="eyebrow">PRICE REPORT</p>
-      <h2>가격 리포트</h2>
-      <div className="chart-stack">
-        <article className="chart-card">
-          <div className="chart-card-heading">
-            <h3>가격 / 이동평균선</h3>
-            {summary?.sections.price ? <p>{summary.sections.price}</p> : null}
-            {candleGuide ? <p className="chart-guide-note">{candleGuide.body}</p> : null}
-            {movingAverageGuide ? <p className="chart-guide-note">{movingAverageGuide.body}</p> : null}
-          </div>
-          <div ref={priceRef} />
-        </article>
-        <article className="chart-card">
-          <div className="chart-card-heading">
-            <div className="chart-heading-row">
-              <h3>RSI 14</h3>
-              {summary ? (
-                <span className={`pill ${summary.availability.hasRsi ? 'pill-accent' : ''}`}>
-                  {summary.availability.hasRsi ? '데이터 있음' : '데이터 부족'}
-                </span>
-              ) : null}
-            </div>
-            {summary?.sections.rsi ? <p>{summary.sections.rsi}</p> : null}
-            {rsiGuide ? <p className="chart-guide-note">{rsiGuide.body}</p> : null}
-          </div>
-          <div ref={rsiRef} />
-        </article>
-        <article className="chart-card">
-          <div className="chart-card-heading">
-            <div className="chart-heading-row">
-              <h3>MACD</h3>
-              {summary ? (
-                <span className={`pill ${summary.availability.hasMacd ? 'pill-accent' : ''}`}>
-                  {summary.availability.hasMacd ? '데이터 있음' : '데이터 부족'}
-                </span>
-              ) : null}
-            </div>
-            {summary?.sections.macd ? <p>{summary.sections.macd}</p> : null}
-            {macdGuide ? <p className="chart-guide-note">{macdGuide.body}</p> : null}
-          </div>
-          <div ref={macdRef} />
-        </article>
-        <article className="chart-card">
-          <div className="chart-card-heading">
-            <h3>거래량</h3>
-            {summary?.sections.volume ? <p>{summary.sections.volume}</p> : null}
-            {volumeGuide ? <p className="chart-guide-note">{volumeGuide.body}</p> : null}
-          </div>
-          <div ref={volumeRef} />
-        </article>
+    <section className={`content-section price-report-section ${isExpanded ? '' : 'price-report-section-collapsed'}`}>
+      <div className="price-report-header">
+        <div>
+          <p className="eyebrow">PRICE REPORT</p>
+          <h2>가격 리포트</h2>
+          <p className="price-report-summary">가격, 이동평균선, RSI, MACD, 거래량 차트를 확인합니다.</p>
+        </div>
+        <button
+          type="button"
+          className="secondary-button price-report-toggle"
+          aria-expanded={isExpanded}
+          aria-controls="price-report-charts"
+          onClick={() => setIsExpanded((current) => !current)}
+        >
+          {isExpanded ? '접기' : '펼치기'}
+        </button>
       </div>
-      {summary?.disclaimer ? <p className="disclaimer price-disclaimer">{summary.disclaimer}</p> : null}
+      {isExpanded ? (
+        <div className="chart-stack" id="price-report-charts">
+          <article className="chart-card">
+            <div className="chart-card-heading">
+              <h3>가격 / 이동평균선</h3>
+              {summary?.sections.price ? <p>{summary.sections.price}</p> : null}
+              {candleGuide ? <p className="chart-guide-note">{candleGuide.body}</p> : null}
+              {movingAverageGuide ? <p className="chart-guide-note">{movingAverageGuide.body}</p> : null}
+            </div>
+            <div ref={priceRef} />
+          </article>
+          <article className="chart-card">
+            <div className="chart-card-heading">
+              <div className="chart-heading-row">
+                <h3>RSI 14</h3>
+                {summary ? (
+                  <span className={`pill ${summary.availability.hasRsi ? 'pill-accent' : ''}`}>
+                    {summary.availability.hasRsi ? '데이터 있음' : '데이터 부족'}
+                  </span>
+                ) : null}
+              </div>
+              {summary?.sections.rsi ? <p>{summary.sections.rsi}</p> : null}
+              {rsiGuide ? <p className="chart-guide-note">{rsiGuide.body}</p> : null}
+            </div>
+            <div ref={rsiRef} />
+          </article>
+          <article className="chart-card">
+            <div className="chart-card-heading">
+              <div className="chart-heading-row">
+                <h3>MACD</h3>
+                {summary ? (
+                  <span className={`pill ${summary.availability.hasMacd ? 'pill-accent' : ''}`}>
+                    {summary.availability.hasMacd ? '데이터 있음' : '데이터 부족'}
+                  </span>
+                ) : null}
+              </div>
+              {summary?.sections.macd ? <p>{summary.sections.macd}</p> : null}
+              {macdGuide ? <p className="chart-guide-note">{macdGuide.body}</p> : null}
+            </div>
+            <div ref={macdRef} />
+          </article>
+          <article className="chart-card">
+            <div className="chart-card-heading">
+              <h3>거래량</h3>
+              {summary?.sections.volume ? <p>{summary.sections.volume}</p> : null}
+              {volumeGuide ? <p className="chart-guide-note">{volumeGuide.body}</p> : null}
+            </div>
+            <div ref={volumeRef} />
+          </article>
+          {summary?.disclaimer ? <p className="disclaimer price-disclaimer">{summary.disclaimer}</p> : null}
+        </div>
+      ) : null}
     </section>
   );
 }

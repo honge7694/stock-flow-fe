@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { fetchReportById } from '../api/reportApi';
 import { AiAnalysisPanel } from '../components/AiAnalysisPanel';
 import { ReportCharts } from '../components/ReportCharts';
+import { ReportShareButton } from '../components/ReportShareButton';
 import { ReportSummary } from '../components/ReportSummary';
 import type { ReportResponse } from '../types/report';
 
@@ -21,6 +22,7 @@ export function ReportDetailPage({ accessToken }: ReportDetailPageProps) {
   const [report, setReport] = useState<ReportResponse | null>(seededReport ?? null);
   const [status, setStatus] = useState<'idle' | 'loading' | 'error'>(seededReport ? 'idle' : 'loading');
   const [message, setMessage] = useState<string>();
+  const shareCaptureRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (!accessToken || !id) return;
@@ -68,8 +70,11 @@ export function ReportDetailPage({ accessToken }: ReportDetailPageProps) {
 
   return (
     <>
-      <ReportSummary report={report} payload={report.payload} />
-      <AiAnalysisPanel aiAnalysis={report.payload.aiAnalysis} />
+      <div className="report-share-capture" ref={shareCaptureRef}>
+        <ReportSummary report={report} payload={report.payload} />
+        <ReportShareButton report={report} payload={report.payload} captureTargetRef={shareCaptureRef} />
+        <AiAnalysisPanel aiAnalysis={report.payload.aiAnalysis} />
+      </div>
       <ReportCharts payload={report.payload} />
       <section className="content-section">
         <p className="disclaimer">이 화면은 교육용 분석이며 투자 조언이 아닙니다.</p>

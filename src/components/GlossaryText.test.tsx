@@ -11,4 +11,14 @@ describe('GlossaryText', () => {
     expect(glossaryTerm).toBeInTheDocument();
     expect(screen.getByText(/단독 판단 근거가 아닙니다/)).toBeInTheDocument();
   });
+
+  it('renders beginner-friendly finance terms with alternate spellings', () => {
+    render(<GlossaryText text="데드크로스와 골든크로스, signal선, histogram, 저항선을 함께 봅니다." />);
+
+    expect(screen.getByRole('button', { name: '데드크로스' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '골든크로스' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'signal선' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'histogram' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '저항선' })).toBeInTheDocument();
+  });
 });
