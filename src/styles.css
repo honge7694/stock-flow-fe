@@ -1081,6 +1081,45 @@ button:disabled {
   padding: 10px 12px;
 }
 
+.report-share-panel {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  padding: 18px;
+}
+
+.report-share-panel h2,
+.report-share-panel p {
+  margin: 0;
+}
+
+.report-share-panel h2 {
+  margin-top: 6px;
+}
+
+.report-share-panel h2 + p {
+  margin-top: 8px;
+  color: var(--mute);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.report-share-actions {
+  display: grid;
+  min-width: 180px;
+  justify-items: end;
+  gap: 8px;
+}
+
+.report-share-actions .form-message {
+  margin: 0;
+  text-align: right;
+}
+
 .price-disclaimer {
   color: var(--mute);
   font-size: 13px;
@@ -1733,6 +1772,20 @@ button:disabled {
 
   .price-report-toggle {
     width: 100%;
+  }
+
+  .report-share-panel {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .report-share-actions {
+    min-width: 0;
+    justify-items: stretch;
+  }
+
+  .report-share-actions .form-message {
+    text-align: left;
   }
 
   .surface-panel {
