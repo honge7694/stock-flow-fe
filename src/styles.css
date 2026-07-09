@@ -1243,6 +1243,39 @@ button:disabled {
   padding: 20px 22px;
 }
 
+.ai-unavailable-card {
+  display: grid;
+  gap: 10px;
+  border: 1px solid rgba(227, 179, 65, 0.42);
+  border-radius: 8px;
+  background: rgba(227, 179, 65, 0.06);
+  padding: 20px 22px;
+}
+
+.ai-unavailable-card h3 {
+  margin: 0;
+  color: var(--ink-strong);
+  font-size: 20px;
+}
+
+.ai-unavailable-card p {
+  margin: 0;
+  color: var(--body);
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.ai-unavailable-card .ai-error-message {
+  width: fit-content;
+  max-width: 100%;
+  border: 1px solid rgba(227, 179, 65, 0.32);
+  border-radius: 8px;
+  background: rgba(10, 14, 15, 0.5);
+  color: #f3d58a;
+  padding: 9px 11px;
+  overflow-wrap: anywhere;
+}
+
 .ai-summary-card h3 {
   margin: 0;
   max-width: 960px;
