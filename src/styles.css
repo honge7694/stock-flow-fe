@@ -1086,6 +1086,45 @@ button:disabled {
   font-size: 13px;
 }
 
+.price-report-section {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  padding: 20px;
+}
+
+.price-report-section-collapsed {
+  background: var(--canvas-soft);
+}
+
+.price-report-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: center;
+}
+
+.price-report-header .eyebrow,
+.price-report-header h2,
+.price-report-summary {
+  margin: 0;
+}
+
+.price-report-header h2 {
+  margin-top: 6px;
+}
+
+.price-report-summary {
+  margin-top: 8px;
+  color: var(--mute);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.price-report-toggle {
+  min-width: 88px;
+}
+
 .ai-report-section {
   border: 1px solid var(--border);
   border-radius: 8px;
@@ -1358,6 +1397,7 @@ button:disabled {
 .chart-stack {
   display: grid;
   gap: 14px;
+  margin-top: 18px;
 }
 
 .chart-card-heading {
@@ -1680,6 +1720,19 @@ button:disabled {
 
   .hero .meta + .metric-grid {
     margin-top: 16px;
+  }
+
+  .price-report-section {
+    padding: 16px;
+  }
+
+  .price-report-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .price-report-toggle {
+    width: 100%;
   }
 
   .surface-panel {
