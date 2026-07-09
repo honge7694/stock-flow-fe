@@ -10,6 +10,11 @@ export type ShareReportCard = {
   period: string;
   generatedAt: string;
   summary: string;
+  aiSummary?: {
+    title: string;
+    summary: string;
+    keyTakeaways: string[];
+  };
   metrics: ShareMetric[];
   disclaimer: string;
 };
@@ -17,7 +22,7 @@ export type ShareReportCard = {
 export type ShareReportResult = 'shared' | 'downloaded';
 
 const CARD_WIDTH = 1080;
-const CARD_HEIGHT = 1350;
+const CARD_HEIGHT = 1600;
 const CARD_PADDING = 72;
 
 function formatNumber(value: number | null | undefined, digits = 0) {
@@ -47,12 +52,27 @@ export function buildShareReportCard(report: ReportResponse, payload: ReportPayl
   const latestClose = metrics?.latestClose ?? latestCandle?.close;
   const latestVolume = metrics?.latestVolume ?? latestCandle?.volume;
   const aiReport = payload.aiAnalysis?.analysis?.report;
+  const indicatorSummary = payload.aiAnalysis?.analysis?.indicatorSummary;
+  const aiSummary = indicatorSummary
+    ? {
+        title: indicatorSummary.title,
+        summary: indicatorSummary.summary,
+        keyTakeaways: indicatorSummary.keyTakeaways.slice(0, 3),
+      }
+    : aiReport
+      ? {
+          title: aiReport.headline,
+          summary: aiReport.summary,
+          keyTakeaways: aiReport.observations.slice(0, 3),
+        }
+      : undefined;
 
   return {
     title: `${getInstrumentTitle(report)} 분석 리포트`,
     period: `${report.from} - ${report.to}`,
     generatedAt: formatGeneratedAt(report.generatedAt),
     summary: aiReport?.summary ?? '과거 가격 데이터와 기술 지표를 학습 목적으로 정리한 리포트입니다.',
+    aiSummary,
     metrics: [
       { label: '최근 종가', value: formatNumber(latestClose) },
       { label: '거래량', value: formatNumber(latestVolume) },
@@ -143,20 +163,47 @@ function createReportCanvas(card: ShareReportCard) {
     context.fillText(metric.value, x + 32, y + 102);
   });
 
-  metricTop += 430;
+  metricTop += 420;
   context.fillStyle = '#101816';
   context.strokeStyle = '#25332f';
   context.beginPath();
-  context.roundRect(CARD_PADDING, metricTop, CARD_WIDTH - CARD_PADDING * 2, 310, 18);
+  context.roundRect(CARD_PADDING, metricTop, CARD_WIDTH - CARD_PADDING * 2, 470, 18);
   context.fill();
   context.stroke();
 
   context.fillStyle = '#00d992';
   context.font = '700 28px Arial, sans-serif';
-  context.fillText('AI SUMMARY', CARD_PADDING + 34, metricTop + 56);
+  context.fillText('AI SUMMARY', CARD_PADDING + 34, metricTop + 54);
+
+  context.fillStyle = '#f8fafc';
+  context.font = '700 42px Arial, sans-serif';
+  const aiTitle = card.aiSummary?.title ?? '교육용 AI 요약';
+  const titleBottom = drawWrappedText(context, aiTitle, CARD_PADDING + 34, metricTop + 112, CARD_WIDTH - CARD_PADDING * 2 - 68, 52, 2);
+
   context.fillStyle = '#dbe5e1';
-  context.font = '400 34px Arial, sans-serif';
-  drawWrappedText(context, card.summary, CARD_PADDING + 34, metricTop + 118, CARD_WIDTH - CARD_PADDING * 2 - 68, 50, 4);
+  context.font = '400 31px Arial, sans-serif';
+  const summaryBottom = drawWrappedText(
+    context,
+    card.aiSummary?.summary ?? card.summary,
+    CARD_PADDING + 34,
+    titleBottom + 34,
+    CARD_WIDTH - CARD_PADDING * 2 - 68,
+    44,
+    3,
+  );
+
+  const takeaways = card.aiSummary?.keyTakeaways ?? [];
+  context.fillStyle = '#b7c3bf';
+  context.font = '400 27px Arial, sans-serif';
+  takeaways.slice(0, 3).forEach((item, index) => {
+    const y = summaryBottom + 44 + index * 42;
+    context.fillStyle = '#00d992';
+    context.beginPath();
+    context.arc(CARD_PADDING + 42, y - 8, 5, 0, Math.PI * 2);
+    context.fill();
+    context.fillStyle = '#b7c3bf';
+    drawWrappedText(context, item, CARD_PADDING + 62, y, CARD_WIDTH - CARD_PADDING * 2 - 96, 34, 1);
+  });
 
   context.fillStyle = '#8ea19a';
   context.font = '400 28px Arial, sans-serif';
