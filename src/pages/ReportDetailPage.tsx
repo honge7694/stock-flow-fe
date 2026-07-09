@@ -3,6 +3,7 @@ import { Link, useLocation, useParams } from 'react-router-dom';
 import { fetchReportById } from '../api/reportApi';
 import { AiAnalysisPanel } from '../components/AiAnalysisPanel';
 import { ReportCharts } from '../components/ReportCharts';
+import { ReportShareButton } from '../components/ReportShareButton';
 import { ReportSummary } from '../components/ReportSummary';
 import type { ReportResponse } from '../types/report';
 
@@ -69,6 +70,7 @@ export function ReportDetailPage({ accessToken }: ReportDetailPageProps) {
   return (
     <>
       <ReportSummary report={report} payload={report.payload} />
+      <ReportShareButton report={report} payload={report.payload} />
       <AiAnalysisPanel aiAnalysis={report.payload.aiAnalysis} />
       <ReportCharts payload={report.payload} />
       <section className="content-section">

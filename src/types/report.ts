@@ -17,6 +17,7 @@ export type User = {
 
 export type ReportSource = 'manual' | 'scheduled';
 export type ReportStatus = 'completed' | 'failed';
+export type ReportAiStatus = 'not_requested' | 'available' | 'unavailable';
 export type ReportPeriod = '1m' | '3m' | '6m' | '1y';
 export type ReportPageSize = 5 | 10 | 30 | 50;
 export type InstrumentMetadataStatus = 'resolved' | 'partial' | 'unknown';
@@ -206,6 +207,7 @@ export type ReportResponse = {
   source: ReportSource;
   status: ReportStatus;
   includeAi: boolean;
+  aiStatus?: ReportAiStatus;
   reportPeriod: ReportPeriod | null;
   payload: ReportPayload | null;
   errorMessage: string | null;

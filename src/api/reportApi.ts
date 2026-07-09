@@ -90,3 +90,15 @@ export async function fetchReportById(
 
   return readJson<ReportResponse>(response, '리포트 상세 조회 실패');
 }
+
+export async function deleteReport(id: string, accessToken: string, apiBaseUrl = import.meta.env.VITE_API_BASE_URL ?? '') {
+  const response = await fetch(apiUrl(`/reports/${id}`, apiBaseUrl), {
+    method: 'DELETE',
+    headers: authHeaders(accessToken),
+  });
+
+  if (!response.ok) {
+    const body = await response.text();
+    throw new Error(`리포트 삭제 실패: ${body || response.status}`);
+  }
+}
