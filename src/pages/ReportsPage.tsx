@@ -101,6 +101,7 @@ export function ReportsPage({ accessToken }: ReportsPageProps) {
   });
   const [status, setStatus] = useState<'idle' | 'loading' | 'error'>('idle');
   const [deletingReportId, setDeletingReportId] = useState<string>();
+  const [confirmingReportId, setConfirmingReportId] = useState<string>();
   const [message, setMessage] = useState<string>();
   const reports = reportList.items;
   const totalPages = reportList.totalPages;
@@ -172,6 +173,7 @@ export function ReportsPage({ accessToken }: ReportsPageProps) {
 
   async function handleDeleteReport(report: ReportResponse) {
     setDeletingReportId(report.id);
+    setConfirmingReportId(undefined);
     setMessage(undefined);
 
     try {
@@ -358,15 +360,40 @@ export function ReportsPage({ accessToken }: ReportsPageProps) {
                 </div>
                 <span className="date-cell">{formatDateTime(report.generatedAt)}</span>
               </Link>
-              <button
-                type="button"
-                className="danger-button report-delete-button"
-                disabled={deletingReportId === report.id}
-                aria-label={`리포트 삭제 ${report.ticker}`}
-                onClick={() => void handleDeleteReport(report)}
-              >
-                {deletingReportId === report.id ? '삭제 중...' : '삭제'}
-              </button>
+              {confirmingReportId === report.id ? (
+                <div className="report-delete-confirm" role="group" aria-label={`${report.ticker} 삭제 확인`}>
+                  <span>이 리포트를 삭제할까요?</span>
+                  <div className="report-delete-confirm-actions">
+                    <button
+                      type="button"
+                      className="secondary-button"
+                      disabled={deletingReportId === report.id}
+                      onClick={() => setConfirmingReportId(undefined)}
+                    >
+                      취소
+                    </button>
+                    <button
+                      type="button"
+                      className="danger-button report-delete-button"
+                      disabled={deletingReportId === report.id}
+                      aria-label={`삭제 확정 ${report.ticker}`}
+                      onClick={() => void handleDeleteReport(report)}
+                    >
+                      {deletingReportId === report.id ? '삭제 중...' : '삭제'}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  className="danger-button report-delete-button report-delete-trigger"
+                  disabled={deletingReportId === report.id}
+                  aria-label={`리포트 삭제 확인 ${report.ticker}`}
+                  onClick={() => setConfirmingReportId(report.id)}
+                >
+                  삭제
+                </button>
+              )}
             </article>
           ))}
           {status !== 'loading' && reports.length === 0 ? (

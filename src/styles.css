@@ -637,7 +637,12 @@ button:disabled {
 
 .danger-button {
   border-color: rgba(239, 107, 107, 0.55);
+  background: transparent;
   color: #fecaca;
+}
+
+.danger-button:hover {
+  background: rgba(239, 107, 107, 0.08);
 }
 
 .text-link {
@@ -850,6 +855,38 @@ button:disabled {
 .report-delete-button {
   min-height: 36px;
   padding: 7px 11px;
+}
+
+.report-delete-trigger {
+  align-self: center;
+  min-width: 64px;
+}
+
+.report-delete-confirm {
+  display: grid;
+  min-width: 210px;
+  gap: 9px;
+  justify-items: end;
+  border: 1px solid rgba(239, 107, 107, 0.28);
+  border-radius: 8px;
+  background: rgba(239, 107, 107, 0.055);
+  padding: 10px;
+}
+
+.report-delete-confirm span {
+  color: #fecaca;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.report-delete-confirm-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.report-delete-confirm-actions button {
+  min-height: 34px;
+  padding: 7px 10px;
 }
 
 .pagination-footer {
@@ -1204,6 +1241,39 @@ button:disabled {
   border-color: rgba(0, 217, 146, 0.28);
   background: linear-gradient(135deg, rgba(0, 217, 146, 0.1), rgba(15, 18, 19, 0.96));
   padding: 20px 22px;
+}
+
+.ai-unavailable-card {
+  display: grid;
+  gap: 10px;
+  border: 1px solid rgba(227, 179, 65, 0.42);
+  border-radius: 8px;
+  background: rgba(227, 179, 65, 0.06);
+  padding: 20px 22px;
+}
+
+.ai-unavailable-card h3 {
+  margin: 0;
+  color: var(--ink-strong);
+  font-size: 20px;
+}
+
+.ai-unavailable-card p {
+  margin: 0;
+  color: var(--body);
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.ai-unavailable-card .ai-error-message {
+  width: fit-content;
+  max-width: 100%;
+  border: 1px solid rgba(227, 179, 65, 0.32);
+  border-radius: 8px;
+  background: rgba(10, 14, 15, 0.5);
+  color: #f3d58a;
+  padding: 9px 11px;
+  overflow-wrap: anywhere;
 }
 
 .ai-summary-card h3 {
@@ -1926,6 +1996,20 @@ button:disabled {
 
   .date-cell {
     justify-self: start;
+  }
+
+  .report-delete-trigger,
+  .report-delete-confirm {
+    width: 100%;
+  }
+
+  .report-delete-confirm {
+    justify-items: stretch;
+  }
+
+  .report-delete-confirm-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
   }
 
   .row-actions {

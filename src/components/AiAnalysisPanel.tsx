@@ -16,6 +16,29 @@ const statusLabels: Record<string, string> = {
 const checklistLabels = ['추세', '모멘텀', '거래량', '변동성'];
 
 export function AiAnalysisPanel({ aiAnalysis }: AiAnalysisPanelProps) {
+  if (aiAnalysis?.status === 'unavailable') {
+    return (
+      <section className="content-section ai-report-section ai-report-unavailable">
+        <div className="section-title-row">
+          <div>
+            <p className="eyebrow">AI CHART READING</p>
+            <h2>AI 차트 해석</h2>
+            <p>AI 학습 요약 요청 결과입니다.</p>
+          </div>
+        </div>
+
+        <article className="ai-unavailable-card" role="status">
+          <span className="card-label">AI 분석 실패</span>
+          <h3>AI 분석을 생성하지 못했습니다</h3>
+          <p>
+            차트와 가격 리포트는 정상적으로 확인할 수 있습니다. AI 학습 요약은 다시 생성하거나 잠시 후 확인해주세요.
+          </p>
+          {aiAnalysis.errorMessage ? <p className="ai-error-message">{aiAnalysis.errorMessage}</p> : null}
+        </article>
+      </section>
+    );
+  }
+
   if (!aiAnalysis?.analysis) {
     return null;
   }

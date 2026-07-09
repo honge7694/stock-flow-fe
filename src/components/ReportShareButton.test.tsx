@@ -13,12 +13,14 @@ describe('ReportShareButton', () => {
   it('creates a share image from the current report', async () => {
     const user = userEvent.setup();
     vi.mocked(shareReport).mockResolvedValue('downloaded');
+    const captureTarget = document.createElement('div');
+    const captureTargetRef = { current: captureTarget };
 
-    render(<ReportShareButton report={sampleReport} payload={sampleReport.payload!} />);
+    render(<ReportShareButton report={sampleReport} payload={sampleReport.payload!} captureTargetRef={captureTargetRef} />);
 
     await user.click(screen.getByRole('button', { name: '공유' }));
 
-    expect(shareReport).toHaveBeenCalledWith(sampleReport, sampleReport.payload!);
+    expect(shareReport).toHaveBeenCalledWith(sampleReport, sampleReport.payload!, captureTarget);
     await waitFor(() => {
       expect(screen.getByText('공유 이미지를 다운로드했습니다.')).toBeInTheDocument();
     });
