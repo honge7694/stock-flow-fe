@@ -168,12 +168,49 @@ describe('App routing', () => {
 
     render(<App />);
 
+    expect(await screen.findByText('AI 분석 완료')).toBeInTheDocument();
     await user.click(await screen.findByRole('link', { name: /000660.KS/ }));
 
     await waitFor(() => {
       expect(screen.getByRole('heading', { name: '000660.KS 분석 리포트' })).toBeInTheDocument();
     });
     expect(screen.getByText('차트 영역')).toBeInTheDocument();
+  });
+
+  it('deletes a report from the report list and reloads the current query', async () => {
+    const user = userEvent.setup();
+    storeSession();
+    window.history.pushState({}, '', '/reports');
+    const listWithReport = { items: [sampleReport], page: 1, pageSize: 10, total: 1, totalPages: 1 };
+    const emptyList = { items: [], page: 1, pageSize: 10, total: 0, totalPages: 0 };
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(listWithReport),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 204,
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(emptyList),
+      });
+    vi.stubGlobal('fetch', fetchMock);
+
+    render(<App />);
+
+    await user.click(await screen.findByRole('button', { name: '리포트 삭제 000660.KS' }));
+
+    await waitFor(() => {
+      expect(screen.getByText('리포트를 삭제했습니다.')).toBeInTheDocument();
+    });
+    expect(fetchMock).toHaveBeenNthCalledWith(2, '/reports/report-uuid', {
+      method: 'DELETE',
+      headers: { Authorization: 'Bearer jwt-token' },
+    });
+    expect(screen.getByText('아직 생성된 리포트가 없습니다.')).toBeInTheDocument();
   });
 
   it('keeps report filters collapsed until the user opens them', async () => {

@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { fetchReport, fetchReportById, fetchReports } from './reportApi';
+import { deleteReport, fetchReport, fetchReportById, fetchReports } from './reportApi';
 
 describe('fetchReport', () => {
   afterEach(() => {
@@ -175,6 +175,22 @@ describe('report list and detail', () => {
     await expect(fetchReportById('report-1', 'jwt-token', '')).resolves.toEqual(report);
 
     expect(fetchMock).toHaveBeenCalledWith('/reports/report-1', {
+      headers: { Authorization: 'Bearer jwt-token' },
+    });
+  });
+
+  it('deletes a report without parsing a response body', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 204,
+    });
+
+    vi.stubGlobal('fetch', fetchMock);
+
+    await deleteReport('report-1', 'jwt-token', 'http://localhost:3000');
+
+    expect(fetchMock).toHaveBeenCalledWith('http://localhost:3000/reports/report-1', {
+      method: 'DELETE',
       headers: { Authorization: 'Bearer jwt-token' },
     });
   });

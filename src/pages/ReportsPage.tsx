@@ -1,7 +1,8 @@
 import { type FormEvent, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { fetchReports } from '../api/reportApi';
+import { deleteReport, fetchReports } from '../api/reportApi';
 import type {
+  ReportAiStatus,
   ReportInstrument,
   ReportListQuery,
   ReportListResponse,
@@ -38,6 +39,13 @@ function formatSource(source: ReportSource) {
 
 function formatStatus(status: ReportStatus) {
   return status === 'completed' ? '완료' : '실패';
+}
+
+function formatAiStatus(status: ReportAiStatus | undefined, includeAi: boolean) {
+  if (status === 'available') return 'AI 분석 완료';
+  if (status === 'unavailable') return 'AI 분석 실패';
+  if (status === 'not_requested') return 'AI 미요청';
+  return includeAi ? 'AI 요청' : 'AI 미요청';
 }
 
 function formatInstrumentTitle(report: ReportResponse) {
@@ -92,6 +100,7 @@ export function ReportsPage({ accessToken }: ReportsPageProps) {
     pageSize: 10,
   });
   const [status, setStatus] = useState<'idle' | 'loading' | 'error'>('idle');
+  const [deletingReportId, setDeletingReportId] = useState<string>();
   const [message, setMessage] = useState<string>();
   const reports = reportList.items;
   const totalPages = reportList.totalPages;
@@ -159,6 +168,34 @@ export function ReportsPage({ accessToken }: ReportsPageProps) {
 
   function changePageSize(pageSize: ReportPageSize) {
     setPagination({ page: 1, pageSize });
+  }
+
+  async function handleDeleteReport(report: ReportResponse) {
+    setDeletingReportId(report.id);
+    setMessage(undefined);
+
+    try {
+      await deleteReport(report.id, accessToken);
+      const nextPage = reports.length === 1 && pagination.page > 1 ? pagination.page - 1 : pagination.page;
+      const nextReportList = await fetchReports(accessToken, undefined, {
+        ...appliedFilters,
+        page: nextPage,
+        pageSize: pagination.pageSize,
+      });
+      setReportList(nextReportList);
+      if (nextPage !== pagination.page) {
+        setPagination((current) => ({ ...current, page: nextPage }));
+      } else if (nextReportList.totalPages > 0 && nextPage > nextReportList.totalPages) {
+        setPagination((current) => ({ ...current, page: nextReportList.totalPages }));
+      }
+      setStatus('idle');
+      setMessage('리포트를 삭제했습니다.');
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : '리포트 삭제에 실패했습니다.');
+      setStatus('error');
+    } finally {
+      setDeletingReportId(undefined);
+    }
   }
 
   if (!accessToken) {
@@ -301,25 +338,36 @@ export function ReportsPage({ accessToken }: ReportsPageProps) {
 
         <div className="table-list report-list">
           {reports.map((report) => (
-            <Link className="list-row report-row list-row-link" to={`/reports/${report.id}`} key={report.id}>
-              <div className="report-row-main">
-                <strong>{formatInstrumentTitle(report)}</strong>
-                {formatInstrumentMeta(report.instrument) ? (
-                  <span className="instrument-meta">{formatInstrumentMeta(report.instrument)}</span>
-                ) : null}
-                <p className="report-period">
-                  {report.from} - {report.to}
-                </p>
-              </div>
-              <div className="report-row-meta">
-                <span className={`pill status-${report.status === 'completed' ? 'positive' : 'negative'}`}>
-                  {report.status === 'completed' ? '완료' : '실패'}
-                </span>
-                <span className="pill">{formatSource(report.source)}</span>
-                <span className="pill">AI {report.includeAi ? '포함' : '제외'}</span>
-              </div>
-              <span className="date-cell">{formatDateTime(report.generatedAt)}</span>
-            </Link>
+            <article className="list-row report-row" key={report.id}>
+              <Link className="report-row-link-body" to={`/reports/${report.id}`}>
+                <div className="report-row-main">
+                  <strong>{formatInstrumentTitle(report)}</strong>
+                  {formatInstrumentMeta(report.instrument) ? (
+                    <span className="instrument-meta">{formatInstrumentMeta(report.instrument)}</span>
+                  ) : null}
+                  <p className="report-period">
+                    {report.from} - {report.to}
+                  </p>
+                </div>
+                <div className="report-row-meta">
+                  <span className={`pill status-${report.status === 'completed' ? 'positive' : 'negative'}`}>
+                    {report.status === 'completed' ? '완료' : '실패'}
+                  </span>
+                  <span className="pill">{formatSource(report.source)}</span>
+                  <span className="pill">{formatAiStatus(report.aiStatus, report.includeAi)}</span>
+                </div>
+                <span className="date-cell">{formatDateTime(report.generatedAt)}</span>
+              </Link>
+              <button
+                type="button"
+                className="danger-button report-delete-button"
+                disabled={deletingReportId === report.id}
+                aria-label={`리포트 삭제 ${report.ticker}`}
+                onClick={() => void handleDeleteReport(report)}
+              >
+                {deletingReportId === report.id ? '삭제 중...' : '삭제'}
+              </button>
+            </article>
           ))}
           {status !== 'loading' && reports.length === 0 ? (
             <div className="empty-list-state">
