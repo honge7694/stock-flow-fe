@@ -22,7 +22,7 @@ describe('AuthPanel', () => {
 
     await user.click(screen.getByRole('button', { name: '로그인' }));
 
-    expect(onLogin).toHaveBeenCalledWith('honge7694', 'password');
+    expect(onLogin).toHaveBeenCalledWith('honge7694@naver.com', 'password');
   });
 
   it('allows honge7694 to login without an email format', async () => {

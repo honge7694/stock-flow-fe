@@ -10,7 +10,7 @@ type AuthPanelProps = {
   onLogout: () => void;
 };
 
-const DEFAULT_LOGIN_ID = 'honge7694';
+const DEFAULT_LOGIN_ID = 'honge7694@naver.com';
 
 export function AuthPanel({ isLoading, user, errorMessage, onLogin, onSignup, onLogout }: AuthPanelProps) {
   const [email, setEmail] = useState('');
