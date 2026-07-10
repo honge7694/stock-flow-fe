@@ -111,6 +111,27 @@ describe('App routing', () => {
     expect(screen.getByText('Apple')).toBeInTheDocument();
   });
 
+  it('logs out and returns to the auth screen when an authenticated request gets 401', async () => {
+    storeSession();
+    window.history.pushState({}, '', '/stocks');
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: false,
+        status: 401,
+        text: () => Promise.resolve('expired token'),
+      }),
+    );
+
+    render(<App />);
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { name: '계정 연결' })).toBeInTheDocument();
+    });
+    expect(localStorage.getItem('stock-flow-token')).toBeNull();
+    expect(localStorage.getItem('stock-flow-user')).toBeNull();
+  });
+
   it('prefills report generation from a watchlist row action', async () => {
     const user = userEvent.setup();
     storeSession();

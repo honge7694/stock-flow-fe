@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { BrowserRouter, Navigate, NavLink, Route, Routes } from 'react-router-dom';
 import { fetchMe, login, signup } from './api/authApi';
+import { AUTH_EXPIRED_EVENT } from './api/authEvents';
 import { AuthPanel } from './components/AuthPanel';
 import { DashboardPage } from './pages/DashboardPage';
 import { ReportDetailPage } from './pages/ReportDetailPage';
@@ -66,6 +67,14 @@ export default function App() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(
     () => localStorage.getItem('stock-flow-sidebar-collapsed') === 'true',
   );
+
+  useEffect(() => {
+    window.addEventListener(AUTH_EXPIRED_EVENT, handleLogout);
+
+    return () => {
+      window.removeEventListener(AUTH_EXPIRED_EVENT, handleLogout);
+    };
+  }, []);
 
   useEffect(() => {
     if (!accessToken) return;
