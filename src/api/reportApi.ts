@@ -1,4 +1,5 @@
 import type { ReportListQuery, ReportListResponse, ReportRequest, ReportResponse } from '../types/report';
+import { notifyAuthExpiredIfUnauthorized } from './authEvents';
 
 function apiUrl(path: string, apiBaseUrl: string) {
   return `${apiBaseUrl.replace(/\/$/, '')}${path}`;
@@ -28,6 +29,7 @@ function reportsPath(query?: ReportListQuery) {
 
 async function readJson<T>(response: Response, message: string): Promise<T> {
   if (!response.ok) {
+    notifyAuthExpiredIfUnauthorized(response);
     const body = await response.text();
     throw new Error(`${message}: ${body || response.status}`);
   }
@@ -60,6 +62,7 @@ export async function fetchReport(
   });
 
   if (!response.ok) {
+    notifyAuthExpiredIfUnauthorized(response);
     const message = await response.text();
     throw new Error(`리포트 생성 실패: ${message || response.status}`);
   }
@@ -98,6 +101,7 @@ export async function deleteReport(id: string, accessToken: string, apiBaseUrl =
   });
 
   if (!response.ok) {
+    notifyAuthExpiredIfUnauthorized(response);
     const body = await response.text();
     throw new Error(`리포트 삭제 실패: ${body || response.status}`);
   }
