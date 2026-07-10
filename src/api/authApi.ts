@@ -1,4 +1,5 @@
 import type { AuthResponse, User } from '../types/report';
+import { notifyAuthExpiredIfUnauthorized } from './authEvents';
 
 export type AuthRequest = {
   email: string;
@@ -19,6 +20,7 @@ async function requestAuth(path: '/auth/login' | '/auth/signup', request: AuthRe
   });
 
   if (!response.ok) {
+    notifyAuthExpiredIfUnauthorized(response);
     const message = await response.text();
     throw new Error(`인증 실패: ${message || response.status}`);
   }
@@ -43,6 +45,7 @@ export async function fetchMe(accessToken: string, apiBaseUrl = import.meta.env.
   });
 
   if (!response.ok) {
+    notifyAuthExpiredIfUnauthorized(response);
     const message = await response.text();
     throw new Error(`내 정보 조회 실패: ${message || response.status}`);
   }

@@ -1,4 +1,5 @@
 import type { Stock, StockRequest } from '../types/report';
+import { notifyAuthExpiredIfUnauthorized } from './authEvents';
 
 function apiUrl(path: string, apiBaseUrl: string) {
   return `${apiBaseUrl.replace(/\/$/, '')}${path}`;
@@ -12,6 +13,7 @@ function authHeaders(accessToken: string) {
 
 async function readJson<T>(response: Response, message: string): Promise<T> {
   if (!response.ok) {
+    notifyAuthExpiredIfUnauthorized(response);
     const body = await response.text();
     throw new Error(`${message}: ${body || response.status}`);
   }
@@ -76,6 +78,7 @@ export async function deleteStock(id: string, accessToken: string, apiBaseUrl = 
   });
 
   if (!response.ok) {
+    notifyAuthExpiredIfUnauthorized(response);
     const body = await response.text();
     throw new Error(`관심 종목 삭제 실패: ${body || response.status}`);
   }

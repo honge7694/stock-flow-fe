@@ -10,15 +10,17 @@ type AuthPanelProps = {
   onLogout: () => void;
 };
 
+const DEFAULT_LOGIN_ID = 'honge7694@naver.com';
+
 export function AuthPanel({ isLoading, user, errorMessage, onLogin, onSignup, onLogout }: AuthPanelProps) {
-  const [email, setEmail] = useState('user@example.com');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('password');
   const [signupErrorMessage, setSignupErrorMessage] = useState<string>();
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setSignupErrorMessage(undefined);
-    onLogin(email, password);
+    onLogin(email.trim() || DEFAULT_LOGIN_ID, password);
   }
 
   function handleSignup() {
@@ -51,7 +53,7 @@ export function AuthPanel({ isLoading, user, errorMessage, onLogin, onSignup, on
           <h2>계정 연결</h2>
           <label>
             <span>이메일 또는 ID</span>
-            <input type="text" value={email} onChange={(event) => setEmail(event.target.value)} required />
+            <input type="text" value={email} onChange={(event) => setEmail(event.target.value)} />
           </label>
           <label>
             <span>비밀번호</span>
@@ -69,7 +71,7 @@ export function AuthPanel({ isLoading, user, errorMessage, onLogin, onSignup, on
             <button
               type="button"
               className="secondary-button"
-              disabled={isLoading}
+              disabled
               onClick={handleSignup}
             >
               회원가입
