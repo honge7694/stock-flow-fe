@@ -27,7 +27,7 @@ export function DashboardPage() {
           <span className="card-label">보유 분석</span>
           <strong>보유 포지션 학습</strong>
           <p>수량과 평균 단가를 입력해 평가 상태와 차트 지표를 교육용으로 정리합니다.</p>
-          <Link className="text-link" to="/portfolio-analyses">
+          <Link className="text-link" to="/portfolio-analyses/new">
             보유 분석 만들기
           </Link>
         </article>

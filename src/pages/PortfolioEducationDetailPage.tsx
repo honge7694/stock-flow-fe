@@ -188,7 +188,7 @@ export function PortfolioEducationDetailPage({ accessToken }: PortfolioEducation
             <h1>{formatInstrumentTitle(analysis)} 보유 분석</h1>
           </div>
           <div className="portfolio-detail-actions">
-            <Link className="secondary-button" to="/portfolio-analyses">
+            <Link className="secondary-link-button" to="/portfolio-analyses">
               목록
             </Link>
             <button type="button" className="secondary-button" onClick={() => setIsEditOpen((current) => !current)}>

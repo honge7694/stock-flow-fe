@@ -27,6 +27,9 @@ describe('stocksApi', () => {
     const request = {
       ticker: ' AAPL ',
       name: 'Apple',
+      quantity: '10',
+      averagePrice: '185.5',
+      currency: ' usd ',
       scheduleEnabled: true,
       scheduleTime: '08:00',
       scheduleTimezone: 'Asia/Seoul',
@@ -48,7 +51,7 @@ describe('stocksApi', () => {
         'Content-Type': 'application/json',
         Authorization: 'Bearer jwt-token',
       },
-      body: JSON.stringify({ ...request, ticker: 'AAPL' }),
+      body: JSON.stringify({ ...request, ticker: 'AAPL', currency: 'USD' }),
     });
   });
 
@@ -60,7 +63,7 @@ describe('stocksApi', () => {
 
     vi.stubGlobal('fetch', fetchMock);
 
-    await updateStock('stock-1', { includeAi: true, reportPeriod: '3m' }, 'jwt-token', '');
+    await updateStock('stock-1', { includeAi: true, reportPeriod: '3m', currency: ' krw ' }, 'jwt-token', '');
 
     expect(fetchMock).toHaveBeenCalledWith('/stocks/stock-1', {
       method: 'PATCH',
@@ -68,7 +71,7 @@ describe('stocksApi', () => {
         'Content-Type': 'application/json',
         Authorization: 'Bearer jwt-token',
       },
-      body: JSON.stringify({ includeAi: true, reportPeriod: '3m' }),
+      body: JSON.stringify({ includeAi: true, reportPeriod: '3m', currency: 'KRW' }),
     });
   });
 
