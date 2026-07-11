@@ -22,10 +22,18 @@ async function readJson<T>(response: Response, message: string): Promise<T> {
 }
 
 function serializeStockRequest(request: StockRequest): StockRequest {
-  return {
+  const nextRequest: StockRequest = {
     ...request,
     ticker: request.ticker?.trim(),
+    name: request.name?.trim(),
+    currency: request.currency?.trim() ? request.currency.trim().toUpperCase() : undefined,
   };
+
+  if (nextRequest.quantity === '') delete nextRequest.quantity;
+  if (nextRequest.averagePrice === '') delete nextRequest.averagePrice;
+  if (nextRequest.name === '') nextRequest.name = undefined;
+
+  return nextRequest;
 }
 
 export async function fetchStocks(accessToken: string, apiBaseUrl = import.meta.env.VITE_API_BASE_URL ?? '') {
@@ -65,7 +73,7 @@ export async function updateStock(
       'Content-Type': 'application/json',
       ...authHeaders(accessToken),
     },
-    body: JSON.stringify(request),
+    body: JSON.stringify(serializeStockRequest(request as StockRequest)),
   });
 
   return readJson<Stock>(response, '관심 종목 수정 실패');

@@ -12,12 +12,28 @@ const periodOptions: ReportPeriod[] = ['1m', '3m', '6m', '1y'];
 const emptyForm: StockRequest = {
   ticker: '',
   name: '',
+  quantity: '',
+  averagePrice: '',
+  currency: 'KRW',
   scheduleEnabled: true,
   scheduleTime: '08:00',
   scheduleTimezone: 'Asia/Seoul',
   reportPeriod: '6m',
   includeAi: false,
 };
+
+function formatNumber(value: number | null | undefined, digits = 2) {
+  if (value === null || value === undefined) return '-';
+  return value.toLocaleString('ko-KR', { maximumFractionDigits: digits });
+}
+
+function hasHoldingInfo(stock: Stock) {
+  return stock.quantity !== null && stock.quantity !== undefined && stock.averagePrice !== null && stock.averagePrice !== undefined;
+}
+
+function hasPartialHoldingInfo(stock: Stock) {
+  return Boolean(stock.quantity ?? stock.averagePrice ?? stock.currency) && !hasHoldingInfo(stock);
+}
 
 export function StocksPage({ accessToken }: StocksPageProps) {
   const [stocks, setStocks] = useState<Stock[]>([]);
@@ -51,6 +67,9 @@ export function StocksPage({ accessToken }: StocksPageProps) {
     setForm({
       ticker: stock.ticker,
       name: stock.name ?? '',
+      quantity: stock.quantity ?? '',
+      averagePrice: stock.averagePrice ?? '',
+      currency: stock.currency ?? 'KRW',
       scheduleEnabled: stock.scheduleEnabled,
       scheduleTime: stock.scheduleTime,
       scheduleTimezone: stock.scheduleTimezone,
@@ -117,7 +136,7 @@ export function StocksPage({ accessToken }: StocksPageProps) {
         <div>
           <p className="eyebrow">WATCHLIST</p>
           <h1>관심 종목</h1>
-          <p>교육용 리포트를 만들 종목과 예약 설정을 관리합니다.</p>
+          <p>교육용 리포트와 보유 분석에 사용할 종목 정보를 관리합니다.</p>
         </div>
       </div>
 
@@ -144,6 +163,19 @@ export function StocksPage({ accessToken }: StocksPageProps) {
                   <strong>{stock.ticker}</strong>
                   <p>{stock.name ?? '이름 없음'}</p>
                 </div>
+                <div className="stock-holding-summary">
+                  {hasHoldingInfo(stock) ? (
+                    <>
+                      <span className="pill pill-accent">보유 정보 있음</span>
+                      <span>{formatNumber(stock.quantity, 4)}주</span>
+                      <span>
+                        평균 {formatNumber(stock.averagePrice)} {stock.currency ?? ''}
+                      </span>
+                    </>
+                  ) : (
+                    <span className={hasPartialHoldingInfo(stock) ? 'pill status-caution' : 'pill'}>{hasPartialHoldingInfo(stock) ? '보유 정보 미완성' : '보유 정보 없음'}</span>
+                  )}
+                </div>
                 <div className="stock-meta-row">
                   <span className="pill">{stock.reportPeriod}</span>
                   <span className="pill">{stock.scheduleEnabled ? `매일 ${stock.scheduleTime}` : '예약 꺼짐'}</span>
@@ -152,12 +184,25 @@ export function StocksPage({ accessToken }: StocksPageProps) {
                   </span>
                 </div>
                 <div className="row-actions">
+                  {hasHoldingInfo(stock) ? (
+                    <Link
+                      className="row-action-link"
+                      to={`/portfolio-analyses/new?savedStockId=${encodeURIComponent(stock.id)}&ticker=${encodeURIComponent(stock.ticker)}&quantity=${encodeURIComponent(String(stock.quantity))}&averagePrice=${encodeURIComponent(String(stock.averagePrice))}&currency=${encodeURIComponent(stock.currency ?? '')}`}
+                      aria-label={`보유 분석 만들기 ${stock.name ?? stock.ticker}`}
+                    >
+                      보유 분석
+                    </Link>
+                  ) : (
+                    <button type="button" className="secondary-button" onClick={() => editStock(stock)}>
+                      보유 정보 입력
+                    </button>
+                  )}
                   <Link
-                    className="row-action-link"
+                    className="row-action-link row-action-link-secondary"
                     to={`/reports/new?ticker=${encodeURIComponent(stock.ticker)}`}
                     aria-label={`리포트 생성 ${stock.name ?? stock.ticker}`}
                   >
-                    리포트 생성
+                    리포트
                   </Link>
                   <button type="button" className="secondary-button" onClick={() => editStock(stock)}>
                     수정
@@ -182,58 +227,101 @@ export function StocksPage({ accessToken }: StocksPageProps) {
               닫기
             </button>
           </div>
-          <label>
-            <span>종목 코드</span>
-            <input value={form.ticker} onChange={(event) => setForm({ ...form, ticker: event.target.value })} required />
-          </label>
-          <label>
-            <span>종목명</span>
-            <input value={form.name ?? ''} onChange={(event) => setForm({ ...form, name: event.target.value })} />
-          </label>
-          <label>
-            <span>예약 시간</span>
-            <input
-              type="time"
-              value={form.scheduleTime}
-              onChange={(event) => setForm({ ...form, scheduleTime: event.target.value })}
-            />
-          </label>
-          <label>
-            <span>시간대</span>
-            <input
-              value={form.scheduleTimezone}
-              onChange={(event) => setForm({ ...form, scheduleTimezone: event.target.value })}
-            />
-          </label>
-          <label>
-            <span>분석 기간</span>
-            <select
-              value={form.reportPeriod}
-              onChange={(event) => setForm({ ...form, reportPeriod: event.target.value as ReportPeriod })}
-            >
-              {periodOptions.map((period) => (
-                <option key={period} value={period}>
-                  {period}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="checkbox-field">
-            <input
-              type="checkbox"
-              checked={form.scheduleEnabled}
-              onChange={(event) => setForm({ ...form, scheduleEnabled: event.target.checked })}
-            />
-            <span>예약 활성화</span>
-          </label>
-          <label className="checkbox-field">
-            <input
-              type="checkbox"
-              checked={form.includeAi}
-              onChange={(event) => setForm({ ...form, includeAi: event.target.checked })}
-            />
-            <span>AI 학습 요약 포함</span>
-          </label>
+          <div className="form-section">
+            <span className="card-label">SYMBOL</span>
+            <label>
+              <span>종목 코드</span>
+              <input value={form.ticker} onChange={(event) => setForm({ ...form, ticker: event.target.value })} required />
+            </label>
+            <label>
+              <span>종목명</span>
+              <input value={form.name ?? ''} onChange={(event) => setForm({ ...form, name: event.target.value })} />
+            </label>
+          </div>
+          <div className="form-section">
+            <span className="card-label">HOLDING INFO</span>
+            <div className="form-section-header">
+              <h3>보유 분석 정보</h3>
+              <p>입력하면 보유 분석에서 다시 입력하지 않아도 됩니다.</p>
+            </div>
+            <label>
+              <span>보유 수량</span>
+              <input
+                className="numeric-input"
+                inputMode="decimal"
+                value={form.quantity ?? ''}
+                placeholder="예: 10"
+                onChange={(event) => setForm({ ...form, quantity: event.target.value })}
+              />
+            </label>
+            <label>
+              <span>평균 단가</span>
+              <input
+                className="numeric-input"
+                inputMode="decimal"
+                value={form.averagePrice ?? ''}
+                placeholder="예: 72000"
+                onChange={(event) => setForm({ ...form, averagePrice: event.target.value })}
+              />
+            </label>
+            <label>
+              <span>통화</span>
+              <select value={form.currency ?? ''} onChange={(event) => setForm({ ...form, currency: event.target.value })}>
+                <option value="">자동</option>
+                <option value="KRW">KRW</option>
+                <option value="USD">USD</option>
+                <option value="JPY">JPY</option>
+                <option value="EUR">EUR</option>
+              </select>
+            </label>
+          </div>
+          <div className="form-section">
+            <span className="card-label">REPORT SCHEDULE</span>
+            <label>
+              <span>예약 시간</span>
+              <input
+                type="time"
+                value={form.scheduleTime}
+                onChange={(event) => setForm({ ...form, scheduleTime: event.target.value })}
+              />
+            </label>
+            <label>
+              <span>시간대</span>
+              <input
+                value={form.scheduleTimezone}
+                onChange={(event) => setForm({ ...form, scheduleTimezone: event.target.value })}
+              />
+            </label>
+            <label>
+              <span>분석 기간</span>
+              <select
+                value={form.reportPeriod}
+                onChange={(event) => setForm({ ...form, reportPeriod: event.target.value as ReportPeriod })}
+              >
+                {periodOptions.map((period) => (
+                  <option key={period} value={period}>
+                    {period}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="checkbox-field">
+              <input
+                type="checkbox"
+                checked={form.scheduleEnabled}
+                onChange={(event) => setForm({ ...form, scheduleEnabled: event.target.checked })}
+              />
+              <span>예약 활성화</span>
+            </label>
+            <label className="checkbox-field">
+              <input
+                type="checkbox"
+                checked={form.includeAi}
+                onChange={(event) => setForm({ ...form, includeAi: event.target.checked })}
+              />
+              <span>AI 학습 요약 포함</span>
+            </label>
+          </div>
           <div className="button-row">
             <button type="submit" disabled={status === 'saving'}>
               {editingId ? '수정 저장' : '종목 추가'}

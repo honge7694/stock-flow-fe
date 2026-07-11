@@ -28,14 +28,20 @@ function educationAnalysisPath(query?: PortfolioEducationListQuery) {
 }
 
 function normalizeRequest(request: PortfolioEducationRequest) {
-  return {
-    ticker: request.ticker.trim().toUpperCase(),
+  const nextRequest: PortfolioEducationRequest = {
+    savedStockId: request.savedStockId,
+    ticker: request.ticker?.trim() ? request.ticker.trim().toUpperCase() : undefined,
     quantity: request.quantity,
     averagePrice: request.averagePrice,
     currency: request.currency?.trim() ? request.currency.trim().toUpperCase() : undefined,
     from: request.from || undefined,
     to: request.to || undefined,
   };
+
+  if (nextRequest.quantity === '') delete nextRequest.quantity;
+  if (nextRequest.averagePrice === '') delete nextRequest.averagePrice;
+
+  return nextRequest;
 }
 
 async function readJson<T>(response: Response, message: string): Promise<T> {

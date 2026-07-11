@@ -8,6 +8,7 @@ type PortfolioEducationCreatePageProps = {
 };
 
 type PortfolioFormState = {
+  savedStockId: string;
   ticker: string;
   quantity: string;
   averagePrice: string;
@@ -28,6 +29,7 @@ function sixMonthsAgoString() {
 
 function buildRequest(form: PortfolioFormState): PortfolioEducationRequest {
   return {
+    savedStockId: form.savedStockId || undefined,
     ticker: form.ticker,
     quantity: form.quantity,
     averagePrice: form.averagePrice,
@@ -39,20 +41,26 @@ function buildRequest(form: PortfolioFormState): PortfolioEducationRequest {
 
 function validateForm(form: PortfolioFormState) {
   if (!form.ticker.trim()) return '종목을 입력해주세요.';
-  if (Number(form.quantity) <= 0) return '수량은 0보다 커야 합니다.';
-  if (Number(form.averagePrice) <= 0) return '평균 단가는 0보다 커야 합니다.';
+  if (!form.savedStockId || form.quantity) {
+    if (Number(form.quantity) <= 0) return '수량은 0보다 커야 합니다.';
+  }
+  if (!form.savedStockId || form.averagePrice) {
+    if (Number(form.averagePrice) <= 0) return '평균 단가는 0보다 커야 합니다.';
+  }
   return undefined;
 }
 
 export function PortfolioEducationCreatePage({ accessToken }: PortfolioEducationCreatePageProps) {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const initialSavedStockId = searchParams.get('savedStockId') ?? '';
   const initialTicker = searchParams.get('ticker') ?? '';
   const [form, setForm] = useState<PortfolioFormState>({
+    savedStockId: initialSavedStockId,
     ticker: initialTicker,
-    quantity: '',
-    averagePrice: '',
-    currency: 'KRW',
+    quantity: searchParams.get('quantity') ?? '',
+    averagePrice: searchParams.get('averagePrice') ?? '',
+    currency: searchParams.get('currency') ?? 'KRW',
     from: sixMonthsAgoString(),
     to: todayString(),
   });
