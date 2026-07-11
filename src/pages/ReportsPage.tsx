@@ -102,7 +102,7 @@ export function ReportsPage({ accessToken }: ReportsPageProps) {
   const [status, setStatus] = useState<'idle' | 'loading' | 'error'>('idle');
   const [deletingReportId, setDeletingReportId] = useState<string>();
   const [confirmingReportId, setConfirmingReportId] = useState<string>();
-  const [message, setMessage] = useState<string>();
+  const [message, setMessage] = useState<{ tone: 'success' | 'error'; text: string }>();
   const reports = reportList.items;
   const totalPages = reportList.totalPages;
   const hasPagination = reportList.total > reportList.pageSize;
@@ -129,7 +129,7 @@ export function ReportsPage({ accessToken }: ReportsPageProps) {
         }
         setStatus('idle');
       } catch (error) {
-        setMessage(error instanceof Error ? error.message : '리포트 목록을 불러오지 못했습니다.');
+        setMessage({ tone: 'error', text: error instanceof Error ? error.message : '리포트 목록을 불러오지 못했습니다.' });
         setStatus('error');
       }
     }
@@ -173,7 +173,6 @@ export function ReportsPage({ accessToken }: ReportsPageProps) {
 
   async function handleDeleteReport(report: ReportResponse) {
     setDeletingReportId(report.id);
-    setConfirmingReportId(undefined);
     setMessage(undefined);
 
     try {
@@ -191,9 +190,10 @@ export function ReportsPage({ accessToken }: ReportsPageProps) {
         setPagination((current) => ({ ...current, page: nextReportList.totalPages }));
       }
       setStatus('idle');
-      setMessage('리포트를 삭제했습니다.');
+      setConfirmingReportId(undefined);
+      setMessage({ tone: 'success', text: '리포트를 삭제했습니다.' });
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : '리포트 삭제에 실패했습니다.');
+      setMessage({ tone: 'error', text: error instanceof Error ? error.message : '리포트 삭제에 실패했습니다.' });
       setStatus('error');
     } finally {
       setDeletingReportId(undefined);
@@ -336,7 +336,11 @@ export function ReportsPage({ accessToken }: ReportsPageProps) {
         </form>
 
         {status === 'loading' ? <p>리포트 목록을 불러오는 중입니다.</p> : null}
-        {message ? <p className="form-error">{message}</p> : null}
+        {message ? (
+          <p className={message.tone === 'success' ? 'form-success' : 'form-error'} role="status">
+            {message.text}
+          </p>
+        ) : null}
 
         <div className="table-list report-list">
           {reports.map((report) => (
@@ -362,12 +366,12 @@ export function ReportsPage({ accessToken }: ReportsPageProps) {
               </Link>
               {confirmingReportId === report.id ? (
                 <div className="report-delete-confirm" role="group" aria-label={`${report.ticker} 삭제 확인`}>
-                  <span>이 리포트를 삭제할까요?</span>
+                  <span>{report.ticker} 리포트를 삭제할까요?</span>
                   <div className="report-delete-confirm-actions">
                     <button
                       type="button"
                       className="secondary-button"
-                      disabled={deletingReportId === report.id}
+                      disabled={Boolean(deletingReportId)}
                       onClick={() => setConfirmingReportId(undefined)}
                     >
                       취소
@@ -375,11 +379,18 @@ export function ReportsPage({ accessToken }: ReportsPageProps) {
                     <button
                       type="button"
                       className="danger-button report-delete-button"
-                      disabled={deletingReportId === report.id}
+                      disabled={Boolean(deletingReportId)}
                       aria-label={`삭제 확정 ${report.ticker}`}
                       onClick={() => void handleDeleteReport(report)}
                     >
-                      {deletingReportId === report.id ? '삭제 중...' : '삭제'}
+                      {deletingReportId === report.id ? (
+                        <span className="button-loading-label">
+                          <span className="loading-spinner loading-spinner-button" aria-hidden="true" />
+                          삭제 중
+                        </span>
+                      ) : (
+                        '삭제'
+                      )}
                     </button>
                   </div>
                 </div>
@@ -387,7 +398,7 @@ export function ReportsPage({ accessToken }: ReportsPageProps) {
                 <button
                   type="button"
                   className="danger-button report-delete-button report-delete-trigger"
-                  disabled={deletingReportId === report.id}
+                  disabled={Boolean(deletingReportId)}
                   aria-label={`리포트 삭제 확인 ${report.ticker}`}
                   onClick={() => setConfirmingReportId(report.id)}
                 >

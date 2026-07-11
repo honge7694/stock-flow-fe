@@ -215,16 +215,17 @@ describe('App routing', () => {
     window.history.pushState({}, '', '/reports');
     const listWithReport = { items: [sampleReport], page: 1, pageSize: 10, total: 1, totalPages: 1 };
     const emptyList = { items: [], page: 1, pageSize: 10, total: 0, totalPages: 0 };
+    let resolveDelete: (value: { ok: true; status: 204 }) => void = () => {};
+    const deletePromise = new Promise<{ ok: true; status: 204 }>((resolve) => {
+      resolveDelete = resolve;
+    });
     const fetchMock = vi
       .fn()
       .mockResolvedValueOnce({
         ok: true,
         json: () => Promise.resolve(listWithReport),
       })
-      .mockResolvedValueOnce({
-        ok: true,
-        status: 204,
-      })
+      .mockReturnValueOnce(deletePromise)
       .mockResolvedValueOnce({
         ok: true,
         json: () => Promise.resolve(emptyList),
@@ -235,10 +236,15 @@ describe('App routing', () => {
 
     await user.click(await screen.findByRole('button', { name: '리포트 삭제 확인 000660.KS' }));
 
-    expect(screen.getByText('이 리포트를 삭제할까요?')).toBeInTheDocument();
+    expect(screen.getByText('000660.KS 리포트를 삭제할까요?')).toBeInTheDocument();
     expect(fetchMock).toHaveBeenCalledTimes(1);
 
     await user.click(screen.getByRole('button', { name: '삭제 확정 000660.KS' }));
+
+    expect(screen.getByText('삭제 중')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '삭제 확정 000660.KS' })).toBeDisabled();
+
+    resolveDelete({ ok: true, status: 204 });
 
     await waitFor(() => {
       expect(screen.getByText('리포트를 삭제했습니다.')).toBeInTheDocument();
