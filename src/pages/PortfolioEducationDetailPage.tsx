@@ -5,6 +5,7 @@ import {
   fetchPortfolioEducationAnalysisById,
   updatePortfolioEducationAnalysis,
 } from '../api/portfolioApi';
+import { LoadingOverlay } from '../components/LoadingOverlay';
 import type { PortfolioEducationAnalysisResponse, PortfolioEducationRequest, ReportInstrument } from '../types/report';
 
 type PortfolioEducationDetailPageProps = {
@@ -164,7 +165,7 @@ export function PortfolioEducationDetailPage({ accessToken }: PortfolioEducation
   }
 
   if (status === 'loading') {
-    return <section className="state-panel">보유 분석 상세를 불러오는 중입니다.</section>;
+    return <LoadingOverlay title="보유 분석 상세를 불러오는 중입니다" description="보유 포지션과 AI 학습 요약을 서버에서 가져오고 있습니다." />;
   }
 
   if (status === 'error' || !analysis || !editForm) {

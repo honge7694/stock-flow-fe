@@ -437,7 +437,7 @@ li {
 
 .dashboard-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.35fr) repeat(3, minmax(220px, 0.75fr));
+  grid-template-columns: minmax(0, 1.35fr) repeat(4, minmax(200px, 0.75fr));
   gap: 16px;
 }
 
@@ -667,6 +667,172 @@ li {
 
 .glossary-card-body h2 {
   font-size: 22px;
+}
+
+.trading-skills-page {
+  display: grid;
+  gap: 18px;
+}
+
+.skill-learning-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 420px);
+  gap: 18px;
+  align-items: center;
+  border: 1px solid rgba(0, 217, 146, 0.22);
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(0, 217, 146, 0.11), rgba(17, 20, 22, 0.96));
+  padding: 22px;
+}
+
+.skill-learning-panel h2,
+.skill-learning-panel p {
+  margin: 0;
+}
+
+.skill-learning-panel h2 {
+  margin-top: 6px;
+}
+
+.skill-learning-panel h2 + p {
+  margin-top: 10px;
+}
+
+.skill-flow-steps {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.skill-flow-steps span {
+  border: 1px solid rgba(0, 217, 146, 0.22);
+  border-radius: 999px;
+  background: rgba(0, 217, 146, 0.07);
+  color: var(--ink);
+  padding: 9px 12px;
+  font-size: 13px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.trading-skill-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.trading-skill-card {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.72fr) minmax(0, 1.28fr);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.trading-skill-visual {
+  display: grid;
+  min-height: 260px;
+  place-items: center;
+  border-right: 1px solid var(--border);
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    #0d1112;
+  background-size:
+    28px 28px,
+    28px 28px,
+    auto;
+  padding: 18px;
+}
+
+.skill-visual-svg {
+  width: min(100%, 280px);
+  height: auto;
+}
+
+.skill-visual-svg path,
+.skill-visual-svg line {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 4;
+}
+
+.skill-visual-svg text {
+  fill: var(--mute);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.skill-line-accent {
+  stroke: var(--primary);
+}
+
+.skill-line-muted {
+  stroke: rgba(182, 192, 189, 0.46);
+}
+
+.skill-line-support {
+  stroke: rgba(239, 107, 107, 0.86);
+  stroke-dasharray: 8 8;
+}
+
+.skill-point {
+  fill: var(--primary);
+  stroke: rgba(0, 217, 146, 0.24);
+}
+
+.skill-point-danger {
+  fill: #fecaca;
+  stroke: rgba(239, 107, 107, 0.28);
+}
+
+.skill-volume {
+  fill: rgba(182, 192, 189, 0.46);
+}
+
+.skill-volume-hot {
+  fill: rgba(0, 217, 146, 0.76);
+}
+
+.trading-skill-body {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  padding: 18px;
+}
+
+.trading-skill-body h2,
+.trading-skill-body p {
+  margin: 0;
+}
+
+.trading-skill-body h2 {
+  color: var(--ink-strong);
+  font-size: 22px;
+}
+
+.skill-example-box,
+.skill-checklist,
+.skill-practice {
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+}
+
+.skill-example-box strong,
+.skill-checklist strong,
+.skill-practice strong {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--ink-strong);
+}
+
+.skill-checklist ul {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding-left: 18px;
 }
 
 .glossary-example-box,
@@ -1135,8 +1301,43 @@ button:disabled {
 }
 
 .report-delete-trigger {
+  display: inline-grid;
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  place-items: center;
   align-self: center;
-  min-width: 64px;
+  justify-self: end;
+  border: 1px solid rgba(142, 160, 155, 0.34);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.018);
+  color: rgba(182, 192, 189, 0.72);
+  padding: 0;
+}
+
+.report-delete-trigger:hover,
+.report-delete-trigger:focus-visible {
+  border-color: rgba(239, 107, 107, 0.44);
+  background: rgba(239, 107, 107, 0.08);
+  color: #fecaca;
+}
+
+.report-delete-trigger:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.report-delete-icon {
+  width: 17px;
+  height: 17px;
+}
+
+.report-delete-icon path {
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
 }
 
 .report-delete-confirm {
@@ -2202,12 +2403,14 @@ button:disabled {
 
   .dashboard-grid,
   .glossary-grid,
+  .trading-skill-grid,
   .report-workflow-grid,
   .management-grid {
     grid-template-columns: 1fr;
   }
 
-  .glossary-card {
+  .glossary-card,
+  .trading-skill-card {
     grid-template-columns: minmax(220px, 0.65fr) minmax(0, 1fr);
   }
 
@@ -2278,8 +2481,10 @@ button:disabled {
   }
 
   .glossary-learning-panel,
+  .skill-learning-panel,
   .glossary-controls,
-  .glossary-card {
+  .glossary-card,
+  .trading-skill-card {
     grid-template-columns: 1fr;
   }
 
@@ -2287,10 +2492,15 @@ button:disabled {
     justify-content: flex-start;
   }
 
-  .glossary-card-visual {
+  .glossary-card-visual,
+  .trading-skill-visual {
     min-height: 180px;
     border-right: 0;
     border-bottom: 1px solid var(--border);
+  }
+
+  .skill-flow-steps {
+    grid-template-columns: 1fr;
   }
 
   .nav-tabs {
@@ -2502,7 +2712,10 @@ button:disabled {
     justify-self: start;
   }
 
-  .report-delete-trigger,
+  .report-delete-trigger {
+    justify-self: end;
+  }
+
   .report-delete-confirm {
     width: 100%;
   }
