@@ -35,6 +35,9 @@ export function DashboardPage() {
           <span className="card-label">안내</span>
           <strong>교육용 데이터 요약</strong>
           <p>과거 가격, 거래량, SMA, RSI, MACD를 학습 목적으로 정리합니다.</p>
+          <Link className="text-link" to="/glossary">
+            용어집 보기
+          </Link>
         </article>
       </div>
     </section>

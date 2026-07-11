@@ -1,8 +1,10 @@
+import type { ReactNode } from 'react';
 import type { ReportInstrument, ReportPayload, ReportResponse } from '../types/report';
 
 type ReportSummaryProps = {
   report: ReportResponse;
   payload: ReportPayload;
+  action?: ReactNode;
 };
 
 function formatInstrumentTitle(report: ReportResponse) {
@@ -15,7 +17,7 @@ function formatInstrumentMeta(instrument?: ReportInstrument) {
   return parts.length ? parts.join(' · ') : null;
 }
 
-export function ReportSummary({ report, payload }: ReportSummaryProps) {
+export function ReportSummary({ report, payload, action }: ReportSummaryProps) {
   const latestCandle = payload.candles.at(-1);
   const metrics = payload.summary?.metrics;
   const generatedAt = new Intl.DateTimeFormat('ko-KR', {
@@ -39,8 +41,13 @@ export function ReportSummary({ report, payload }: ReportSummaryProps) {
 
   return (
     <section className="hero">
-      <p className="eyebrow">STOCK FLOW REPORT</p>
-      <h1>{formatInstrumentTitle(report)} 분석 리포트</h1>
+      <div className="report-hero-topline">
+        <div>
+          <p className="eyebrow">STOCK FLOW REPORT</p>
+          <h1>{formatInstrumentTitle(report)} 분석 리포트</h1>
+        </div>
+        {action ? <div className="report-hero-action">{action}</div> : null}
+      </div>
       <div className="meta">
         {instrumentMeta ? <span className="pill pill-accent">{instrumentMeta}</span> : null}
         <span className="pill">
