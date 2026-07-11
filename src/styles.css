@@ -835,6 +835,165 @@ li {
   padding-left: 18px;
 }
 
+.pattern-page {
+  display: grid;
+  gap: 18px;
+}
+
+.pattern-learning-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 420px);
+  gap: 18px;
+  align-items: center;
+  border: 1px solid rgba(0, 217, 146, 0.22);
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(0, 217, 146, 0.1), rgba(17, 20, 22, 0.97));
+  padding: 22px;
+}
+
+.pattern-learning-panel h2,
+.pattern-learning-panel p {
+  margin: 0;
+}
+
+.pattern-learning-panel h2 {
+  margin-top: 6px;
+}
+
+.pattern-learning-panel h2 + p {
+  margin-top: 10px;
+}
+
+.pattern-flow-steps {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.pattern-flow-steps span {
+  border: 1px solid rgba(0, 217, 146, 0.22);
+  border-radius: 999px;
+  background: rgba(0, 217, 146, 0.07);
+  color: var(--ink);
+  padding: 9px 12px;
+  font-size: 13px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.pattern-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.pattern-card {
+  display: grid;
+  grid-template-columns: minmax(230px, 0.78fr) minmax(0, 1.22fr);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.pattern-card-visual {
+  display: grid;
+  min-height: 270px;
+  place-items: center;
+  border-right: 1px solid var(--border);
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    radial-gradient(circle at 35% 20%, rgba(0, 217, 146, 0.11), transparent 36%),
+    #0d1112;
+  background-size:
+    28px 28px,
+    28px 28px,
+    auto,
+    auto;
+  padding: 18px;
+}
+
+.pattern-visual-svg {
+  width: min(100%, 300px);
+  height: auto;
+}
+
+.pattern-visual-svg path,
+.pattern-visual-svg line {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.pattern-price-line {
+  stroke: var(--ink-strong);
+  stroke-width: 6;
+}
+
+.pattern-price-caution {
+  stroke: rgba(255, 255, 255, 0.82);
+}
+
+.pattern-guide,
+.pattern-guide-accent {
+  stroke-width: 4;
+}
+
+.pattern-guide {
+  stroke: rgba(0, 217, 146, 0.78);
+}
+
+.pattern-guide-accent {
+  stroke: rgba(0, 217, 146, 0.46);
+}
+
+.pattern-focus-point {
+  fill: var(--primary);
+  stroke: rgba(0, 217, 146, 0.28);
+  stroke-width: 5;
+}
+
+.pattern-card-body {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  padding: 18px;
+}
+
+.pattern-card-body h2,
+.pattern-card-body p {
+  margin: 0;
+}
+
+.pattern-card-body h2 {
+  color: var(--ink-strong);
+  font-size: 22px;
+}
+
+.pattern-example-box,
+.pattern-checklist,
+.pattern-practice {
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+}
+
+.pattern-example-box strong,
+.pattern-checklist strong,
+.pattern-practice strong {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--ink-strong);
+  font-size: 14px;
+}
+
+.pattern-checklist ul {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding-left: 18px;
+}
+
 .glossary-example-box,
 .glossary-watch-list {
   border-top: 1px solid var(--border);
@@ -2404,13 +2563,15 @@ button:disabled {
   .dashboard-grid,
   .glossary-grid,
   .trading-skill-grid,
+  .pattern-grid,
   .report-workflow-grid,
   .management-grid {
     grid-template-columns: 1fr;
   }
 
   .glossary-card,
-  .trading-skill-card {
+  .trading-skill-card,
+  .pattern-card {
     grid-template-columns: minmax(220px, 0.65fr) minmax(0, 1fr);
   }
 
@@ -2482,9 +2643,11 @@ button:disabled {
 
   .glossary-learning-panel,
   .skill-learning-panel,
+  .pattern-learning-panel,
   .glossary-controls,
   .glossary-card,
-  .trading-skill-card {
+  .trading-skill-card,
+  .pattern-card {
     grid-template-columns: 1fr;
   }
 
@@ -2493,13 +2656,15 @@ button:disabled {
   }
 
   .glossary-card-visual,
-  .trading-skill-visual {
+  .trading-skill-visual,
+  .pattern-card-visual {
     min-height: 180px;
     border-right: 0;
     border-bottom: 1px solid var(--border);
   }
 
-  .skill-flow-steps {
+  .skill-flow-steps,
+  .pattern-flow-steps {
     grid-template-columns: 1fr;
   }
 

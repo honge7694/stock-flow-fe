@@ -3,6 +3,7 @@ import { BrowserRouter, Navigate, NavLink, Route, Routes } from 'react-router-do
 import { fetchMe, login, signup } from './api/authApi';
 import { AUTH_EXPIRED_EVENT } from './api/authEvents';
 import { AuthPanel } from './components/AuthPanel';
+import { ChartPatternsPage } from './pages/ChartPatternsPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { GlossaryPage } from './pages/GlossaryPage';
 import { PortfolioEducationCreatePage } from './pages/PortfolioEducationCreatePage';
@@ -16,7 +17,7 @@ import { TradingSkillsPage } from './pages/TradingSkillsPage';
 import type { User } from './types/report';
 
 type AuthState = 'idle' | 'loading';
-type NavIconName = 'dashboard' | 'stocks' | 'portfolio' | 'reports' | 'tradingSkills' | 'glossary';
+type NavIconName = 'dashboard' | 'stocks' | 'portfolio' | 'reports' | 'tradingSkills' | 'chartPatterns' | 'glossary';
 
 const navItems = [
   { to: '/dashboard', label: '대시보드', icon: 'dashboard', end: false },
@@ -24,6 +25,7 @@ const navItems = [
   { to: '/portfolio-analyses', label: '보유 분석', icon: 'portfolio', end: false },
   { to: '/reports', label: '리포트 목록', icon: 'reports', end: false },
   { to: '/trading-skills', label: '스킬 학습', icon: 'tradingSkills', end: true },
+  { to: '/chart-patterns', label: '차트 흐름도', icon: 'chartPatterns', end: true },
   { to: '/glossary', label: '용어집', icon: 'glossary', end: true },
 ] satisfies Array<{ to: string; label: string; icon: NavIconName; end: boolean }>;
 
@@ -33,6 +35,7 @@ const navIconPaths: Record<NavIconName, string[]> = {
   portfolio: ['M4 7h16v12H4z', 'M8 7V5h8v2', 'M8 13h8', 'M8 16h5'],
   reports: ['M7 4h10v16H7z', 'M10 8h4', 'M10 12h4', 'M10 16h3', 'M5 7h2', 'M17 7h2'],
   tradingSkills: ['M4 17l5-5 4 3 7-8', 'M15 7h5v5', 'M5 6h5', 'M5 10h3', 'M5 20h14'],
+  chartPatterns: ['M4 17 L8 7 L12 14 L16 6 L20 13', 'M4 20h16', 'M6 4h12', 'M12 14h8'],
   glossary: ['M5 5h10a4 4 0 0 1 4 4v10H9a4 4 0 0 0-4-4z', 'M5 5v14', 'M9 9h6', 'M9 13h5'],
 };
 
@@ -229,6 +232,7 @@ export default function App() {
             <Route path="/reports" element={<ReportsPage accessToken={accessToken} />} />
             <Route path="/reports/:id" element={<ReportDetailPage accessToken={accessToken} />} />
             <Route path="/trading-skills" element={<TradingSkillsPage />} />
+            <Route path="/chart-patterns" element={<ChartPatternsPage />} />
             <Route path="/glossary" element={<GlossaryPage />} />
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
