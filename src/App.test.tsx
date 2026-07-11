@@ -3,9 +3,14 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import App from './App';
 import { sampleReport } from './test/fixtures/report';
+import { shareReport } from './utils/shareReport';
 
 vi.mock('./components/ReportCharts', () => ({
   ReportCharts: () => <section>차트 영역</section>,
+}));
+
+vi.mock('./utils/shareReport', () => ({
+  shareReport: vi.fn(),
 }));
 
 function storeSession() {
@@ -15,6 +20,7 @@ function storeSession() {
 
 describe('App routing', () => {
   afterEach(() => {
+    vi.clearAllMocks();
     vi.unstubAllGlobals();
     localStorage.clear();
     window.history.pushState({}, '', '/');
@@ -254,6 +260,37 @@ describe('App routing', () => {
       headers: { Authorization: 'Bearer jwt-token' },
     });
     expect(screen.getByText('아직 생성된 리포트가 없습니다.')).toBeInTheDocument();
+  });
+
+  it('shares a report from the report list action', async () => {
+    const user = userEvent.setup();
+    storeSession();
+    window.history.pushState({}, '', '/reports');
+    vi.mocked(shareReport).mockResolvedValue('downloaded');
+    const listReport = { ...sampleReport, payload: null };
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({ items: [listReport], page: 1, pageSize: 10, total: 1, totalPages: 1 }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(sampleReport),
+      });
+    vi.stubGlobal('fetch', fetchMock);
+
+    render(<App />);
+
+    await user.click(await screen.findByRole('button', { name: '리포트 공유 000660.KS' }));
+
+    await waitFor(() => {
+      expect(screen.getByText('공유 이미지를 다운로드했습니다.')).toBeInTheDocument();
+    });
+    expect(fetchMock).toHaveBeenNthCalledWith(2, '/reports/report-uuid', {
+      headers: { Authorization: 'Bearer jwt-token' },
+    });
+    expect(shareReport).toHaveBeenCalledWith(sampleReport, sampleReport.payload);
   });
 
   it('keeps report filters collapsed until the user opens them', async () => {
