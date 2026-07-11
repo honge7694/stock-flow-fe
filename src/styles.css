@@ -277,7 +277,8 @@ li {
 
 .nav-tabs a,
 .text-link,
-.primary-link-button {
+.primary-link-button,
+.secondary-link-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -791,15 +792,20 @@ li {
 }
 
 button,
-.primary-link-button {
+.primary-link-button,
+.secondary-link-button {
   min-height: 42px;
   border: 0;
   border-radius: 7px;
-  background: var(--primary);
-  color: #07100d;
   cursor: pointer;
   font-weight: 700;
   padding: 10px 15px;
+}
+
+button,
+.primary-link-button {
+  background: var(--primary);
+  color: #07100d;
 }
 
 button:hover,
@@ -848,13 +854,15 @@ button:disabled {
   gap: 10px;
 }
 
-.secondary-button {
+.secondary-button,
+.secondary-link-button {
   border: 1px solid var(--border-strong);
   background: transparent;
   color: var(--ink);
 }
 
-.secondary-button:hover {
+.secondary-button:hover,
+.secondary-link-button:hover {
   background: var(--surface-raised);
 }
 

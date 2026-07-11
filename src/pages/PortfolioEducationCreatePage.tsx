@@ -92,7 +92,7 @@ export function PortfolioEducationCreatePage({ accessToken }: PortfolioEducation
           <h1>보유 분석 만들기</h1>
           <p>보유 수량과 평균 단가를 입력해 포지션을 학습용으로 정리합니다.</p>
         </div>
-        <Link className="secondary-button" to="/portfolio-analyses">
+        <Link className="secondary-link-button" to="/portfolio-analyses">
           목록으로
         </Link>
       </div>
@@ -179,6 +179,17 @@ export function PortfolioEducationCreatePage({ accessToken }: PortfolioEducation
           <p className="muted-note">입력값과 과거 데이터 기반 참고 정보이며 투자 조언이나 매매 추천이 아닙니다.</p>
         </aside>
       </div>
+      {status === 'loading' ? (
+        <div className="generation-overlay" role="status" aria-live="polite" aria-modal="true">
+          <div className="generation-modal">
+            <span className="loading-spinner generation-spinner" aria-hidden="true" />
+            <h2>보유 분석을 만드는 중입니다</h2>
+            <p>입력한 보유 수량과 평균 단가를 기준으로 과거 데이터와 지표를 정리하고 있습니다.</p>
+            <p className="generation-subcopy">완료되면 자동으로 상세 화면으로 이동합니다.</p>
+            <span className="generation-progress" aria-hidden="true" />
+          </div>
+        </div>
+      ) : null}
     </section>
   );
 }
