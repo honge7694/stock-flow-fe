@@ -87,6 +87,18 @@ describe('App routing', () => {
     expect(screen.getByText(/20일 이동평균선이 50일 이동평균선 아래에 있다가 위로 올라서면/)).toBeInTheDocument();
   });
 
+  it('shows the trading skills learning route', () => {
+    storeSession();
+    window.history.pushState({}, '', '/trading-skills');
+
+    render(<App />);
+
+    expect(screen.getByRole('heading', { name: '트레이딩 스킬 학습' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: '스킬 학습' })).toHaveAttribute('aria-current', 'page');
+    expect(screen.getByText('추세와 눌림 구분하기')).toBeInTheDocument();
+    expect(screen.getByText('지지선 이탈 확인하기')).toBeInTheDocument();
+  });
+
   it('shows stocks from the watchlist route', async () => {
     storeSession();
     window.history.pushState({}, '', '/stocks');
