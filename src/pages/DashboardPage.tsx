@@ -55,6 +55,14 @@ export function DashboardPage() {
             스킬 학습
           </Link>
         </article>
+        <article className="overview-card">
+          <span className="card-label">패턴</span>
+          <strong>차트 흐름도 보기</strong>
+          <p>이중 천장, 삼각형, 쐐기, 채널 이탈 같은 흐름 모양을 그림으로 학습합니다.</p>
+          <Link className="text-link" to="/chart-patterns">
+            차트 흐름도
+          </Link>
+        </article>
       </div>
     </section>
   );

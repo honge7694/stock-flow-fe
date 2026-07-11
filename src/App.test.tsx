@@ -99,6 +99,18 @@ describe('App routing', () => {
     expect(screen.getByText('지지선 이탈 확인하기')).toBeInTheDocument();
   });
 
+  it('shows the chart pattern map route', () => {
+    storeSession();
+    window.history.pushState({}, '', '/chart-patterns');
+
+    render(<App />);
+
+    expect(screen.getByRole('heading', { name: '차트 흐름도' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: '차트 흐름도' })).toHaveAttribute('aria-current', 'page');
+    expect(screen.getByText('이중 천장')).toBeInTheDocument();
+    expect(screen.getByText('상승 삼각형')).toBeInTheDocument();
+  });
+
   it('shows stocks from the watchlist route', async () => {
     storeSession();
     window.history.pushState({}, '', '/stocks');
