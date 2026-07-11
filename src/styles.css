@@ -1301,8 +1301,43 @@ button:disabled {
 }
 
 .report-delete-trigger {
+  display: inline-grid;
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  place-items: center;
   align-self: center;
-  min-width: 64px;
+  justify-self: end;
+  border: 1px solid rgba(142, 160, 155, 0.34);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.018);
+  color: rgba(182, 192, 189, 0.72);
+  padding: 0;
+}
+
+.report-delete-trigger:hover,
+.report-delete-trigger:focus-visible {
+  border-color: rgba(239, 107, 107, 0.44);
+  background: rgba(239, 107, 107, 0.08);
+  color: #fecaca;
+}
+
+.report-delete-trigger:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.report-delete-icon {
+  width: 17px;
+  height: 17px;
+}
+
+.report-delete-icon path {
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
 }
 
 .report-delete-confirm {
@@ -2677,7 +2712,10 @@ button:disabled {
     justify-self: start;
   }
 
-  .report-delete-trigger,
+  .report-delete-trigger {
+    justify-self: end;
+  }
+
   .report-delete-confirm {
     width: 100%;
   }

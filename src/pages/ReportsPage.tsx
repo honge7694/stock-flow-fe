@@ -400,12 +400,19 @@ export function ReportsPage({ accessToken }: ReportsPageProps) {
               ) : (
                 <button
                   type="button"
-                  className="danger-button report-delete-button report-delete-trigger"
+                  className="report-delete-trigger"
                   disabled={Boolean(deletingReportId)}
                   aria-label={`리포트 삭제 확인 ${report.ticker}`}
+                  title="리포트 삭제"
                   onClick={() => setConfirmingReportId(report.id)}
                 >
-                  삭제
+                  <svg className="report-delete-icon" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M4 7h16" />
+                    <path d="M10 11v6" />
+                    <path d="M14 11v6" />
+                    <path d="M6 7l1 14h10l1-14" />
+                    <path d="M9 7V4h6v3" />
+                  </svg>
                 </button>
               )}
             </article>
