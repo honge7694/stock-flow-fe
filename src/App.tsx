@@ -4,6 +4,7 @@ import { fetchMe, login, signup } from './api/authApi';
 import { AUTH_EXPIRED_EVENT } from './api/authEvents';
 import { AuthPanel } from './components/AuthPanel';
 import { DashboardPage } from './pages/DashboardPage';
+import { GlossaryPage } from './pages/GlossaryPage';
 import { ReportDetailPage } from './pages/ReportDetailPage';
 import { ReportGeneratePage } from './pages/ReportGeneratePage';
 import { ReportsPage } from './pages/ReportsPage';
@@ -11,13 +12,14 @@ import { StocksPage } from './pages/StocksPage';
 import type { User } from './types/report';
 
 type AuthState = 'idle' | 'loading';
-type NavIconName = 'dashboard' | 'stocks' | 'reportCreate' | 'reports';
+type NavIconName = 'dashboard' | 'stocks' | 'reportCreate' | 'reports' | 'glossary';
 
 const navItems = [
   { to: '/dashboard', label: '대시보드', icon: 'dashboard', end: false },
   { to: '/stocks', label: '관심 종목', icon: 'stocks', end: false },
   { to: '/reports/new', label: '리포트 생성', icon: 'reportCreate', end: false },
   { to: '/reports', label: '리포트 목록', icon: 'reports', end: true },
+  { to: '/glossary', label: '용어집', icon: 'glossary', end: true },
 ] satisfies Array<{ to: string; label: string; icon: NavIconName; end: boolean }>;
 
 const navIconPaths: Record<NavIconName, string[]> = {
@@ -25,6 +27,7 @@ const navIconPaths: Record<NavIconName, string[]> = {
   stocks: ['M4 17l4.5-4.5 3 3L18 9', 'M15 9h3v3'],
   reportCreate: ['M6 4h8l4 4v12H6z', 'M14 4v5h4', 'M9 14h6', 'M12 11v6'],
   reports: ['M7 4h10v16H7z', 'M10 8h4', 'M10 12h4', 'M10 16h3', 'M5 7h2', 'M17 7h2'],
+  glossary: ['M5 5h10a4 4 0 0 1 4 4v10H9a4 4 0 0 0-4-4z', 'M5 5v14', 'M9 9h6', 'M9 13h5'],
 };
 
 function SidebarNavIcon({ name }: { name: NavIconName }) {
@@ -216,6 +219,7 @@ export default function App() {
             <Route path="/reports/new" element={<ReportGeneratePage accessToken={accessToken} />} />
             <Route path="/reports" element={<ReportsPage accessToken={accessToken} />} />
             <Route path="/reports/:id" element={<ReportDetailPage accessToken={accessToken} />} />
+            <Route path="/glossary" element={<GlossaryPage />} />
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
         </section>

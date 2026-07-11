@@ -466,6 +466,229 @@ li {
   margin-bottom: 0;
 }
 
+.glossary-page {
+  display: grid;
+  gap: 18px;
+}
+
+.glossary-title-row {
+  margin-bottom: 0;
+}
+
+.glossary-learning-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 360px);
+  gap: 18px;
+  align-items: center;
+  border: 1px solid rgba(0, 217, 146, 0.22);
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(0, 217, 146, 0.12), rgba(17, 20, 22, 0.96));
+  padding: 22px;
+}
+
+.glossary-learning-panel h2,
+.glossary-learning-panel p {
+  margin: 0;
+}
+
+.glossary-learning-panel h2 {
+  margin-top: 6px;
+}
+
+.glossary-learning-panel h2 + p {
+  margin-top: 10px;
+}
+
+.glossary-mini-guide {
+  display: grid;
+  gap: 8px;
+}
+
+.glossary-mini-guide span {
+  border: 1px solid rgba(0, 217, 146, 0.22);
+  border-radius: 999px;
+  background: rgba(0, 217, 146, 0.07);
+  color: var(--ink);
+  padding: 9px 12px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.glossary-controls {
+  display: grid;
+  grid-template-columns: minmax(280px, 420px) minmax(0, 1fr);
+  gap: 14px;
+  align-items: end;
+}
+
+.glossary-search {
+  display: grid;
+  gap: 7px;
+  color: var(--body);
+  font-size: 14px;
+}
+
+.glossary-category-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.glossary-category-tabs button {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--body);
+  padding: 9px 13px;
+}
+
+.glossary-category-tabs button:hover,
+.glossary-category-tabs button:focus,
+.glossary-category-tabs button.active {
+  border-color: rgba(0, 217, 146, 0.48);
+  background: var(--primary-soft);
+  color: var(--ink-strong);
+}
+
+.glossary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.glossary-card {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.8fr) minmax(0, 1.2fr);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.glossary-card-visual {
+  display: grid;
+  min-height: 220px;
+  place-items: center;
+  border-right: 1px solid var(--border);
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    radial-gradient(circle at 35% 20%, rgba(0, 217, 146, 0.14), transparent 34%),
+    #0d1112;
+  background-size:
+    28px 28px,
+    28px 28px,
+    auto,
+    auto;
+  padding: 18px;
+}
+
+.glossary-visual-svg {
+  width: min(100%, 260px);
+  height: auto;
+  color: var(--body);
+}
+
+.glossary-visual-svg line,
+.glossary-visual-svg path {
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 3;
+}
+
+.glossary-visual-svg rect {
+  rx: 2;
+}
+
+.glossary-visual-svg text {
+  fill: var(--mute);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.visual-up,
+.visual-volume {
+  fill: rgba(0, 217, 146, 0.72);
+  stroke: rgba(0, 217, 146, 0.92);
+}
+
+.visual-down {
+  fill: rgba(239, 107, 107, 0.6);
+  stroke: rgba(239, 107, 107, 0.92);
+}
+
+.visual-short-line {
+  stroke: var(--primary) !important;
+}
+
+.visual-long-line {
+  stroke: #8ea09b !important;
+}
+
+.visual-muted-line,
+.visual-guide {
+  stroke: rgba(182, 192, 189, 0.35) !important;
+}
+
+.visual-cross-point {
+  fill: var(--primary);
+  stroke: rgba(0, 217, 146, 0.3);
+}
+
+.visual-support {
+  stroke: rgba(0, 217, 146, 0.58) !important;
+  stroke-dasharray: 6 6;
+}
+
+.visual-resistance {
+  stroke: rgba(227, 179, 65, 0.68) !important;
+  stroke-dasharray: 6 6;
+}
+
+.glossary-card-body {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  padding: 20px;
+}
+
+.glossary-card-body h2,
+.glossary-card-body p {
+  margin: 0;
+}
+
+.glossary-card-body .pill {
+  justify-self: start;
+}
+
+.glossary-card-body h2 {
+  font-size: 22px;
+}
+
+.glossary-example-box,
+.glossary-watch-list {
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+}
+
+.glossary-example-box strong,
+.glossary-watch-list strong {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--ink-strong);
+  font-size: 14px;
+}
+
+.glossary-watch-list ul {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding-left: 18px;
+}
+
 .report-workflow-grid,
 .management-grid {
   display: grid;
@@ -1754,7 +1977,7 @@ button:disabled {
   }
 
   .nav-tabs {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(5, minmax(0, 1fr));
   }
 
   .nav-tabs a {
@@ -1763,9 +1986,14 @@ button:disabled {
   }
 
   .dashboard-grid,
+  .glossary-grid,
   .report-workflow-grid,
   .management-grid {
     grid-template-columns: 1fr;
+  }
+
+  .glossary-card {
+    grid-template-columns: minmax(220px, 0.65fr) minmax(0, 1fr);
   }
 
   .side-form {
@@ -1832,6 +2060,22 @@ button:disabled {
 
   .workspace-topbar p {
     margin-top: 4px;
+  }
+
+  .glossary-learning-panel,
+  .glossary-controls,
+  .glossary-card {
+    grid-template-columns: 1fr;
+  }
+
+  .glossary-category-tabs {
+    justify-content: flex-start;
+  }
+
+  .glossary-card-visual {
+    min-height: 180px;
+    border-right: 0;
+    border-bottom: 1px solid var(--border);
   }
 
   .nav-tabs {
