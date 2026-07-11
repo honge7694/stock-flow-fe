@@ -1,6 +1,7 @@
 import { type FormEvent, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { deleteReport, fetchReports } from '../api/reportApi';
+import { LoadingOverlay } from '../components/LoadingOverlay';
 import type {
   ReportAiStatus,
   ReportInstrument,
@@ -335,7 +336,9 @@ export function ReportsPage({ accessToken }: ReportsPageProps) {
           ) : null}
         </form>
 
-        {status === 'loading' ? <p>리포트 목록을 불러오는 중입니다.</p> : null}
+        {status === 'loading' ? (
+          <LoadingOverlay title="리포트 목록을 불러오는 중입니다" description="저장된 리포트와 필터 조건에 맞는 결과를 확인하고 있습니다." />
+        ) : null}
         {message ? (
           <p className={message.tone === 'success' ? 'form-success' : 'form-error'} role="status">
             {message.text}

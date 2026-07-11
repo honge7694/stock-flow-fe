@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { fetchReportById } from '../api/reportApi';
 import { AiAnalysisPanel } from '../components/AiAnalysisPanel';
+import { LoadingOverlay } from '../components/LoadingOverlay';
 import { ReportCharts } from '../components/ReportCharts';
 import { ReportShareButton } from '../components/ReportShareButton';
 import { ReportSummary } from '../components/ReportSummary';
@@ -49,7 +50,7 @@ export function ReportDetailPage({ accessToken }: ReportDetailPageProps) {
   }
 
   if (status === 'loading') {
-    return <section className="state-panel">리포트 상세를 불러오는 중입니다.</section>;
+    return <LoadingOverlay title="리포트 상세를 불러오는 중입니다" description="차트 데이터와 AI 분석 내용을 서버에서 가져오고 있습니다." />;
   }
 
   if (status === 'error' || !report) {
