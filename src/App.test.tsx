@@ -76,6 +76,17 @@ describe('App routing', () => {
     expect(screen.getByRole('link', { name: '대시보드' })).toHaveAttribute('aria-current', 'page');
   });
 
+  it('shows the glossary route for stock terms', () => {
+    storeSession();
+    window.history.pushState({}, '', '/glossary');
+
+    render(<App />);
+
+    expect(screen.getByRole('heading', { name: '주식 용어집' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '보조 지표' })).toBeInTheDocument();
+    expect(screen.getByText(/20일 이동평균선이 50일 이동평균선 아래에 있다가 위로 올라서면/)).toBeInTheDocument();
+  });
+
   it('shows stocks from the watchlist route', async () => {
     storeSession();
     window.history.pushState({}, '', '/stocks');
