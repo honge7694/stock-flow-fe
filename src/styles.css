@@ -2131,13 +2131,18 @@ button:disabled {
   }
 
   .report-hero-topline {
-    gap: 12px;
+    gap: 16px;
     flex-direction: column;
+  }
+
+  .report-hero-topline + .meta {
+    margin-top: 18px;
   }
 
   .report-hero-action {
     width: 100%;
     max-width: none;
+    padding-top: 2px;
   }
 
   .report-share-actions {
