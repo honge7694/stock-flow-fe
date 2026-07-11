@@ -881,6 +881,38 @@ li {
   text-align: center;
 }
 
+.pattern-tone-legend {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 420px);
+  gap: 18px;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  padding: 18px;
+}
+
+.pattern-tone-legend h2,
+.pattern-tone-legend p {
+  margin: 0;
+}
+
+.pattern-tone-legend h2 {
+  margin-top: 6px;
+  font-size: 20px;
+}
+
+.pattern-tone-legend h2 + p {
+  margin-top: 8px;
+}
+
+.pattern-tone-legend-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
 .pattern-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -894,6 +926,14 @@ li {
   border: 1px solid var(--border);
   border-radius: 8px;
   background: var(--surface);
+}
+
+.pattern-card-positive {
+  border-color: rgba(0, 217, 146, 0.28);
+}
+
+.pattern-card-negative {
+  border-color: rgba(239, 107, 107, 0.24);
 }
 
 .pattern-card-visual {
@@ -912,6 +952,55 @@ li {
     auto,
     auto;
   padding: 18px;
+}
+
+.pattern-card-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.pattern-tone-badge {
+  display: inline-flex;
+  min-height: 28px;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.pattern-tone-positive {
+  border-color: rgba(0, 217, 146, 0.42);
+  background: rgba(0, 217, 146, 0.09);
+  color: #8ff5d0;
+}
+
+.pattern-tone-negative {
+  border-color: rgba(239, 107, 107, 0.44);
+  background: rgba(239, 107, 107, 0.1);
+  color: #fecaca;
+}
+
+.pattern-tone-neutral {
+  border-color: rgba(227, 179, 65, 0.38);
+  background: rgba(227, 179, 65, 0.08);
+  color: #f3d58a;
+}
+
+.pattern-tone-summary {
+  border-left: 3px solid rgba(0, 217, 146, 0.55);
+  background: rgba(0, 217, 146, 0.045);
+  color: var(--ink);
+  padding: 8px 10px;
+  font-weight: 700;
+}
+
+.pattern-card-negative .pattern-tone-summary {
+  border-left-color: rgba(239, 107, 107, 0.62);
+  background: rgba(239, 107, 107, 0.055);
 }
 
 .pattern-visual-svg {
@@ -2644,6 +2733,7 @@ button:disabled {
   .glossary-learning-panel,
   .skill-learning-panel,
   .pattern-learning-panel,
+  .pattern-tone-legend,
   .glossary-controls,
   .glossary-card,
   .trading-skill-card,
@@ -2666,6 +2756,10 @@ button:disabled {
   .skill-flow-steps,
   .pattern-flow-steps {
     grid-template-columns: 1fr;
+  }
+
+  .pattern-tone-legend-items {
+    justify-content: flex-start;
   }
 
   .nav-tabs {

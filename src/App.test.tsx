@@ -109,6 +109,8 @@ describe('App routing', () => {
     expect(screen.getByRole('link', { name: '차트 흐름도' })).toHaveAttribute('aria-current', 'page');
     expect(screen.getByText('이중 천장')).toBeInTheDocument();
     expect(screen.getByText('상승 삼각형')).toBeInTheDocument();
+    expect(screen.getAllByText('긍정 관찰').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('주의 관찰').length).toBeGreaterThan(0);
   });
 
   it('shows stocks from the watchlist route', async () => {
