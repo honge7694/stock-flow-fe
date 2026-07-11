@@ -171,15 +171,15 @@ export function PortfolioEducationPage({ accessToken }: PortfolioEducationPagePr
               <span className={isFiltered ? 'pill pill-accent' : 'pill'}>{appliedFilters.ticker ?? '전체 종목'}</span>
             </div>
             <div className="filter-heading-actions">
-              <span className="pill">총 {portfolioList.total}개</span>
+              <span className="filter-count-badge">총 {portfolioList.total}개</span>
               {isFiltered ? (
-                <button type="button" className="secondary-button" onClick={resetFilters}>
+                <button type="button" className="secondary-button filter-reset-button" onClick={resetFilters}>
                   필터 초기화
                 </button>
               ) : null}
               <button
                 type="button"
-                className="secondary-button"
+                className={isFiltered ? 'filter-toggle-button filter-toggle-button-active' : 'filter-toggle-button'}
                 aria-expanded={isFilterOpen}
                 aria-controls="portfolio-filter-fields"
                 onClick={() => {
@@ -187,6 +187,11 @@ export function PortfolioEducationPage({ accessToken }: PortfolioEducationPagePr
                   setIsFilterOpen((current) => !current);
                 }}
               >
+                <svg className="filter-button-icon" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M4 6h16" />
+                  <path d="M7 12h10" />
+                  <path d="M10 18h4" />
+                </svg>
                 {isFilterOpen ? '필터 닫기' : '필터 열기'}
               </button>
             </div>

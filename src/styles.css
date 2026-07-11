@@ -1321,6 +1321,57 @@ button:disabled {
   padding: 7px 10px;
 }
 
+.filter-count-badge {
+  display: inline-flex;
+  min-height: 34px;
+  align-items: center;
+  border: 1px solid rgba(142, 160, 155, 0.28);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.018);
+  color: var(--mute);
+  padding: 7px 11px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.filter-toggle-button,
+.filter-reset-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.filter-toggle-button {
+  border: 1px solid rgba(142, 160, 155, 0.38);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.018);
+  color: var(--ink);
+  padding: 7px 11px;
+  font-weight: 800;
+}
+
+.filter-toggle-button:hover,
+.filter-toggle-button:focus-visible,
+.filter-toggle-button-active {
+  border-color: rgba(0, 217, 146, 0.46);
+  background: rgba(0, 217, 146, 0.08);
+  color: var(--ink-strong);
+}
+
+.filter-button-icon {
+  width: 15px;
+  height: 15px;
+  color: var(--primary);
+}
+
+.filter-button-icon path {
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+}
+
 .filter-panel-body {
   display: grid;
   gap: 16px;
@@ -1398,10 +1449,45 @@ button:disabled {
   gap: 12px;
 }
 
+.report-swipe-item {
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+.report-swipe-action-panel {
+  position: absolute;
+  inset: 0 0 0 auto;
+  display: none;
+  width: 88px;
+  align-items: stretch;
+  justify-content: stretch;
+  border-radius: 0 8px 8px 0;
+  background: linear-gradient(135deg, rgba(127, 29, 29, 0.96), rgba(185, 28, 28, 0.86));
+}
+
+.report-swipe-delete-button {
+  display: grid;
+  width: 100%;
+  place-items: center;
+  align-content: center;
+  gap: 5px;
+  border: 0;
+  background: transparent;
+  color: #fee2e2;
+  padding: 0;
+  font-size: 12px;
+  font-weight: 900;
+}
+
 .report-row {
   grid-template-columns: minmax(0, 1fr) auto;
   min-height: 78px;
   text-decoration: none;
+  transition:
+    border-color 160ms ease,
+    background 160ms ease,
+    transform 180ms ease;
 }
 
 .report-row:hover,
@@ -2877,8 +2963,24 @@ button:disabled {
     justify-self: start;
   }
 
+  .report-swipe-action-panel {
+    display: flex;
+  }
+
+  .report-swipe-item.is-delete-revealed .report-row {
+    transform: translateX(-88px);
+  }
+
+  .report-row {
+    touch-action: pan-y;
+  }
+
   .report-delete-trigger {
     justify-self: end;
+  }
+
+  .report-delete-desktop-action {
+    display: none;
   }
 
   .report-delete-confirm {

@@ -260,7 +260,7 @@ describe('App routing', () => {
 
     await user.click(await screen.findByRole('button', { name: '리포트 삭제 확인 000660.KS' }));
 
-    expect(screen.getByText('000660.KS 리포트를 삭제할까요?')).toBeInTheDocument();
+    expect(screen.getByText('이 리포트를 삭제하면 다시 복구할 수 없습니다.')).toBeInTheDocument();
     expect(fetchMock).toHaveBeenCalledTimes(1);
 
     await user.click(screen.getByRole('button', { name: '삭제 확정 000660.KS' }));
