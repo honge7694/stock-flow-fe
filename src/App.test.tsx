@@ -52,14 +52,14 @@ describe('App routing', () => {
     expect(window.location.pathname).toBe('/reports/report-uuid');
   });
 
-  it('marks only report generation active on the report generation route', () => {
+  it('keeps the report list menu active on the report generation route', () => {
     storeSession();
     window.history.pushState({}, '', '/reports/new');
 
     render(<App />);
 
-    expect(screen.getByRole('link', { name: '리포트 생성' })).toHaveAttribute('aria-current', 'page');
-    expect(screen.getByRole('link', { name: '리포트 목록' })).not.toHaveAttribute('aria-current');
+    expect(screen.queryByRole('link', { name: '리포트 생성' })).not.toBeInTheDocument();
+    expect(screen.getByRole('link', { name: '리포트 목록' })).toHaveAttribute('aria-current', 'page');
   });
 
   it('toggles and persists the sidebar collapsed state', async () => {
