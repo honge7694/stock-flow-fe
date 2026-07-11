@@ -47,6 +47,14 @@ export function DashboardPage() {
             용어집 보기
           </Link>
         </article>
+        <article className="overview-card">
+          <span className="card-label">학습</span>
+          <strong>트레이딩 스킬 연습</strong>
+          <p>추세, 지지선, 거래량, 변동성을 예시와 체크리스트로 공부합니다.</p>
+          <Link className="text-link" to="/trading-skills">
+            스킬 학습
+          </Link>
+        </article>
       </div>
     </section>
   );
