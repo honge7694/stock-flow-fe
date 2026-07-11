@@ -33,11 +33,16 @@ export function ReportShareButton({ report, payload, captureTargetRef }: ReportS
 
   return (
     <div className="report-share-actions" aria-label="리포트 공유">
-      <button type="button" className="primary-button" disabled={status === 'loading'} onClick={handleShare}>
-        {status === 'loading' ? '이미지 생성 중...' : '공유'}
+      <button type="button" className="report-share-button" disabled={status === 'loading'} onClick={handleShare}>
+        <svg className="report-share-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M8 12h8" />
+          <path d="M13 7l5 5-5 5" />
+          <path d="M5 5v14" />
+        </svg>
+        <span>{status === 'loading' ? '공유 준비 중...' : '요약 이미지 공유'}</span>
       </button>
       {message ? (
-        <p className="form-message" data-share-exclude="true">
+        <p className="form-message" role="status" data-share-exclude="true">
           {message}
         </p>
       ) : null}

@@ -868,6 +868,12 @@ button:disabled {
   background: rgba(239, 107, 107, 0.08);
 }
 
+.danger-button:disabled {
+  border-color: rgba(239, 107, 107, 0.32);
+  background: rgba(239, 107, 107, 0.04);
+  color: rgba(254, 202, 202, 0.72);
+}
+
 .text-link {
   width: fit-content;
   min-height: 36px;
@@ -884,6 +890,11 @@ button:disabled {
 .form-error {
   margin: 0 0 12px;
   color: #fecaca;
+}
+
+.form-success {
+  margin: 0 0 12px;
+  color: var(--primary);
 }
 
 .filter-bar,
@@ -1076,6 +1087,7 @@ button:disabled {
 }
 
 .report-delete-button {
+  min-width: 86px;
   min-height: 36px;
   padding: 7px 11px;
 }
@@ -1381,9 +1393,28 @@ button:disabled {
 
 .report-share-actions {
   display: grid;
-  min-width: 112px;
+  min-width: 156px;
   justify-items: end;
   gap: 8px;
+}
+
+.report-share-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 156px;
+  white-space: nowrap;
+}
+
+.report-share-icon {
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
 }
 
 .report-share-actions .form-message {
@@ -2100,15 +2131,37 @@ button:disabled {
   }
 
   .report-hero-topline {
+    gap: 12px;
     flex-direction: column;
   }
 
+  .report-hero-action {
+    width: 100%;
+    max-width: none;
+  }
+
   .report-share-actions {
+    width: 100%;
     min-width: 0;
-    justify-items: start;
+    justify-items: stretch;
+  }
+
+  .report-share-button {
+    width: 100%;
+    min-height: 46px;
+    border: 1px solid rgba(0, 217, 146, 0.5);
+    background: rgba(0, 217, 146, 0.08);
+    color: var(--primary);
+  }
+
+  .report-share-button:hover,
+  .report-share-button:focus {
+    background: rgba(0, 217, 146, 0.14);
   }
 
   .report-share-actions .form-message {
+    color: var(--mute);
+    font-size: 12px;
     text-align: left;
   }
 

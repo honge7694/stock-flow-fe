@@ -18,7 +18,7 @@ describe('ReportShareButton', () => {
 
     render(<ReportShareButton report={sampleReport} payload={sampleReport.payload!} captureTargetRef={captureTargetRef} />);
 
-    await user.click(screen.getByRole('button', { name: '공유' }));
+    await user.click(screen.getByRole('button', { name: '요약 이미지 공유' }));
 
     expect(shareReport).toHaveBeenCalledWith(sampleReport, sampleReport.payload!, captureTarget);
     await waitFor(() => {
