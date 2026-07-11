@@ -24,6 +24,14 @@ export function DashboardPage() {
           </Link>
         </article>
         <article className="overview-card">
+          <span className="card-label">보유 분석</span>
+          <strong>보유 포지션 학습</strong>
+          <p>수량과 평균 단가를 입력해 평가 상태와 차트 지표를 교육용으로 정리합니다.</p>
+          <Link className="text-link" to="/portfolio-analyses">
+            보유 분석 만들기
+          </Link>
+        </article>
+        <article className="overview-card">
           <span className="card-label">리포트</span>
           <strong>최근 리포트 확인</strong>
           <p>완료된 리포트와 실패한 요청을 한 화면에서 확인합니다.</p>

@@ -5,6 +5,8 @@ import { AUTH_EXPIRED_EVENT } from './api/authEvents';
 import { AuthPanel } from './components/AuthPanel';
 import { DashboardPage } from './pages/DashboardPage';
 import { GlossaryPage } from './pages/GlossaryPage';
+import { PortfolioEducationDetailPage } from './pages/PortfolioEducationDetailPage';
+import { PortfolioEducationPage } from './pages/PortfolioEducationPage';
 import { ReportDetailPage } from './pages/ReportDetailPage';
 import { ReportGeneratePage } from './pages/ReportGeneratePage';
 import { ReportsPage } from './pages/ReportsPage';
@@ -12,11 +14,12 @@ import { StocksPage } from './pages/StocksPage';
 import type { User } from './types/report';
 
 type AuthState = 'idle' | 'loading';
-type NavIconName = 'dashboard' | 'stocks' | 'reportCreate' | 'reports' | 'glossary';
+type NavIconName = 'dashboard' | 'stocks' | 'portfolio' | 'reportCreate' | 'reports' | 'glossary';
 
 const navItems = [
   { to: '/dashboard', label: '대시보드', icon: 'dashboard', end: false },
   { to: '/stocks', label: '관심 종목', icon: 'stocks', end: false },
+  { to: '/portfolio-analyses', label: '보유 분석', icon: 'portfolio', end: false },
   { to: '/reports/new', label: '리포트 생성', icon: 'reportCreate', end: false },
   { to: '/reports', label: '리포트 목록', icon: 'reports', end: true },
   { to: '/glossary', label: '용어집', icon: 'glossary', end: true },
@@ -25,6 +28,7 @@ const navItems = [
 const navIconPaths: Record<NavIconName, string[]> = {
   dashboard: ['M4 5h6v6H4z', 'M14 5h6v4h-6z', 'M14 13h6v6h-6z', 'M4 15h6v4H4z'],
   stocks: ['M4 17l4.5-4.5 3 3L18 9', 'M15 9h3v3'],
+  portfolio: ['M4 7h16v12H4z', 'M8 7V5h8v2', 'M8 13h8', 'M8 16h5'],
   reportCreate: ['M6 4h8l4 4v12H6z', 'M14 4v5h4', 'M9 14h6', 'M12 11v6'],
   reports: ['M7 4h10v16H7z', 'M10 8h4', 'M10 12h4', 'M10 16h3', 'M5 7h2', 'M17 7h2'],
   glossary: ['M5 5h10a4 4 0 0 1 4 4v10H9a4 4 0 0 0-4-4z', 'M5 5v14', 'M9 9h6', 'M9 13h5'],
@@ -216,6 +220,8 @@ export default function App() {
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/stocks" element={<StocksPage accessToken={accessToken} />} />
+            <Route path="/portfolio-analyses" element={<PortfolioEducationPage accessToken={accessToken} />} />
+            <Route path="/portfolio-analyses/:id" element={<PortfolioEducationDetailPage accessToken={accessToken} />} />
             <Route path="/reports/new" element={<ReportGeneratePage accessToken={accessToken} />} />
             <Route path="/reports" element={<ReportsPage accessToken={accessToken} />} />
             <Route path="/reports/:id" element={<ReportDetailPage accessToken={accessToken} />} />
