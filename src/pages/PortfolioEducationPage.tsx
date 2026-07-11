@@ -1,7 +1,6 @@
 import { type FormEvent, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { fetchPortfolioEducationAnalyses } from '../api/portfolioApi';
-import { LoadingOverlay } from '../components/LoadingOverlay';
 import type {
   PortfolioEducationAnalysisListItem,
   PortfolioEducationAnalysisListResponse,
@@ -215,9 +214,7 @@ export function PortfolioEducationPage({ accessToken }: PortfolioEducationPagePr
           ) : null}
         </form>
 
-        {status === 'loading' ? (
-          <LoadingOverlay title="보유 분석 목록을 불러오는 중입니다" description="저장된 보유 포지션 분석과 페이지 정보를 확인하고 있습니다." />
-        ) : null}
+        {status === 'loading' ? <p>보유 분석 목록을 불러오는 중입니다.</p> : null}
         <div className="table-list portfolio-list">
           {items.map((item) => {
             const instrumentMeta = formatInstrumentMeta(item.instrument);

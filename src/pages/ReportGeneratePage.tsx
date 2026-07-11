@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { fetchReport } from '../api/reportApi';
-import { LoadingOverlay } from '../components/LoadingOverlay';
 import { ReportQueryForm } from '../components/ReportQueryForm';
 import { ReportState } from '../components/ReportState';
 import type { ReportRequest } from '../types/report';
@@ -76,11 +75,15 @@ export function ReportGeneratePage({ accessToken }: ReportGeneratePageProps) {
         </aside>
       </div>
       {status === 'loading' ? (
-        <LoadingOverlay
-          title="리포트를 생성하는 중입니다"
-          description="선택한 종목과 기간의 과거 가격 데이터와 기술 지표를 분석하고 있습니다."
-          subcopy="잠시만 기다려 주세요. 완료되면 자동으로 이동합니다."
-        />
+        <div className="generation-overlay" role="status" aria-live="polite" aria-modal="true">
+          <div className="generation-modal">
+            <span className="loading-spinner generation-spinner" aria-hidden="true" />
+            <h2>리포트를 생성하는 중입니다</h2>
+            <p>선택한 종목과 기간의 과거 가격 데이터와 기술 지표를 분석하고 있습니다.</p>
+            <p className="generation-subcopy">잠시만 기다려 주세요. 완료되면 자동으로 이동합니다.</p>
+            <span className="generation-progress" aria-hidden="true" />
+          </div>
+        </div>
       ) : null}
     </section>
   );

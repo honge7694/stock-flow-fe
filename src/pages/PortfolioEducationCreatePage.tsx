@@ -1,7 +1,6 @@
 import { type FormEvent, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { createPortfolioEducationAnalysis } from '../api/portfolioApi';
-import { LoadingOverlay } from '../components/LoadingOverlay';
 import type { PortfolioEducationRequest } from '../types/report';
 
 type PortfolioEducationCreatePageProps = {
@@ -189,11 +188,15 @@ export function PortfolioEducationCreatePage({ accessToken }: PortfolioEducation
         </aside>
       </div>
       {status === 'loading' ? (
-        <LoadingOverlay
-          title="보유 분석을 만드는 중입니다"
-          description="입력한 보유 수량과 평균 단가를 기준으로 과거 데이터와 지표를 정리하고 있습니다."
-          subcopy="완료되면 자동으로 상세 화면으로 이동합니다."
-        />
+        <div className="generation-overlay" role="status" aria-live="polite" aria-modal="true">
+          <div className="generation-modal">
+            <span className="loading-spinner generation-spinner" aria-hidden="true" />
+            <h2>보유 분석을 만드는 중입니다</h2>
+            <p>입력한 보유 수량과 평균 단가를 기준으로 과거 데이터와 지표를 정리하고 있습니다.</p>
+            <p className="generation-subcopy">완료되면 자동으로 상세 화면으로 이동합니다.</p>
+            <span className="generation-progress" aria-hidden="true" />
+          </div>
+        </div>
       ) : null}
     </section>
   );

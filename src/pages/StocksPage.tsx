@@ -1,7 +1,6 @@
 import { type FormEvent, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { createStock, deleteStock, fetchStocks, updateStock } from '../api/stocksApi';
-import { LoadingOverlay } from '../components/LoadingOverlay';
 import type { ReportPeriod, Stock, StockRequest } from '../types/report';
 
 type StocksPageProps = {
@@ -156,10 +155,8 @@ export function StocksPage({ accessToken }: StocksPageProps) {
             </div>
           </div>
           {message ? <p className="form-error">{message}</p> : null}
-          {status === 'loading' ? (
-            <LoadingOverlay title="관심 종목을 불러오는 중입니다" description="등록된 종목과 예약 설정 정보를 서버에서 확인하고 있습니다." />
-          ) : null}
           <div className="table-list">
+            {status === 'loading' ? <p>관심 종목을 불러오는 중입니다.</p> : null}
             {stocks.map((stock) => (
               <article className={`list-row stock-row ${editingId === stock.id ? 'stock-row-active' : ''}`} key={stock.id}>
                 <div className="stock-identity">
