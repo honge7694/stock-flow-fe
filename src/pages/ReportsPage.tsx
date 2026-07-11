@@ -1,6 +1,6 @@
 import { type FormEvent, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { deleteReport, fetchReports } from '../api/reportApi';
+import { deleteReport, fetchReportById, fetchReports } from '../api/reportApi';
 import type {
   ReportAiStatus,
   ReportInstrument,
@@ -11,6 +11,7 @@ import type {
   ReportSource,
   ReportStatus,
 } from '../types/report';
+import { shareReport } from '../utils/shareReport';
 
 type ReportsPageProps = {
   accessToken: string;
@@ -101,6 +102,7 @@ export function ReportsPage({ accessToken }: ReportsPageProps) {
   });
   const [status, setStatus] = useState<'idle' | 'loading' | 'error'>('idle');
   const [deletingReportId, setDeletingReportId] = useState<string>();
+  const [sharingReportId, setSharingReportId] = useState<string>();
   const [confirmingReportId, setConfirmingReportId] = useState<string>();
   const [message, setMessage] = useState<{ tone: 'success' | 'error'; text: string }>();
   const reports = reportList.items;
@@ -197,6 +199,28 @@ export function ReportsPage({ accessToken }: ReportsPageProps) {
       setStatus('error');
     } finally {
       setDeletingReportId(undefined);
+    }
+  }
+
+  async function handleShareReport(report: ReportResponse) {
+    setSharingReportId(report.id);
+    setMessage(undefined);
+
+    try {
+      const detail = report.payload ? report : await fetchReportById(report.id, accessToken);
+      if (detail.status !== 'completed' || !detail.payload) {
+        throw new Error('공유할 수 있는 리포트 내용이 없습니다.');
+      }
+
+      const result = await shareReport(detail, detail.payload);
+      setMessage({
+        tone: 'success',
+        text: result === 'shared' ? '공유창을 열었습니다.' : '공유 이미지를 다운로드했습니다.',
+      });
+    } catch (error) {
+      setMessage({ tone: 'error', text: error instanceof Error ? error.message : '공유 이미지를 만들지 못했습니다.' });
+    } finally {
+      setSharingReportId(undefined);
     }
   }
 
@@ -395,15 +419,42 @@ export function ReportsPage({ accessToken }: ReportsPageProps) {
                   </div>
                 </div>
               ) : (
-                <button
-                  type="button"
-                  className="danger-button report-delete-button report-delete-trigger"
-                  disabled={Boolean(deletingReportId)}
-                  aria-label={`리포트 삭제 확인 ${report.ticker}`}
-                  onClick={() => setConfirmingReportId(report.id)}
-                >
-                  삭제
-                </button>
+                <div className="report-row-actions" aria-label={`${report.ticker} 행 작업`}>
+                  <button
+                    type="button"
+                    className="report-row-action-button report-row-share-button"
+                    disabled={Boolean(sharingReportId) || Boolean(deletingReportId) || report.status !== 'completed'}
+                    aria-label={`리포트 공유 ${report.ticker}`}
+                    title="공유"
+                    onClick={() => void handleShareReport(report)}
+                  >
+                    {sharingReportId === report.id ? (
+                      <span className="loading-spinner loading-spinner-button" aria-hidden="true" />
+                    ) : (
+                      <svg className="report-row-action-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path d="M8 12h8" />
+                        <path d="M13 7l5 5-5 5" />
+                        <path d="M5 5v14" />
+                      </svg>
+                    )}
+                  </button>
+                  <button
+                    type="button"
+                    className="report-row-action-button report-row-delete-button"
+                    disabled={Boolean(deletingReportId) || Boolean(sharingReportId)}
+                    aria-label={`리포트 삭제 확인 ${report.ticker}`}
+                    title="삭제"
+                    onClick={() => setConfirmingReportId(report.id)}
+                  >
+                    <svg className="report-row-action-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                      <path d="M5 7h14" />
+                      <path d="M10 11v6" />
+                      <path d="M14 11v6" />
+                      <path d="M8 7l1 13h6l1-13" />
+                      <path d="M9 7V4h6v3" />
+                    </svg>
+                  </button>
+                </div>
               )}
             </article>
           ))}
