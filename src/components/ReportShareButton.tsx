@@ -32,22 +32,15 @@ export function ReportShareButton({ report, payload, captureTargetRef }: ReportS
   }
 
   return (
-    <section className="content-section report-share-panel" aria-label="리포트 공유">
-      <div>
-        <p className="eyebrow">SHARE</p>
-        <h2>리포트 공유</h2>
-        <p>요약 이미지를 만들어 카카오톡이나 다른 앱으로 보낼 수 있습니다.</p>
-      </div>
-      <div className="report-share-actions">
-        <button type="button" className="primary-button" disabled={status === 'loading'} onClick={handleShare}>
-          {status === 'loading' ? '이미지 생성 중...' : '공유'}
-        </button>
-        {message ? (
-          <p className="form-message" data-share-exclude="true">
-            {message}
-          </p>
-        ) : null}
-      </div>
-    </section>
+    <div className="report-share-actions" aria-label="리포트 공유">
+      <button type="button" className="primary-button" disabled={status === 'loading'} onClick={handleShare}>
+        {status === 'loading' ? '이미지 생성 중...' : '공유'}
+      </button>
+      {message ? (
+        <p className="form-message" data-share-exclude="true">
+          {message}
+        </p>
+      ) : null}
+    </div>
   );
 }

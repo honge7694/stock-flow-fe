@@ -71,8 +71,11 @@ export function ReportDetailPage({ accessToken }: ReportDetailPageProps) {
   return (
     <>
       <div className="report-share-capture" ref={shareCaptureRef}>
-        <ReportSummary report={report} payload={report.payload} />
-        <ReportShareButton report={report} payload={report.payload} captureTargetRef={shareCaptureRef} />
+        <ReportSummary
+          report={report}
+          payload={report.payload}
+          action={<ReportShareButton report={report} payload={report.payload} captureTargetRef={shareCaptureRef} />}
+        />
         <AiAnalysisPanel aiAnalysis={report.payload.aiAnalysis} />
       </div>
       <ReportCharts payload={report.payload} />

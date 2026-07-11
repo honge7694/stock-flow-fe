@@ -1083,6 +1083,29 @@ button:disabled {
   padding: 22px;
 }
 
+.report-hero-topline {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: flex-start;
+}
+
+.report-hero-topline h1,
+.report-hero-topline .eyebrow {
+  margin: 0;
+}
+
+.report-hero-topline h1 {
+  margin-top: 6px;
+}
+
+.report-hero-action {
+  display: flex;
+  justify-content: flex-end;
+  flex-shrink: 0;
+  max-width: 260px;
+}
+
 .metric-grid,
 .card-grid,
 .two-column {
@@ -1133,36 +1156,9 @@ button:disabled {
   padding: 10px 12px;
 }
 
-.report-share-panel {
-  display: flex;
-  justify-content: space-between;
-  gap: 18px;
-  align-items: center;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: var(--surface);
-  padding: 18px;
-}
-
-.report-share-panel h2,
-.report-share-panel p {
-  margin: 0;
-}
-
-.report-share-panel h2 {
-  margin-top: 6px;
-}
-
-.report-share-panel h2 + p {
-  margin-top: 8px;
-  color: var(--mute);
-  font-size: 13px;
-  line-height: 1.6;
-}
-
 .report-share-actions {
   display: grid;
-  min-width: 180px;
+  min-width: 112px;
   justify-items: end;
   gap: 8px;
 }
@@ -1859,14 +1855,13 @@ button:disabled {
     width: 100%;
   }
 
-  .report-share-panel {
-    align-items: stretch;
+  .report-hero-topline {
     flex-direction: column;
   }
 
   .report-share-actions {
     min-width: 0;
-    justify-items: stretch;
+    justify-items: start;
   }
 
   .report-share-actions .form-message {
