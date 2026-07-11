@@ -868,6 +868,12 @@ button:disabled {
   background: rgba(239, 107, 107, 0.08);
 }
 
+.danger-button:disabled {
+  border-color: rgba(239, 107, 107, 0.32);
+  background: rgba(239, 107, 107, 0.04);
+  color: rgba(254, 202, 202, 0.72);
+}
+
 .text-link {
   width: fit-content;
   min-height: 36px;
@@ -884,6 +890,11 @@ button:disabled {
 .form-error {
   margin: 0 0 12px;
   color: #fecaca;
+}
+
+.form-success {
+  margin: 0 0 12px;
+  color: var(--primary);
 }
 
 .filter-bar,
@@ -1076,6 +1087,7 @@ button:disabled {
 }
 
 .report-delete-button {
+  min-width: 86px;
   min-height: 36px;
   padding: 7px 11px;
 }
