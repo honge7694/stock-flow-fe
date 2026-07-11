@@ -220,3 +220,95 @@ export type ReportListResponse = {
   total: number;
   totalPages: number;
 };
+
+export type PortfolioEducationAiStatus = 'available' | 'unavailable';
+
+export type PortfolioEducationRequest = {
+  ticker: string;
+  quantity: number | string;
+  averagePrice: number | string;
+  currency?: string;
+  from?: string;
+  to?: string;
+};
+
+export type PortfolioEducationPosition = {
+  quantity: number;
+  averagePrice: number;
+  currency: string | null;
+  currentPrice: number | null;
+  totalCost: number | null;
+  currentValue: number | null;
+  unrealizedProfit: number | null;
+  unrealizedProfitRate: number | null;
+};
+
+export type PortfolioEducationChartSummary = {
+  latestClose: number | null;
+  periodChangePercent: number | null;
+  latestSma20: number | null;
+  latestSma50: number | null;
+  latestRsi14: number | null;
+  latestMacd: {
+    time: string;
+    macd: number | null;
+    signal: number | null;
+    histogram: number | null;
+  } | null;
+  averageVolume: number | null;
+  candleCount: number;
+};
+
+export type PortfolioEducationAiAnalysis = {
+  beginnerSummary: string;
+  positionExplanation: string;
+  chartReadingGuide: string[];
+  scenarios: {
+    upward: string;
+    sideways: string;
+    downward: string;
+  };
+  riskEducation: string[];
+  nextLearningPoints: string[];
+  disclaimer: string;
+};
+
+export type PortfolioEducationAnalysisResponse = {
+  id: string;
+  ticker: string;
+  instrument?: ReportInstrument;
+  from: string;
+  to: string;
+  generatedAt: string;
+  position: PortfolioEducationPosition;
+  chartSummary?: PortfolioEducationChartSummary;
+  aiStatus: PortfolioEducationAiStatus;
+  aiAnalysis: PortfolioEducationAiAnalysis | null;
+  errorMessage: string | null;
+};
+
+export type PortfolioEducationAnalysisListItem = {
+  id: string;
+  ticker: string;
+  instrument?: ReportInstrument;
+  from: string;
+  to: string;
+  generatedAt: string;
+  position: PortfolioEducationPosition;
+  aiStatus: PortfolioEducationAiStatus;
+  errorMessage: string | null;
+};
+
+export type PortfolioEducationListQuery = {
+  page?: number;
+  pageSize?: ReportPageSize;
+  ticker?: string;
+};
+
+export type PortfolioEducationAnalysisListResponse = {
+  items: PortfolioEducationAnalysisListItem[];
+  page: number;
+  pageSize: ReportPageSize;
+  total: number;
+  totalPages: number;
+};
