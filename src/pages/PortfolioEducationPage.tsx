@@ -1,26 +1,16 @@
 import { type FormEvent, useEffect, useState } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { createPortfolioEducationAnalysis, fetchPortfolioEducationAnalyses } from '../api/portfolioApi';
+import { Link } from 'react-router-dom';
+import { fetchPortfolioEducationAnalyses } from '../api/portfolioApi';
 import type {
   PortfolioEducationAnalysisListItem,
   PortfolioEducationAnalysisListResponse,
   PortfolioEducationListQuery,
-  PortfolioEducationRequest,
   ReportInstrument,
   ReportPageSize,
 } from '../types/report';
 
 type PortfolioEducationPageProps = {
   accessToken: string;
-};
-
-type PortfolioFormState = {
-  ticker: string;
-  quantity: string;
-  averagePrice: string;
-  currency: string;
-  from: string;
-  to: string;
 };
 
 const pageSizeOptions: ReportPageSize[] = [5, 10, 30, 50];
@@ -32,16 +22,6 @@ const emptyPortfolioList: PortfolioEducationAnalysisListResponse = {
   total: 0,
   totalPages: 0,
 };
-
-function todayString() {
-  return new Date().toISOString().slice(0, 10);
-}
-
-function sixMonthsAgoString() {
-  const date = new Date();
-  date.setMonth(date.getMonth() - 6);
-  return date.toISOString().slice(0, 10);
-}
 
 function formatDateTime(value: string) {
   return new Intl.DateTimeFormat('ko-KR', {
@@ -90,43 +70,13 @@ function getPageItems(page: number, totalPages: number) {
   return items;
 }
 
-function buildRequest(form: PortfolioFormState): PortfolioEducationRequest {
-  return {
-    ticker: form.ticker,
-    quantity: form.quantity,
-    averagePrice: form.averagePrice,
-    currency: form.currency || undefined,
-    from: form.from || undefined,
-    to: form.to || undefined,
-  };
-}
-
-function validateForm(form: PortfolioFormState) {
-  if (!form.ticker.trim()) return '종목을 입력해주세요.';
-  if (Number(form.quantity) <= 0) return '수량은 0보다 커야 합니다.';
-  if (Number(form.averagePrice) <= 0) return '평균 단가는 0보다 커야 합니다.';
-  return undefined;
-}
-
 export function PortfolioEducationPage({ accessToken }: PortfolioEducationPageProps) {
-  const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const initialTicker = searchParams.get('ticker') ?? '';
-  const [form, setForm] = useState<PortfolioFormState>({
-    ticker: initialTicker,
-    quantity: '',
-    averagePrice: '',
-    currency: 'KRW',
-    from: sixMonthsAgoString(),
-    to: todayString(),
-  });
   const [portfolioList, setPortfolioList] = useState<PortfolioEducationAnalysisListResponse>(emptyPortfolioList);
   const [filters, setFilters] = useState<PortfolioEducationListQuery>({});
   const [appliedFilters, setAppliedFilters] = useState<PortfolioEducationListQuery>({});
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [pagination, setPagination] = useState<{ page: number; pageSize: ReportPageSize }>({ page: 1, pageSize: 10 });
   const [status, setStatus] = useState<'idle' | 'loading' | 'error'>('idle');
-  const [createStatus, setCreateStatus] = useState<'idle' | 'loading' | 'error'>('idle');
   const [message, setMessage] = useState<{ tone: 'success' | 'error'; text: string }>();
   const items = portfolioList.items;
   const totalPages = portfolioList.totalPages;
@@ -160,27 +110,6 @@ export function PortfolioEducationPage({ accessToken }: PortfolioEducationPagePr
 
     void loadAnalyses();
   }, [accessToken, appliedFilters, pagination]);
-
-  async function handleCreate(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const validationMessage = validateForm(form);
-    if (validationMessage) {
-      setCreateStatus('error');
-      setMessage({ tone: 'error', text: validationMessage });
-      return;
-    }
-
-    setCreateStatus('loading');
-    setMessage(undefined);
-
-    try {
-      const analysis = await createPortfolioEducationAnalysis(buildRequest(form), accessToken);
-      navigate(`/portfolio-analyses/${analysis.id}`, { state: { analysis } });
-    } catch (error) {
-      setCreateStatus('error');
-      setMessage({ tone: 'error', text: error instanceof Error ? error.message : '보유 분석 생성에 실패했습니다.' });
-    }
-  }
 
   function handleFilterSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -217,86 +146,11 @@ export function PortfolioEducationPage({ accessToken }: PortfolioEducationPagePr
         <div>
           <p className="eyebrow">PORTFOLIO EDUCATION</p>
           <h1>보유 분석</h1>
-          <p>보유 수량과 평균 단가를 입력해 포지션을 학습용으로 정리합니다.</p>
+          <p>저장된 보유 포지션 분석을 확인하고 새 분석을 만들 수 있습니다.</p>
         </div>
-      </div>
-
-      <div className="report-workflow-grid portfolio-workflow-grid">
-        <div className="workflow-card">
-          <div className="card-heading">
-            <span className="card-label">POSITION INPUT</span>
-            <h2>분석 만들기</h2>
-          </div>
-          <form className="query-form portfolio-form" onSubmit={handleCreate}>
-            <label className="ticker-field">
-              <span>종목</span>
-              <input
-                value={form.ticker}
-                placeholder="예: 005930.KS"
-                onChange={(event) => setForm({ ...form, ticker: event.target.value })}
-              />
-              <small>종목 코드를 입력하면 대문자로 정리해 요청합니다.</small>
-            </label>
-            <label>
-              <span>보유 수량</span>
-              <input
-                inputMode="decimal"
-                value={form.quantity}
-                placeholder="예: 10"
-                onChange={(event) => setForm({ ...form, quantity: event.target.value })}
-              />
-            </label>
-            <label>
-              <span>평균 단가</span>
-              <input
-                inputMode="decimal"
-                value={form.averagePrice}
-                placeholder="예: 72000"
-                onChange={(event) => setForm({ ...form, averagePrice: event.target.value })}
-              />
-            </label>
-            <label>
-              <span>통화</span>
-              <input
-                value={form.currency}
-                placeholder="KRW"
-                onChange={(event) => setForm({ ...form, currency: event.target.value })}
-              />
-            </label>
-            <label>
-              <span>시작일</span>
-              <input type="date" value={form.from} onChange={(event) => setForm({ ...form, from: event.target.value })} />
-            </label>
-            <label>
-              <span>종료일</span>
-              <input type="date" value={form.to} onChange={(event) => setForm({ ...form, to: event.target.value })} />
-            </label>
-            <button type="submit" disabled={createStatus === 'loading'}>
-              {createStatus === 'loading' ? (
-                <span className="button-loading-label">
-                  <span className="loading-spinner loading-spinner-button" aria-hidden="true" />
-                  분석 중
-                </span>
-              ) : (
-                '분석 만들기'
-              )}
-            </button>
-          </form>
-        </div>
-
-        <aside className="workflow-card context-card">
-          <div className="card-heading">
-            <span className="card-label">OUTPUT</span>
-            <h2>분석에 포함되는 항목</h2>
-          </div>
-          <ul className="check-list">
-            <li>평균 단가와 현재가 기반 평가 상태</li>
-            <li>투입금액, 평가금액, 평가손익</li>
-            <li>SMA, RSI, MACD 차트 요약</li>
-            <li>AI 학습 요약과 관찰 포인트</li>
-          </ul>
-          <p className="muted-note">입력값과 과거 데이터 기반 참고 정보이며 투자 조언이나 매매 추천이 아닙니다.</p>
-        </aside>
+        <Link className="primary-link-button" to="/portfolio-analyses/new">
+          보유 분석 만들기
+        </Link>
       </div>
 
       {message ? (
@@ -396,7 +250,11 @@ export function PortfolioEducationPage({ accessToken }: PortfolioEducationPagePr
                 <button type="button" className="secondary-button" onClick={resetFilters}>
                   필터 초기화
                 </button>
-              ) : null}
+              ) : (
+                <Link className="primary-link-button" to="/portfolio-analyses/new">
+                  보유 분석 만들기
+                </Link>
+              )}
             </div>
           ) : null}
         </div>

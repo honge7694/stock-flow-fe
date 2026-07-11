@@ -47,6 +47,9 @@ export type Stock = {
   userId: string;
   ticker: string;
   name: string | null;
+  quantity: number | null;
+  averagePrice: number | null;
+  currency: string | null;
   scheduleEnabled: boolean;
   scheduleTime: string;
   scheduleTimezone: string;
@@ -60,6 +63,9 @@ export type Stock = {
 export type StockRequest = {
   ticker: string;
   name?: string;
+  quantity?: number | string;
+  averagePrice?: number | string;
+  currency?: string;
   scheduleEnabled?: boolean;
   scheduleTime?: string;
   scheduleTimezone?: string;
@@ -224,9 +230,10 @@ export type ReportListResponse = {
 export type PortfolioEducationAiStatus = 'available' | 'unavailable';
 
 export type PortfolioEducationRequest = {
-  ticker: string;
-  quantity: number | string;
-  averagePrice: number | string;
+  savedStockId?: string;
+  ticker?: string;
+  quantity?: number | string;
+  averagePrice?: number | string;
   currency?: string;
   from?: string;
   to?: string;
