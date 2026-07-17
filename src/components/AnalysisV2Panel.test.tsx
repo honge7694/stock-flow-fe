@@ -85,6 +85,47 @@ describe('AnalysisV2Panel', () => {
     expect(screen.queryByRole('heading', { name: '직전 리포트와 비교' })).not.toBeInTheDocument();
   });
 
+  it('formats report comparison values and observations with metric units', () => {
+    const withComparison: AnalysisV2Payload = {
+      ...analysis,
+      comparison: {
+        previousReportId: 'previous-report',
+        previousGeneratedAt: '2026-07-16T00:00:00.000Z',
+        previousRange: { from: '2026-01-17', to: '2026-07-15' },
+        currentRange: { from: '2026-01-18', to: '2026-07-16' },
+        changes: {
+          latestClose: { previous: 115000, current: 100000, delta: -15000, direction: 'decreased' },
+          periodChangePercent: { previous: 20, current: 5.97, delta: -14.03, direction: 'decreased' },
+          latestRsi14: { previous: 55.2, current: 50, delta: -5.2, direction: 'decreased' },
+          recentVolumeVsAverage: { previous: 1.1, current: 1.09, delta: -0.01, direction: 'decreased' },
+          maxDrawdownPercent: { previous: -12, current: -12, delta: 0, direction: 'unchanged' },
+          volatility20d: { previous: 20, current: 23.76516, delta: 3.76516, direction: 'increased' },
+          atr14Percent: { previous: 1.5, current: 2.22, delta: 0.72, direction: 'increased' },
+        },
+        observations: [
+          '종가는 직전 리포트보다 15000 낮아졌습니다.',
+          'RSI 14은 직전 리포트보다 5.198736 낮아졌습니다.',
+          '20일 변동성은 직전 리포트보다 3.76516%p 높아졌습니다.',
+          '최대 낙폭은 직전 리포트와 같습니다.',
+        ],
+        dataLimitations: [],
+      },
+    };
+
+    render(<AnalysisV2Panel analysis={withComparison} currency="KRW" />);
+
+    expect(screen.getByText('-15,000 KRW')).toBeInTheDocument();
+    expect(screen.getByText('-14.03%p')).toBeInTheDocument();
+    expect(screen.getByText('-5.2포인트')).toBeInTheDocument();
+    expect(screen.getByText('-0.01배')).toBeInTheDocument();
+    expect(screen.getByText('0%p')).toBeInTheDocument();
+    expect(screen.getByText('+3.77%p')).toHaveClass('comparison-decreased');
+    expect(screen.getByText('+0.72%p')).toHaveClass('comparison-decreased');
+    expect(screen.getByText('종가는 직전 리포트보다 15,000 KRW 낮아졌습니다.')).toBeInTheDocument();
+    expect(screen.getByText('RSI 14는 직전 리포트보다 5.2포인트 낮아졌습니다.')).toBeInTheDocument();
+    expect(screen.getByText('20일 변동성은 직전 리포트보다 3.77%p 높아졌습니다.')).toBeInTheDocument();
+  });
+
   it('shows the latest ten indicator events and expands the remainder on demand', async () => {
     const user = userEvent.setup();
     const events = Array.from({ length: 12 }, (_, index) => ({
