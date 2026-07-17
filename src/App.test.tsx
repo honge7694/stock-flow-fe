@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import App from './App';
@@ -13,10 +13,23 @@ function storeSession() {
   localStorage.setItem('stock-flow-user', JSON.stringify({ id: 'user-uuid', email: 'user@example.com' }));
 }
 
+function fireTouchPointer(target: Element, type: string, clientX: number, clientY: number) {
+  const event = new Event(type, { bubbles: true, cancelable: true });
+  Object.defineProperties(event, {
+    pointerType: { value: 'touch' },
+    pointerId: { value: 1 },
+    clientX: { value: clientX },
+    clientY: { value: clientY },
+  });
+  fireEvent(target, event);
+}
+
 describe('App routing', () => {
   afterEach(() => {
     vi.unstubAllGlobals();
     localStorage.clear();
+    delete document.documentElement.dataset.theme;
+    document.documentElement.style.colorScheme = '';
     window.history.pushState({}, '', '/');
   });
 
@@ -29,6 +42,23 @@ describe('App routing', () => {
     expect(screen.queryByRole('heading', { name: '교육용 주식 차트 분석' })).not.toBeInTheDocument();
     expect(screen.queryByRole('link', { name: '관심 종목' })).not.toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: '관심 종목' })).not.toBeInTheDocument();
+  });
+
+  it('switches themes and restores the saved preference', async () => {
+    const user = userEvent.setup();
+    const { unmount } = render(<App />);
+
+    await user.click(screen.getByRole('button', { name: '밝은 테마로 전환' }));
+
+    expect(document.documentElement).toHaveAttribute('data-theme', 'light');
+    expect(localStorage.getItem('stock-flow-theme')).toBe('light');
+    expect(screen.getByRole('button', { name: '어두운 테마로 전환' })).toBeInTheDocument();
+
+    unmount();
+    render(<App />);
+
+    expect(document.documentElement).toHaveAttribute('data-theme', 'light');
+    expect(screen.getByRole('button', { name: '어두운 테마로 전환' })).toBeInTheDocument();
   });
 
   it('creates a report and navigates to its detail route', async () => {
@@ -280,6 +310,42 @@ describe('App routing', () => {
       headers: { Authorization: 'Bearer jwt-token' },
     });
     expect(screen.getByText('아직 생성된 리포트가 없습니다.')).toBeInTheDocument();
+  });
+
+  it('reveals the mobile delete action after a left swipe and asks for confirmation', async () => {
+    storeSession();
+    window.history.pushState({}, '', '/reports');
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () =>
+        Promise.resolve({ items: [sampleReport], page: 1, pageSize: 10, total: 1, totalPages: 1 }),
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    render(<App />);
+
+    const reportLink = await screen.findByRole('link', { name: /000660.KS/ });
+    const reportRow = reportLink.closest('.report-row');
+    const swipeShell = reportLink.closest('.report-swipe-shell');
+
+    expect(reportRow).not.toBeNull();
+    expect(swipeShell).not.toBeNull();
+
+    fireTouchPointer(reportRow as HTMLElement, 'pointerdown', 220, 80);
+    fireTouchPointer(reportRow as HTMLElement, 'pointermove', 130, 82);
+    fireTouchPointer(reportRow as HTMLElement, 'pointerup', 130, 82);
+
+    expect(swipeShell).toHaveClass('is-open');
+
+    const swipeDeleteButton = (swipeShell as HTMLElement).querySelector<HTMLButtonElement>(
+      '.report-swipe-delete-button',
+    );
+    expect(swipeDeleteButton).not.toBeNull();
+    fireEvent.click(swipeDeleteButton as HTMLButtonElement);
+
+    expect(screen.getByRole('alertdialog', { name: '리포트를 삭제할까요?' })).toBeInTheDocument();
+    expect(within(screen.getByRole('alertdialog')).getByText('000660.KS 리포트를 삭제할까요?')).toBeInTheDocument();
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
   it('keeps report filters collapsed until the user opens them', async () => {

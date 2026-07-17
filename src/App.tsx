@@ -3,6 +3,7 @@ import { BrowserRouter, Navigate, NavLink, Route, Routes } from 'react-router-do
 import { fetchMe, login, signup } from './api/authApi';
 import { AUTH_EXPIRED_EVENT } from './api/authEvents';
 import { AuthPanel } from './components/AuthPanel';
+import { ThemeToggle } from './components/ThemeToggle';
 import { ChartPatternsPage } from './pages/ChartPatternsPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { GlossaryPage } from './pages/GlossaryPage';
@@ -14,6 +15,7 @@ import { ReportGeneratePage } from './pages/ReportGeneratePage';
 import { ReportsPage } from './pages/ReportsPage';
 import { StocksPage } from './pages/StocksPage';
 import { TradingSkillsPage } from './pages/TradingSkillsPage';
+import { applyTheme, getInitialTheme, THEME_STORAGE_KEY } from './theme';
 import type { User } from './types/report';
 
 type AuthState = 'idle' | 'loading';
@@ -79,6 +81,11 @@ export default function App() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(
     () => localStorage.getItem('stock-flow-sidebar-collapsed') === 'true',
   );
+  const [theme, setTheme] = useState(getInitialTheme);
+
+  useEffect(() => {
+    applyTheme(theme);
+  }, [theme]);
 
   useEffect(() => {
     window.addEventListener(AUTH_EXPIRED_EVENT, handleLogout);
@@ -138,10 +145,21 @@ export default function App() {
     });
   }
 
+  function toggleTheme() {
+    setTheme((current) => {
+      const next = current === 'dark' ? 'light' : 'dark';
+      localStorage.setItem(THEME_STORAGE_KEY, next);
+      return next;
+    });
+  }
+
   if (!accessToken) {
     return (
       <BrowserRouter>
         <main className="page auth-page">
+          <div className="auth-theme-actions">
+            <ThemeToggle theme={theme} onToggle={toggleTheme} />
+          </div>
           <AuthPanel
             isLoading={authStatus === 'loading'}
             user={user}
@@ -209,15 +227,18 @@ export default function App() {
               <span className="workspace-kicker">교육용 분석</span>
               <p>관심 종목과 리포트를 한 곳에서 정리합니다.</p>
             </div>
-            <div className="desktop-account-shell">
-              <AuthPanel
-                isLoading={authStatus === 'loading'}
-                user={user}
-                errorMessage={authErrorMessage}
-                onLogin={(email, password) => handleAuth('login', email, password)}
-                onSignup={(email, password) => handleAuth('signup', email, password)}
-                onLogout={handleLogout}
-              />
+            <div className="workspace-actions">
+              <ThemeToggle theme={theme} onToggle={toggleTheme} />
+              <div className="desktop-account-shell">
+                <AuthPanel
+                  isLoading={authStatus === 'loading'}
+                  user={user}
+                  errorMessage={authErrorMessage}
+                  onLogin={(email, password) => handleAuth('login', email, password)}
+                  onSignup={(email, password) => handleAuth('signup', email, password)}
+                  onLogout={handleLogout}
+                />
+              </div>
             </div>
           </header>
 
