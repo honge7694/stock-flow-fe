@@ -1497,10 +1497,30 @@ button:disabled {
   gap: 12px;
 }
 
+.report-swipe-shell {
+  position: relative;
+  border-radius: 8px;
+}
+
+.report-swipe-action {
+  display: none;
+}
+
 .report-row {
+  position: relative;
+  z-index: 1;
   grid-template-columns: minmax(0, 1fr) auto;
   min-height: 78px;
   text-decoration: none;
+  transform: translateX(var(--report-swipe-offset, 0));
+  transition:
+    transform 200ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    border-color 160ms ease,
+    background-color 160ms ease;
+}
+
+.report-swipe-shell.is-dragging .report-row {
+  transition: none;
 }
 
 .report-row:hover,
@@ -1623,6 +1643,50 @@ button:disabled {
 .report-delete-confirm-actions button {
   min-height: 34px;
   padding: 7px 10px;
+}
+
+.report-delete-dialog-backdrop {
+  position: fixed;
+  z-index: 80;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.68);
+  backdrop-filter: blur(2px);
+  padding: 20px;
+}
+
+.report-delete-dialog {
+  width: min(400px, 100%);
+  border: 1px solid rgba(239, 107, 107, 0.28);
+  border-radius: 8px;
+  background: var(--surface);
+  box-shadow: 0 22px 56px rgba(0, 0, 0, 0.44);
+  padding: 22px;
+}
+
+.report-delete-dialog h2 {
+  margin: 5px 0 8px;
+}
+
+.report-delete-dialog p {
+  margin-bottom: 6px;
+  font-size: 14px;
+}
+
+.report-delete-dialog .report-delete-dialog-warning {
+  margin-bottom: 20px;
+  color: var(--mute);
+  font-size: 13px;
+}
+
+.report-delete-dialog .report-delete-confirm-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.report-delete-dialog .report-delete-confirm-actions button {
+  min-height: 44px;
 }
 
 .pagination-footer {
@@ -2966,6 +3030,7 @@ button:disabled {
   .report-row {
     grid-template-columns: 1fr;
     align-items: start;
+    touch-action: pan-y;
   }
 
   .report-row-link-body {
@@ -2981,8 +3046,69 @@ button:disabled {
     justify-self: start;
   }
 
-  .report-delete-trigger {
-    justify-self: end;
+  .report-swipe-shell {
+    overflow: hidden;
+    border: 1px solid transparent;
+    background: rgba(239, 107, 107, 0.12);
+  }
+
+  .report-swipe-shell.is-open {
+    border-color: rgba(239, 107, 107, 0.3);
+  }
+
+  .report-swipe-shell.is-open .report-row {
+    border-color: rgba(239, 107, 107, 0.34);
+    background: var(--canvas-soft);
+  }
+
+  .report-swipe-shell.is-open .report-row:hover,
+  .report-swipe-shell.is-open .report-row:focus-within {
+    border-color: rgba(239, 107, 107, 0.42);
+    background: var(--canvas-soft);
+  }
+
+  .report-swipe-action {
+    position: absolute;
+    z-index: 0;
+    inset: 0 0 0 auto;
+    display: flex;
+    width: 84px;
+    align-items: stretch;
+    justify-content: stretch;
+    visibility: hidden;
+  }
+
+  .report-swipe-shell.is-open .report-swipe-action {
+    visibility: visible;
+  }
+
+  .report-swipe-delete-button {
+    display: grid;
+    width: 100%;
+    min-height: 100%;
+    place-content: center;
+    gap: 5px;
+    border-left: 1px solid rgba(239, 107, 107, 0.35);
+    border-radius: 0;
+    background: rgba(239, 107, 107, 0.12);
+    color: #fecaca;
+    font-size: 12px;
+    padding: 8px;
+  }
+
+  .report-swipe-delete-button:hover,
+  .report-swipe-delete-button:focus-visible {
+    background: rgba(239, 107, 107, 0.2);
+  }
+
+  .report-swipe-delete-button .report-delete-icon {
+    width: 21px;
+    height: 21px;
+    justify-self: center;
+  }
+
+  .report-delete-trigger-desktop {
+    display: none;
   }
 
   .report-delete-confirm {
@@ -2996,6 +3122,16 @@ button:disabled {
   .report-delete-confirm-actions {
     display: grid;
     grid-template-columns: 1fr 1fr;
+  }
+
+  .report-delete-dialog-backdrop {
+    align-items: end;
+    padding: 12px;
+  }
+
+  .report-delete-dialog {
+    width: 100%;
+    padding: 20px;
   }
 
   .row-actions {
@@ -3075,5 +3211,11 @@ button:disabled {
 
   h1 {
     font-size: 26px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .report-row {
+    transition-duration: 0.01ms;
   }
 }
