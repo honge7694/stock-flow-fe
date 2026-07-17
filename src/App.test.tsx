@@ -348,6 +348,60 @@ describe('App routing', () => {
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
+  it('deletes a portfolio analysis from its list and reloads the current page', async () => {
+    const user = userEvent.setup();
+    storeSession();
+    window.history.pushState({}, '', '/portfolio-analyses');
+    const portfolioAnalysis = {
+      id: 'analysis-1',
+      ticker: '005930.KS',
+      from: '2026-01-01',
+      to: '2026-07-11',
+      generatedAt: '2026-07-11T10:00:00.000Z',
+      position: {
+        quantity: 10,
+        averagePrice: 72000,
+        currency: 'KRW',
+        currentPrice: 78500,
+        totalCost: 720000,
+        currentValue: 785000,
+        unrealizedProfit: 65000,
+        unrealizedProfitRate: 9.027778,
+      },
+      aiStatus: 'available',
+      errorMessage: null,
+    };
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () =>
+          Promise.resolve({ items: [portfolioAnalysis], page: 1, pageSize: 10, total: 1, totalPages: 1 }),
+      })
+      .mockResolvedValueOnce({ ok: true, status: 204 })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({ items: [], page: 1, pageSize: 10, total: 0, totalPages: 0 }),
+      });
+    vi.stubGlobal('fetch', fetchMock);
+
+    render(<App />);
+
+    await user.click(await screen.findByRole('button', { name: '보유 분석 삭제 확인 005930.KS' }));
+    expect(screen.getByRole('alertdialog', { name: '보유 분석을 삭제할까요?' })).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: '삭제 확정 005930.KS' }));
+
+    await waitFor(() => {
+      expect(screen.getByText('보유 분석을 삭제했습니다.')).toBeInTheDocument();
+    });
+    expect(fetchMock).toHaveBeenNthCalledWith(2, '/portfolio/education-analysis/analysis-1', {
+      method: 'DELETE',
+      headers: { Authorization: 'Bearer jwt-token' },
+    });
+    expect(screen.getByText('아직 만든 보유 분석이 없습니다.')).toBeInTheDocument();
+  });
+
   it('keeps report filters collapsed until the user opens them', async () => {
     const user = userEvent.setup();
     storeSession();

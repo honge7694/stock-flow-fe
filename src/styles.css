@@ -2163,8 +2163,7 @@ button:disabled {
 }
 
 .portfolio-ai-panel,
-.portfolio-edit-panel,
-.portfolio-delete-panel {
+.portfolio-edit-panel {
   display: grid;
   gap: 16px;
 }
@@ -2399,19 +2398,6 @@ button:disabled {
 .analysis-quality-counts span:last-child,
 .analysis-exclusion-list span {
   color: var(--danger-text);
-}
-
-.portfolio-delete-panel {
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-}
-
-.portfolio-delete-panel h2 {
-  margin: 4px 0 0;
-}
-
-.portfolio-delete-confirm {
-  justify-self: end;
 }
 
 .price-disclaimer {
@@ -3239,19 +3225,10 @@ button:disabled {
 
   .list-row,
   .stock-row,
-  .portfolio-row .report-row-link-body,
-  .portfolio-delete-panel {
+  .portfolio-row .report-row-link-body {
     grid-template-columns: 1fr;
     gap: 12px;
     padding: 16px;
-  }
-
-  .portfolio-delete-panel {
-    align-items: stretch;
-  }
-
-  .portfolio-delete-confirm {
-    justify-self: stretch;
   }
 
   .portfolio-detail-actions {
