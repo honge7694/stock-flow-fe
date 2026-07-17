@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import type { ReportInstrument, ReportPayload, ReportResponse } from '../types/report';
+import { formatInteger, formatNumber, formatPercent } from '../utils/numberFormat';
 
 type ReportSummaryProps = {
   report: ReportResponse;
@@ -29,16 +30,6 @@ export function ReportSummary({ report, payload, action }: ReportSummaryProps) {
   const candleCount = metrics?.candleCount ?? payload.candles.length;
   const instrumentMeta = formatInstrumentMeta(report.instrument);
 
-  function formatNumber(value: number | null | undefined, digits = 0) {
-    if (value === null || value === undefined) return '-';
-    return value.toLocaleString('ko-KR', { maximumFractionDigits: digits });
-  }
-
-  function formatPercent(value: number | null | undefined) {
-    if (value === null || value === undefined) return '-';
-    return `${value.toLocaleString('ko-KR', { maximumFractionDigits: 2 })}%`;
-  }
-
   return (
     <section className="hero">
       <div className="report-hero-topline">
@@ -53,7 +44,7 @@ export function ReportSummary({ report, payload, action }: ReportSummaryProps) {
         <span className="pill">
           {report.from} - {report.to}
         </span>
-        <span className="pill">캔들 {candleCount}개</span>
+        <span className="pill">캔들 {formatInteger(candleCount)}개</span>
         <span className="pill">{report.source === 'manual' ? '직접 생성' : report.source}</span>
         <span className="pill">AI {report.includeAi ? '포함' : '제외'}</span>
         <span className="pill">생성 {generatedAt}</span>
@@ -66,7 +57,7 @@ export function ReportSummary({ report, payload, action }: ReportSummaryProps) {
           </article>
           <article className="metric-card">
             <span>거래량</span>
-            <strong>{formatNumber(latestVolume)}</strong>
+            <strong>{formatInteger(latestVolume)}</strong>
           </article>
           <article className="metric-card">
             <span>기간 변화율</span>
@@ -74,16 +65,16 @@ export function ReportSummary({ report, payload, action }: ReportSummaryProps) {
           </article>
           <article className="metric-card">
             <span>RSI 14</span>
-            <strong>{formatNumber(metrics?.latestRsi14, 2)}</strong>
+            <strong>{formatNumber(metrics?.latestRsi14)}</strong>
           </article>
         </div>
       ) : null}
       {metrics ? (
         <div className="summary-metric-strip">
-          <span>SMA20 {formatNumber(metrics.latestSma20, 2)}</span>
-          <span>SMA50 {formatNumber(metrics.latestSma50, 2)}</span>
-          <span>평균 거래량 {formatNumber(metrics.averageVolume, 0)}</span>
-          <span>최근/평균 거래량 {formatNumber(metrics.recentVolumeVsAverage, 2)}배</span>
+          <span>SMA20 {formatNumber(metrics.latestSma20)}</span>
+          <span>SMA50 {formatNumber(metrics.latestSma50)}</span>
+          <span>평균 거래량 {formatInteger(metrics.averageVolume)}</span>
+          <span>최근/평균 거래량 {formatNumber(metrics.recentVolumeVsAverage)}배</span>
         </div>
       ) : null}
       {payload.aiAnalysis?.analysis ? <p className="ai-summary">{payload.aiAnalysis.analysis.report.summary}</p> : null}

@@ -8,6 +8,7 @@ import { LoadingOverlay } from '../components/LoadingOverlay';
 import { AnalysisV2Panel } from '../components/AnalysisV2Panel';
 import { PortfolioInsightsPanel } from '../components/PortfolioInsightsPanel';
 import type { PortfolioEducationAnalysisResponse, PortfolioEducationRequest, ReportInstrument } from '../types/report';
+import { formatInteger, formatMoney, formatNumber, formatPercent } from '../utils/numberFormat';
 
 type PortfolioEducationDetailPageProps = {
   accessToken: string;
@@ -31,21 +32,6 @@ function formatDateTime(value: string) {
     dateStyle: 'medium',
     timeStyle: 'short',
   }).format(new Date(value));
-}
-
-function formatNumber(value: number | null | undefined, digits = 0) {
-  if (value === null || value === undefined) return '-';
-  return value.toLocaleString('ko-KR', { maximumFractionDigits: digits });
-}
-
-function formatMoney(value: number | null | undefined, currency?: string | null) {
-  const formatted = formatNumber(value, 2);
-  return currency ? `${formatted} ${currency}` : formatted;
-}
-
-function formatPercent(value: number | null | undefined) {
-  if (value === null || value === undefined) return '-';
-  return `${value.toLocaleString('ko-KR', { maximumFractionDigits: 2 })}%`;
 }
 
 function formatInstrumentTitle(analysis: PortfolioEducationAnalysisResponse) {
@@ -205,7 +191,7 @@ export function PortfolioEducationDetailPage({ accessToken }: PortfolioEducation
           <span className="pill">
             {analysis.from} - {analysis.to}
           </span>
-          <span className="pill">수량 {formatNumber(analysis.position.quantity, 4)}</span>
+          <span className="pill">수량 {formatNumber(analysis.position.quantity)}</span>
           <span className="pill">평균 {formatMoney(analysis.position.averagePrice, analysis.position.currency)}</span>
           <span className={analysis.aiStatus === 'available' ? 'pill status-positive' : 'pill status-negative'}>
             AI {analysis.aiStatus === 'available' ? '완료' : '실패'}
@@ -307,20 +293,20 @@ export function PortfolioEducationDetailPage({ accessToken }: PortfolioEducation
             </article>
             <article className="metric-card">
               <span>RSI 14</span>
-              <strong>{formatNumber(analysis.chartSummary.latestRsi14, 2)}</strong>
+              <strong>{formatNumber(analysis.chartSummary.latestRsi14)}</strong>
             </article>
             <article className="metric-card">
               <span>캔들 수</span>
-              <strong>{formatNumber(analysis.chartSummary.candleCount)}</strong>
+              <strong>{formatInteger(analysis.chartSummary.candleCount)}</strong>
             </article>
           </div>
           <div className="summary-metric-strip">
-            <span>SMA20 {formatNumber(analysis.chartSummary.latestSma20, 2)}</span>
-            <span>SMA50 {formatNumber(analysis.chartSummary.latestSma50, 2)}</span>
-            <span>평균 거래량 {formatNumber(analysis.chartSummary.averageVolume)}</span>
+            <span>SMA20 {formatNumber(analysis.chartSummary.latestSma20)}</span>
+            <span>SMA50 {formatNumber(analysis.chartSummary.latestSma50)}</span>
+            <span>평균 거래량 {formatInteger(analysis.chartSummary.averageVolume)}</span>
             <span>
-              MACD {formatNumber(analysis.chartSummary.latestMacd?.macd, 2)} / Signal{' '}
-              {formatNumber(analysis.chartSummary.latestMacd?.signal, 2)}
+              MACD {formatNumber(analysis.chartSummary.latestMacd?.macd)} / Signal{' '}
+              {formatNumber(analysis.chartSummary.latestMacd?.signal)}
             </span>
           </div>
         </section>

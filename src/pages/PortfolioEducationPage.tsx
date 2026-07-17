@@ -17,6 +17,7 @@ import type {
   ReportInstrument,
   ReportPageSize,
 } from '../types/report';
+import { formatInteger, formatNumber, formatPercent } from '../utils/numberFormat';
 
 type PortfolioEducationPageProps = {
   accessToken: string;
@@ -39,16 +40,6 @@ function formatDateTime(value: string) {
     dateStyle: 'medium',
     timeStyle: 'short',
   }).format(new Date(value));
-}
-
-function formatNumber(value: number | null | undefined, digits = 0) {
-  if (value === null || value === undefined) return '-';
-  return value.toLocaleString('ko-KR', { maximumFractionDigits: digits });
-}
-
-function formatPercent(value: number | null | undefined) {
-  if (value === null || value === undefined) return '-';
-  return `${value.toLocaleString('ko-KR', { maximumFractionDigits: 2 })}%`;
 }
 
 function formatInstrumentTitle(item: PortfolioEducationAnalysisListItem) {
@@ -308,7 +299,7 @@ export function PortfolioEducationPage({ accessToken }: PortfolioEducationPagePr
               <span className={isFiltered ? 'pill pill-accent' : 'pill'}>{appliedFilters.ticker ?? '전체 종목'}</span>
             </div>
             <div className="filter-heading-actions">
-              <span className="pill">총 {portfolioList.total}개</span>
+              <span className="pill">총 {formatInteger(portfolioList.total)}개</span>
               {isFiltered ? (
                 <button type="button" className="secondary-button" onClick={resetFilters}>
                   필터 초기화
@@ -415,8 +406,8 @@ export function PortfolioEducationPage({ accessToken }: PortfolioEducationPagePr
                       </p>
                     </div>
                     <div className="portfolio-row-metrics">
-                      <span>수량 {formatNumber(item.position.quantity, 4)}</span>
-                      <span>평균 {formatNumber(item.position.averagePrice, 2)}</span>
+                      <span>수량 {formatNumber(item.position.quantity)}</span>
+                      <span>평균 {formatNumber(item.position.averagePrice)}</span>
                       <span>수익률 {formatPercent(item.position.unrealizedProfitRate)}</span>
                     </div>
                     <div className="report-row-meta">
@@ -519,7 +510,7 @@ export function PortfolioEducationPage({ accessToken }: PortfolioEducationPagePr
           <div className="pagination-footer">
             <div className="pagination-summary">
               <span>
-                {rangeStart}-{rangeEnd} / 총 {portfolioList.total}개
+                {formatInteger(rangeStart)}-{formatInteger(rangeEnd)} / 총 {formatInteger(portfolioList.total)}개
               </span>
               <label>
                 <span>페이지 크기</span>

@@ -6,6 +6,7 @@ import type {
   MarketDataQuality,
   ReportMetricChange,
 } from '../types/report';
+import { formatInteger, formatNumber, formatPercent } from '../utils/numberFormat';
 
 const DEFAULT_EVENT_COUNT = 10;
 
@@ -44,16 +45,6 @@ const comparisonLabels = {
   atr14Percent: 'ATR 14 비율',
 } satisfies Record<string, string>;
 
-function formatNumber(value: number | null | undefined, digits = 2) {
-  if (value === null || value === undefined) return '-';
-  return value.toLocaleString('ko-KR', { maximumFractionDigits: digits });
-}
-
-function formatPercent(value: number | null | undefined) {
-  if (value === null || value === undefined) return '-';
-  return `${formatNumber(value)}%`;
-}
-
 function formatChange(change: ReportMetricChange) {
   if (change.direction === 'unavailable' || change.delta === null) return '비교 불가';
   const prefix = change.delta > 0 ? '+' : '';
@@ -91,7 +82,7 @@ export function AnalysisV2Panel({ analysis, dataQuality, showComparison = true }
     ['ATR 14 비율', formatPercent(analysis.risk.atr14Percent), analysis.availability.atr14],
     [
       '최장 회복 기간',
-      analysis.risk.longestRecoveryDays === null ? '-' : `${formatNumber(analysis.risk.longestRecoveryDays, 0)}거래일`,
+      analysis.risk.longestRecoveryDays === null ? '-' : `${formatInteger(analysis.risk.longestRecoveryDays)}거래일`,
       analysis.availability.longestRecoveryDays,
     ],
   ] as const;
@@ -135,7 +126,7 @@ export function AnalysisV2Panel({ analysis, dataQuality, showComparison = true }
               <span className="card-label">INDICATOR EVENTS</span>
               <h3>최근 지표 전환</h3>
             </div>
-            <span className="pill">{analysis.events.length}개</span>
+            <span className="pill">{formatInteger(analysis.events.length)}개</span>
           </div>
           {analysis.events.length ? (
             <>
@@ -165,7 +156,9 @@ export function AnalysisV2Panel({ analysis, dataQuality, showComparison = true }
                   aria-controls="analysis-event-list"
                   onClick={() => setShowAllEvents((current) => !current)}
                 >
-                  {showAllEvents ? '접기' : `나머지 ${analysis.events.length - DEFAULT_EVENT_COUNT}개 펼치기`}
+                  {showAllEvents
+                    ? '접기'
+                    : `나머지 ${formatInteger(analysis.events.length - DEFAULT_EVENT_COUNT)}개 펼치기`}
                 </button>
               ) : null}
             </>
@@ -210,16 +203,16 @@ export function AnalysisV2Panel({ analysis, dataQuality, showComparison = true }
           </div>
           {dataQuality ? (
             <div className="analysis-quality-counts">
-              <span>수신 {dataQuality.receivedRowCount}건</span>
-              <span>분석 사용 {dataQuality.acceptedRowCount}건</span>
-              <span>제외 {dataQuality.excludedRowCount}건</span>
+              <span>수신 {formatInteger(dataQuality.receivedRowCount)}건</span>
+              <span>분석 사용 {formatInteger(dataQuality.acceptedRowCount)}건</span>
+              <span>제외 {formatInteger(dataQuality.excludedRowCount)}건</span>
             </div>
           ) : null}
           {exclusions.length ? (
             <div className="analysis-exclusion-list">
               {exclusions.map(([reason, count]) => (
                 <span key={reason}>
-                  {exclusionLabels[reason]} {count}건
+                  {exclusionLabels[reason]} {formatInteger(count)}건
                 </span>
               ))}
             </div>
