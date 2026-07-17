@@ -6,6 +6,7 @@ import {
 } from '../api/portfolioApi';
 import { LoadingOverlay } from '../components/LoadingOverlay';
 import { AnalysisV2Panel } from '../components/AnalysisV2Panel';
+import { PortfolioInsightsPanel } from '../components/PortfolioInsightsPanel';
 import type { PortfolioEducationAnalysisResponse, PortfolioEducationRequest, ReportInstrument } from '../types/report';
 
 type PortfolioEducationDetailPageProps = {
@@ -144,6 +145,24 @@ export function PortfolioEducationDetailPage({ accessToken }: PortfolioEducation
     }
   }
 
+  async function handleRetryAnalysis() {
+    if (!id || !editForm) return;
+
+    setActionStatus('saving');
+    setMessage(undefined);
+
+    try {
+      const nextAnalysis = await updatePortfolioEducationAnalysis(id, buildRequest(editForm), accessToken);
+      setAnalysis(nextAnalysis);
+      setEditForm(toEditForm(nextAnalysis));
+      setMessage({ tone: 'success', text: '보유 상태와 AI 학습 요약을 다시 정리했습니다.' });
+    } catch (error) {
+      setMessage({ tone: 'error', text: error instanceof Error ? error.message : '보유 분석 재요청에 실패했습니다.' });
+    } finally {
+      setActionStatus('idle');
+    }
+  }
+
   if (!accessToken) {
     return <section className="state-panel">보유 분석 상세는 로그인이 필요합니다.</section>;
   }
@@ -265,6 +284,12 @@ export function PortfolioEducationDetailPage({ accessToken }: PortfolioEducation
         </section>
       ) : null}
 
+      <PortfolioInsightsPanel
+        basis={analysis.calculationBasis}
+        insights={analysis.positionInsights}
+        currency={analysis.position.currency}
+      />
+
       {analysis.chartSummary ? (
         <section className="surface-panel">
           <div className="card-heading">
@@ -362,6 +387,21 @@ export function PortfolioEducationDetailPage({ accessToken }: PortfolioEducation
           <article className="state-panel portfolio-ai-unavailable">
             <h3>AI 학습 요약을 표시하지 못했습니다.</h3>
             <p>{analysis.errorMessage ?? '포지션 지표와 차트 요약은 정상적으로 확인할 수 있습니다.'}</p>
+            <button
+              type="button"
+              className="secondary-button portfolio-ai-retry"
+              disabled={actionStatus === 'saving'}
+              onClick={() => void handleRetryAnalysis()}
+            >
+              {actionStatus === 'saving' ? (
+                <span className="button-loading-label">
+                  <span className="loading-spinner loading-spinner-button" aria-hidden="true" />
+                  다시 분석 중
+                </span>
+              ) : (
+                '다시 분석 요청'
+              )}
+            </button>
           </article>
         )}
       </section>

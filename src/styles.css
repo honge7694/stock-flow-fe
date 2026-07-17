@@ -2211,6 +2211,244 @@ button:disabled {
   background: rgba(239, 107, 107, 0.05);
 }
 
+.portfolio-ai-retry {
+  width: fit-content;
+  margin-top: 6px;
+}
+
+.portfolio-insights-section {
+  display: grid;
+  gap: 14px;
+}
+
+.portfolio-insights-section .section-title-row,
+.portfolio-insights-section .card-heading h3,
+.portfolio-insights-section .card-heading p {
+  margin: 0;
+}
+
+.portfolio-insights-section .section-title-row {
+  margin-bottom: 2px;
+}
+
+.portfolio-insights-section .section-title-row h2 {
+  margin: 5px 0 0;
+}
+
+.portfolio-basis-panel,
+.portfolio-range-panel,
+.portfolio-return-panel,
+.portfolio-sensitivity-panel {
+  display: grid;
+  gap: 16px;
+}
+
+.portfolio-basis-main,
+.portfolio-basis-meta,
+.portfolio-range-values,
+.portfolio-range-legend {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.portfolio-basis-main {
+  align-items: center;
+}
+
+.portfolio-basis-main strong {
+  display: block;
+  margin-top: 5px;
+  color: var(--ink-strong);
+  font-size: 18px;
+}
+
+.portfolio-basis-range {
+  display: grid;
+  gap: 5px;
+  color: var(--mute);
+  font-size: 12px;
+  text-align: right;
+}
+
+.portfolio-basis-meta {
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  border-top: 1px solid var(--border);
+  padding-top: 14px;
+}
+
+.portfolio-insight-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.portfolio-insight-grid .metric-card {
+  min-width: 0;
+}
+
+.portfolio-insight-grid .metric-card strong {
+  margin-top: 4px;
+  font-size: 20px;
+}
+
+.portfolio-insight-grid .metric-card small {
+  display: block;
+  margin-top: 7px;
+  color: var(--mute);
+  font-size: 12px;
+}
+
+.portfolio-insight-detail-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(300px, 0.8fr);
+  gap: 14px;
+}
+
+.portfolio-range-values,
+.portfolio-range-legend {
+  color: var(--mute);
+  font-size: 12px;
+}
+
+.portfolio-range-legend {
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+
+.portfolio-range-legend span {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.portfolio-range-legend i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.portfolio-range-dot-current {
+  background: var(--primary);
+}
+
+.portfolio-range-dot-average {
+  background: var(--warning);
+}
+
+.portfolio-range-track {
+  position: relative;
+  height: 8px;
+  margin: 8px 4px 6px;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  background: var(--canvas-soft);
+}
+
+.portfolio-range-marker {
+  position: absolute;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--surface);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 0 1px var(--border-strong);
+}
+
+.portfolio-range-marker-current {
+  left: var(--current-position);
+  z-index: 2;
+  background: var(--primary);
+}
+
+.portfolio-range-marker-average {
+  left: var(--average-position);
+  background: var(--warning);
+}
+
+.portfolio-return-list {
+  display: grid;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--border);
+  gap: 1px;
+}
+
+.portfolio-return-list div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  background: var(--canvas-soft);
+  padding: 9px 11px;
+}
+
+.portfolio-return-list strong {
+  color: var(--ink-strong);
+  font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size: 13px;
+}
+
+.portfolio-sensitivity-panel .card-heading p {
+  margin-top: 5px;
+  color: var(--mute);
+  font-size: 13px;
+}
+
+.portfolio-sensitivity-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.portfolio-sensitivity-table {
+  width: 100%;
+  min-width: 720px;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.portfolio-sensitivity-table th,
+.portfolio-sensitivity-table td {
+  border-bottom: 1px solid var(--border);
+  padding: 11px 13px;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.portfolio-sensitivity-table th:first-child,
+.portfolio-sensitivity-table td:first-child {
+  text-align: left;
+}
+
+.portfolio-sensitivity-table thead th {
+  color: var(--mute);
+  background: var(--canvas-soft);
+  font-size: 12px;
+}
+
+.portfolio-sensitivity-table tbody tr:last-child th,
+.portfolio-sensitivity-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.portfolio-sensitivity-table tbody th,
+.portfolio-sensitivity-table tbody td {
+  color: var(--body);
+  font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size: 13px;
+}
+
+.portfolio-sensitivity-table .metric-positive {
+  color: var(--primary);
+}
+
+.portfolio-sensitivity-table .metric-negative {
+  color: var(--danger-text);
+}
+
 .analysis-v2-section {
   display: grid;
   gap: 14px;
@@ -3012,6 +3250,14 @@ button:disabled {
   .side-form {
     position: static;
   }
+
+  .portfolio-insight-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .portfolio-insight-detail-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 720px) {
@@ -3199,6 +3445,26 @@ button:disabled {
 
   .analysis-v2-section .section-title-row {
     align-items: flex-start;
+  }
+
+  .portfolio-insights-section .section-title-row,
+  .portfolio-basis-main {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .portfolio-basis-range {
+    text-align: left;
+  }
+
+  .portfolio-insight-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .portfolio-range-values {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 5px;
   }
 
   .analysis-risk-grid {
