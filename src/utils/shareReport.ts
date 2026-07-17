@@ -1,5 +1,6 @@
 import { toBlob } from 'html-to-image';
 import type { ReportPayload, ReportResponse } from '../types/report';
+import { formatInteger, formatNumber, formatPercent } from './numberFormat';
 
 type ShareMetric = {
   label: string;
@@ -46,16 +47,6 @@ const aiStatusLabels: Record<string, string> = {
   negative: '약화',
   insufficient_data: '자료 부족',
 };
-
-function formatNumber(value: number | null | undefined, digits = 0) {
-  if (value === null || value === undefined) return '-';
-  return value.toLocaleString('ko-KR', { maximumFractionDigits: digits });
-}
-
-function formatPercent(value: number | null | undefined) {
-  if (value === null || value === undefined) return '-';
-  return `${value.toLocaleString('ko-KR', { maximumFractionDigits: 2 })}%`;
-}
 
 function formatGeneratedAt(value: string) {
   return new Intl.DateTimeFormat('ko-KR', {
@@ -115,9 +106,9 @@ export function buildShareReportCard(report: ReportResponse, payload: ReportPayl
     notes,
     metrics: [
       { label: '최근 종가', value: formatNumber(latestClose) },
-      { label: '거래량', value: formatNumber(latestVolume) },
+      { label: '거래량', value: formatInteger(latestVolume) },
       { label: '기간 변화율', value: formatPercent(metrics?.periodChangePercent) },
-      { label: 'RSI 14', value: formatNumber(metrics?.latestRsi14, 2) },
+      { label: 'RSI 14', value: formatNumber(metrics?.latestRsi14) },
     ],
     disclaimer: '교육용 분석이며 투자 조언이 아닙니다.',
   };

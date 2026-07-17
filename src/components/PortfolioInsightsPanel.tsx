@@ -1,26 +1,12 @@
 import type { CSSProperties } from 'react';
 import type { PortfolioCalculationBasis, PortfolioPositionInsights } from '../types/report';
+import { formatMoney, formatPercent } from '../utils/numberFormat';
 
 type PortfolioInsightsPanelProps = {
   basis?: PortfolioCalculationBasis;
   insights?: PortfolioPositionInsights;
   currency?: string | null;
 };
-
-function formatNumber(value: number | null | undefined, digits = 2) {
-  if (value === null || value === undefined) return '-';
-  return value.toLocaleString('ko-KR', { maximumFractionDigits: digits });
-}
-
-function formatPercent(value: number | null | undefined) {
-  if (value === null || value === undefined) return '-';
-  return `${value > 0 ? '+' : ''}${formatNumber(value)}%`;
-}
-
-function formatMoney(value: number | null | undefined, currency?: string | null) {
-  const formatted = formatNumber(value, 2);
-  return currency && formatted !== '-' ? `${formatted} ${currency}` : formatted;
-}
 
 function clampPosition(value: number | null) {
   if (value === null) return 0;
@@ -85,16 +71,16 @@ export function PortfolioInsightsPanel({ basis, insights, currency }: PortfolioI
             <article className="metric-card">
               <span>평균단가와 가격 차이</span>
               <strong>{formatMoney(insights.priceDifferenceFromAverage, currency)}</strong>
-              <small>{formatPercent(insights.priceDifferenceFromAveragePercent)}</small>
+              <small>{formatPercent(insights.priceDifferenceFromAveragePercent, true)}</small>
             </article>
             <article className="metric-card">
               <span>평균단가까지 변화율</span>
-              <strong>{formatPercent(insights.priceChangeToBreakEvenPercent)}</strong>
+              <strong>{formatPercent(insights.priceChangeToBreakEvenPercent, true)}</strong>
               <small>마지막 종가 기준</small>
             </article>
             <article className="metric-card">
               <span>최근 거래량 vs 평균</span>
-              <strong>{formatPercent(insights.latestVolumeVsAveragePercent)}</strong>
+              <strong>{formatPercent(insights.latestVolumeVsAveragePercent, true)}</strong>
               <small>선택 기간 평균 거래량 대비</small>
             </article>
             <article className="metric-card">
@@ -115,14 +101,14 @@ export function PortfolioInsightsPanel({ basis, insights, currency }: PortfolioI
                 <span>고가 {formatMoney(insights.periodRange.high, currency)}</span>
               </div>
               <div className="portfolio-range-legend">
-                <span><i className="portfolio-range-dot-current" aria-hidden="true" />현재가 {formatPercent(insights.periodRange.currentPricePositionPercent)}</span>
-                <span><i className="portfolio-range-dot-average" aria-hidden="true" />평균단가 {formatPercent(insights.periodRange.averagePricePositionPercent)}</span>
+                <span><i className="portfolio-range-dot-current" aria-hidden="true" />현재가 {formatPercent(insights.periodRange.currentPricePositionPercent, true)}</span>
+                <span><i className="portfolio-range-dot-average" aria-hidden="true" />평균단가 {formatPercent(insights.periodRange.averagePricePositionPercent, true)}</span>
               </div>
               <div
                 className="portfolio-range-track"
                 style={rangeStyle}
                 role="img"
-                aria-label={`현재가 위치 ${formatPercent(insights.periodRange.currentPricePositionPercent)}, 평균단가 위치 ${formatPercent(insights.periodRange.averagePricePositionPercent)}`}
+                aria-label={`현재가 위치 ${formatPercent(insights.periodRange.currentPricePositionPercent, true)}, 평균단가 위치 ${formatPercent(insights.periodRange.averagePricePositionPercent, true)}`}
               >
                 <i className="portfolio-range-marker portfolio-range-marker-current" aria-hidden="true" />
                 <i className="portfolio-range-marker portfolio-range-marker-average" aria-hidden="true" />
@@ -135,11 +121,11 @@ export function PortfolioInsightsPanel({ basis, insights, currency }: PortfolioI
                 <h3>거래일 기준 변화율</h3>
               </div>
               <div className="portfolio-return-list">
-                <div><span>5거래일</span><strong>{formatPercent(insights.rollingReturns.fiveTradingDaysPercent)}</strong></div>
-                <div><span>20거래일</span><strong>{formatPercent(insights.rollingReturns.twentyTradingDaysPercent)}</strong></div>
-                <div><span>60거래일</span><strong>{formatPercent(insights.rollingReturns.sixtyTradingDaysPercent)}</strong></div>
-                <div><span>SMA20 거리</span><strong>{formatPercent(insights.trendDistance.fromSma20Percent)}</strong></div>
-                <div><span>SMA50 거리</span><strong>{formatPercent(insights.trendDistance.fromSma50Percent)}</strong></div>
+                <div><span>5거래일</span><strong>{formatPercent(insights.rollingReturns.fiveTradingDaysPercent, true)}</strong></div>
+                <div><span>20거래일</span><strong>{formatPercent(insights.rollingReturns.twentyTradingDaysPercent, true)}</strong></div>
+                <div><span>60거래일</span><strong>{formatPercent(insights.rollingReturns.sixtyTradingDaysPercent, true)}</strong></div>
+                <div><span>SMA20 거리</span><strong>{formatPercent(insights.trendDistance.fromSma20Percent, true)}</strong></div>
+                <div><span>SMA50 거리</span><strong>{formatPercent(insights.trendDistance.fromSma50Percent, true)}</strong></div>
               </div>
             </section>
           </div>
@@ -165,14 +151,14 @@ export function PortfolioInsightsPanel({ basis, insights, currency }: PortfolioI
                   <tbody>
                     {insights.sensitivity.map((item) => (
                       <tr key={item.hypotheticalChangePercent}>
-                        <th>{formatPercent(item.hypotheticalChangePercent)}</th>
+                        <th>{formatPercent(item.hypotheticalChangePercent, true)}</th>
                         <td>{formatMoney(item.assumedPrice, currency)}</td>
                         <td>{formatMoney(item.positionValue, currency)}</td>
                         <td className={item.unrealizedProfit >= 0 ? 'metric-positive' : 'metric-negative'}>
                           {formatMoney(item.unrealizedProfit, currency)}
                         </td>
                         <td className={item.unrealizedProfitRate >= 0 ? 'metric-positive' : 'metric-negative'}>
-                          {formatPercent(item.unrealizedProfitRate)}
+                          {formatPercent(item.unrealizedProfitRate, true)}
                         </td>
                       </tr>
                     ))}
