@@ -20,6 +20,7 @@ import type {
   ReportSource,
   ReportStatus,
 } from '../types/report';
+import { formatInteger } from '../utils/numberFormat';
 
 type ReportsPageProps = {
   accessToken: string;
@@ -343,7 +344,7 @@ export function ReportsPage({ accessToken }: ReportsPageProps) {
               )}
             </div>
             <div className="filter-heading-actions">
-              <span className="pill">총 {reportList.total}개</span>
+              <span className="pill">총 {formatInteger(reportList.total)}개</span>
               {isFiltered ? (
                 <button type="button" className="secondary-button" onClick={resetFilters}>
                   필터 초기화
@@ -613,7 +614,7 @@ export function ReportsPage({ accessToken }: ReportsPageProps) {
           <div className="pagination-footer">
             <div className="pagination-summary">
               <span>
-                {rangeStart}-{rangeEnd} / 총 {reportList.total}개
+                {formatInteger(rangeStart)}-{formatInteger(rangeEnd)} / 총 {formatInteger(reportList.total)}개
               </span>
               <label>
                 <span>페이지 크기</span>

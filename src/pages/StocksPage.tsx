@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { createStock, deleteStock, fetchStocks, updateStock } from '../api/stocksApi';
 import { LoadingOverlay } from '../components/LoadingOverlay';
 import type { ReportPeriod, Stock, StockRequest } from '../types/report';
+import { formatInteger, formatNumber } from '../utils/numberFormat';
 
 type StocksPageProps = {
   accessToken: string;
@@ -22,11 +23,6 @@ const emptyForm: StockRequest = {
   reportPeriod: '6m',
   includeAi: false,
 };
-
-function formatNumber(value: number | null | undefined, digits = 2) {
-  if (value === null || value === undefined) return '-';
-  return value.toLocaleString('ko-KR', { maximumFractionDigits: digits });
-}
 
 function hasHoldingInfo(stock: Stock) {
   return stock.quantity !== null && stock.quantity !== undefined && stock.averagePrice !== null && stock.averagePrice !== undefined;
@@ -149,7 +145,7 @@ export function StocksPage({ accessToken }: StocksPageProps) {
               <h2>등록된 종목</h2>
             </div>
             <div className="panel-actions">
-              <span className="pill">{stocks.length}개</span>
+              <span className="pill">{formatInteger(stocks.length)}개</span>
               <button type="button" className="compact-add-button" onClick={openCreateForm}>
                 종목 추가
               </button>
@@ -170,7 +166,7 @@ export function StocksPage({ accessToken }: StocksPageProps) {
                   {hasHoldingInfo(stock) ? (
                     <>
                       <span className="pill pill-accent">보유 정보 있음</span>
-                      <span>{formatNumber(stock.quantity, 4)}주</span>
+                      <span>{formatNumber(stock.quantity)}주</span>
                       <span>
                         평균 {formatNumber(stock.averagePrice)} {stock.currency ?? ''}
                       </span>
