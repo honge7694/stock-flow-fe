@@ -6,6 +6,7 @@ import {
   updatePortfolioEducationAnalysis,
 } from '../api/portfolioApi';
 import { LoadingOverlay } from '../components/LoadingOverlay';
+import { AnalysisV2Panel } from '../components/AnalysisV2Panel';
 import type { PortfolioEducationAnalysisResponse, PortfolioEducationRequest, ReportInstrument } from '../types/report';
 
 type PortfolioEducationDetailPageProps = {
@@ -315,6 +316,10 @@ export function PortfolioEducationDetailPage({ accessToken }: PortfolioEducation
             </span>
           </div>
         </section>
+      ) : null}
+
+      {analysis.analysisV2 ? (
+        <AnalysisV2Panel analysis={analysis.analysisV2} dataQuality={analysis.dataQuality} showComparison={false} />
       ) : null}
 
       <section className="surface-panel portfolio-ai-panel">

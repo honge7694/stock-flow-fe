@@ -102,6 +102,98 @@ export type Indicators = {
   volume: LinePoint[];
 };
 
+export type DataQualityExclusionReason =
+  | 'invalidDate'
+  | 'missingValue'
+  | 'nonFiniteValue'
+  | 'nonPositivePrice'
+  | 'negativeVolume'
+  | 'invalidOhlc'
+  | 'duplicateDate'
+  | 'outOfRange';
+
+export type MarketDataQuality = {
+  receivedRowCount: number;
+  acceptedRowCount: number;
+  excludedRowCount: number;
+  exclusions: Partial<Record<DataQualityExclusionReason, number>>;
+};
+
+export type RiskAnalysis = {
+  maxDrawdownPercent: number | null;
+  currentDrawdownPercent: number | null;
+  volatility20d: number | null;
+  atr14: number | null;
+  atr14Percent: number | null;
+  longestRecoveryDays: number | null;
+};
+
+export type AnalysisEventType =
+  | 'sma-cross'
+  | 'close-sma-cross'
+  | 'rsi-zone-change'
+  | 'macd-signal-cross'
+  | 'macd-histogram-sign-change';
+
+export type AnalysisEvent = {
+  type: AnalysisEventType;
+  time: string;
+  direction: 'up' | 'down';
+  description: string;
+  period?: number;
+  threshold?: number;
+  sma20?: number | null;
+  sma50?: number | null;
+  rsi?: number | null;
+  macd?: number | null;
+  signal?: number | null;
+  histogram?: number | null;
+};
+
+export type ReportMetricChange = {
+  previous: number | null;
+  current: number | null;
+  delta: number | null;
+  direction: 'increased' | 'decreased' | 'unchanged' | 'unavailable';
+};
+
+export type ReportComparison = {
+  previousReportId: string;
+  previousGeneratedAt: string;
+  previousRange: { from: string; to: string };
+  currentRange: { from: string; to: string };
+  changes: {
+    latestClose: ReportMetricChange;
+    periodChangePercent: ReportMetricChange;
+    latestRsi14: ReportMetricChange;
+    recentVolumeVsAverage: ReportMetricChange;
+    maxDrawdownPercent: ReportMetricChange;
+    volatility20d: ReportMetricChange;
+    atr14Percent: ReportMetricChange;
+  };
+  observations: string[];
+  dataLimitations: string[];
+};
+
+export type AnalysisV2Payload = {
+  risk: RiskAnalysis;
+  events: AnalysisEvent[];
+  availability: {
+    maxDrawdown: boolean;
+    currentDrawdown: boolean;
+    volatility20d: boolean;
+    atr14: boolean;
+    longestRecoveryDays: boolean;
+    sma20Sma50Events: boolean;
+    closeSma20Events: boolean;
+    closeSma50Events: boolean;
+    rsiEvents: boolean;
+    macdEvents: boolean;
+  };
+  dataLimitations: string[];
+  comparison?: ReportComparison | null;
+};
+
 export type AiAnalysisStatus = 'available' | 'unavailable';
 export type AnalysisCheckStatus = 'positive' | 'caution' | 'negative' | 'neutral' | 'insufficient_data';
 
@@ -192,6 +284,7 @@ export type ReportPayloadSummary = {
 };
 
 export type ReportPayload = {
+  schemaVersion?: 2;
   ticker: string;
   instrument?: ReportInstrument;
   from: string;
@@ -199,6 +292,8 @@ export type ReportPayload = {
   generatedAt: string;
   candles: Candle[];
   indicators: Indicators;
+  dataQuality?: MarketDataQuality;
+  analysisV2?: AnalysisV2Payload;
   summary?: ReportPayloadSummary;
   aiAnalysis?: AiAnalysisResult;
 };
@@ -289,6 +384,8 @@ export type PortfolioEducationAnalysisResponse = {
   generatedAt: string;
   position: PortfolioEducationPosition;
   chartSummary?: PortfolioEducationChartSummary;
+  dataQuality?: MarketDataQuality;
+  analysisV2?: AnalysisV2Payload;
   aiStatus: PortfolioEducationAiStatus;
   aiAnalysis: PortfolioEducationAiAnalysis | null;
   errorMessage: string | null;

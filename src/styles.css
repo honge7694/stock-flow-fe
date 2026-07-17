@@ -2212,6 +2212,195 @@ button:disabled {
   background: rgba(239, 107, 107, 0.05);
 }
 
+.analysis-v2-section {
+  display: grid;
+  gap: 14px;
+}
+
+.analysis-v2-section .section-title-row,
+.analysis-v2-section .card-heading h3,
+.analysis-v2-section .card-heading p {
+  margin: 0;
+}
+
+.analysis-v2-section .section-title-row {
+  margin-bottom: 2px;
+}
+
+.analysis-v2-section .section-title-row h2 {
+  margin: 5px 0 0;
+}
+
+.analysis-risk-panel,
+.analysis-event-panel,
+.analysis-comparison-panel,
+.analysis-quality-panel {
+  display: grid;
+  gap: 16px;
+}
+
+.analysis-risk-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.analysis-risk-item {
+  min-width: 0;
+  border-left: 2px solid var(--border-strong);
+  padding: 4px 12px;
+}
+
+.analysis-risk-item span,
+.analysis-event-meta time,
+.analysis-event-list small,
+.analysis-comparison-panel .card-heading p {
+  color: var(--mute);
+  font-size: 12px;
+}
+
+.analysis-risk-item strong {
+  display: block;
+  margin-top: 5px;
+  color: var(--ink-strong);
+  font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size: 18px;
+  font-variant-numeric: tabular-nums;
+}
+
+.analysis-v2-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(300px, 0.65fr);
+  gap: 14px;
+  align-items: start;
+}
+
+.analysis-v2-grid-single {
+  grid-template-columns: 1fr;
+}
+
+.analysis-panel-heading,
+.analysis-event-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+}
+
+.analysis-event-list {
+  display: grid;
+  max-height: 480px;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.analysis-event-list li {
+  display: grid;
+  grid-template-columns: 12px minmax(0, 1fr);
+  gap: 12px;
+  padding: 14px 0;
+  border-top: 1px solid var(--border);
+}
+
+.analysis-event-list li:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.analysis-event-list p {
+  margin: 6px 0 2px;
+  color: var(--body);
+}
+
+.analysis-event-marker {
+  width: 10px;
+  height: 10px;
+  margin-top: 5px;
+  border: 2px solid var(--border-strong);
+  border-radius: 50%;
+}
+
+.analysis-event-up {
+  border-color: var(--primary);
+  background: rgba(0, 217, 146, 0.18);
+}
+
+.analysis-event-down {
+  border-color: var(--danger-text);
+  background: rgba(239, 107, 107, 0.14);
+}
+
+.analysis-empty {
+  margin: 0;
+  color: var(--mute);
+}
+
+.analysis-comparison-list {
+  display: grid;
+  gap: 1px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--border);
+}
+
+.analysis-comparison-list div {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  background: var(--canvas-soft);
+  padding: 10px 12px;
+}
+
+.analysis-comparison-list strong {
+  font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size: 13px;
+}
+
+.comparison-increased {
+  color: var(--primary);
+}
+
+.comparison-decreased {
+  color: var(--danger-text);
+}
+
+.analysis-observation-list,
+.analysis-limitation-list {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--body);
+}
+
+.analysis-observation-list li + li,
+.analysis-limitation-list li + li {
+  margin-top: 7px;
+}
+
+.analysis-quality-counts,
+.analysis-exclusion-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.analysis-quality-counts span,
+.analysis-exclusion-list span {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--canvas-soft);
+  padding: 7px 10px;
+  color: var(--body);
+  font-size: 12px;
+}
+
+.analysis-quality-counts span:last-child,
+.analysis-exclusion-list span {
+  color: var(--danger-text);
+}
+
 .portfolio-delete-panel {
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
@@ -3020,6 +3209,26 @@ button:disabled {
   .ai-evidence-grid,
   .ai-notes-grid {
     grid-template-columns: 1fr;
+  }
+
+  .analysis-v2-section .section-title-row {
+    align-items: flex-start;
+  }
+
+  .analysis-risk-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .analysis-v2-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .analysis-event-list {
+    max-height: none;
+  }
+
+  .analysis-event-meta {
+    align-items: flex-start;
   }
 
   .ai-block-heading,
