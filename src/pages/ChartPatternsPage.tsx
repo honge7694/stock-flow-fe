@@ -15,7 +15,11 @@ type ChartPatternType =
   | 'risingWedge'
   | 'fallingWedge'
   | 'risingChannelBreak'
-  | 'fallingChannelBreak';
+  | 'fallingChannelBreak'
+  | 'bullFlag'
+  | 'bearFlag'
+  | 'symmetricalTriangle'
+  | 'roundingBottom';
 
 type ChartPattern = {
   title: string;
@@ -176,11 +180,63 @@ const chartPatterns: ChartPattern[] = [
     practice: '상단선 위로 올라선 뒤 다음 캔들이 어디에서 마감했는지 확인하세요.',
     visualType: 'fallingChannelBreak',
   },
+  {
+    title: '상승 깃발형',
+    category: 'continuation',
+    tone: 'positive',
+    toneSummary: '급한 상승 뒤 완만한 조정 채널 상단을 회복하면 흐름 재개 여부를 관찰합니다.',
+    summary: '빠른 상승 뒤 작은 하락 채널이 만들어지고 그 상단을 다시 회복하는지 보는 모양입니다.',
+    example: '가격이 빠르게 오른 뒤 거래량이 줄며 완만하게 내려오면, 조정 채널을 벗어나는 종가와 거래량을 함께 확인합니다.',
+    checkpoints: ['앞선 상승 구간이 뚜렷한지 봅니다.', '조정 폭과 거래량이 줄어드는지 확인합니다.', '채널 상단 회복이 종가로 유지되는지 봅니다.'],
+    practice: '급등 구간과 뒤따른 짧은 조정 구간을 나눠 표시해보세요.',
+    visualType: 'bullFlag',
+  },
+  {
+    title: '하락 깃발형',
+    category: 'continuation',
+    tone: 'negative',
+    toneSummary: '급한 하락 뒤 완만한 반등 채널 하단을 이탈하면 약한 흐름 지속 여부를 봅니다.',
+    summary: '빠른 하락 뒤 작은 상승 채널이 만들어지고 그 하단을 다시 이탈하는지 보는 모양입니다.',
+    example: '가격이 빠르게 내려간 뒤 제한적으로 반등하면, 반등 채널 하단과 이전 저점 반응을 차례로 관찰합니다.',
+    checkpoints: ['앞선 하락 구간이 뚜렷한지 봅니다.', '반등 폭과 거래량을 확인합니다.', '채널 하단 이탈 뒤 종가 위치를 봅니다.'],
+    practice: '급락 뒤 반등 고점과 저점을 이어 작은 채널을 그려보세요.',
+    visualType: 'bearFlag',
+  },
+  {
+    title: '대칭 삼각형',
+    category: 'compression',
+    tone: 'neutral',
+    toneSummary: '고점은 낮아지고 저점은 높아질 때 어느 기준선이 먼저 확인되는지 기다립니다.',
+    summary: '가격 폭이 위아래에서 함께 좁아지며 방향성이 압축되는 모양입니다.',
+    example: '변동 폭이 점차 줄어들면 미리 방향을 정하기보다 상단과 하단 중 어느 쪽을 종가로 벗어나는지 봅니다.',
+    checkpoints: ['낮아지는 고점과 높아지는 저점을 확인합니다.', '수렴 중 거래량 감소 여부를 봅니다.', '이탈 방향과 거래량을 함께 확인합니다.'],
+    practice: '최근 고점 2개와 저점 2개를 이어 삼각형 폭이 줄어드는지 확인하세요.',
+    visualType: 'symmetricalTriangle',
+  },
+  {
+    title: '라운딩 바닥',
+    category: 'reversal',
+    tone: 'positive',
+    toneSummary: '완만한 하락 둔화와 회복이 이어질 때 긴 흐름의 변화 여부를 관찰합니다.',
+    summary: '급격한 반전보다 둥근 그릇처럼 저점이 천천히 낮아졌다가 높아지는 모양입니다.',
+    example: '하락 기울기가 완만해지고 저점 구간의 거래량이 안정된 뒤 이전 기준선을 회복하는지 시간 순서로 확인합니다.',
+    checkpoints: ['충분히 긴 기간에서 완만한 곡선인지 봅니다.', '저점 이후 고점과 저점이 높아지는지 확인합니다.', '이전 저항 구간 회복 여부를 봅니다.'],
+    practice: '단기 V자 반등과 완만한 라운딩 바닥의 기간 차이를 비교해보세요.',
+    visualType: 'roundingBottom',
+  },
 ];
 
 function PatternVisual({ type }: { type: ChartPatternType }) {
   const isRectangle = type === 'rectangleUp' || type === 'rectangleDown';
-  const isDown = ['doubleTop', 'headShoulders', 'descendingTriangle', 'rectangleDown', 'risingWedge', 'risingChannelBreak'].includes(type);
+  const isDown = [
+    'doubleTop',
+    'headShoulders',
+    'descendingTriangle',
+    'rectangleDown',
+    'risingWedge',
+    'risingChannelBreak',
+    'bearFlag',
+  ].includes(type);
 
   const mainPath: Record<ChartPatternType, string> = {
     doubleTop: 'M24 112 L54 46 L84 92 L116 44 L152 112',
@@ -195,6 +251,10 @@ function PatternVisual({ type }: { type: ChartPatternType }) {
     fallingWedge: 'M24 36 L58 92 L88 58 L122 102 L152 76 L184 110 L216 94',
     risingChannelBreak: 'M24 110 L56 74 L84 96 L116 60 L146 82 L176 50 L216 104',
     fallingChannelBreak: 'M24 42 L58 80 L88 56 L120 94 L150 72 L180 104 L218 34',
+    bullFlag: 'M24 118 L76 34 L98 52 L120 46 L142 66 L166 58 L188 78 L220 42',
+    bearFlag: 'M24 32 L76 116 L98 98 L122 106 L146 84 L170 94 L194 72 L222 110',
+    symmetricalTriangle: 'M24 42 L58 104 L88 58 L120 92 L150 68 L180 84 L212 74',
+    roundingBottom: 'M24 42 C58 70, 72 112, 120 116 C168 112, 182 70, 220 38',
   };
 
   return (
@@ -243,6 +303,25 @@ function PatternVisual({ type }: { type: ChartPatternType }) {
           <line className="pattern-guide" x1="26" y1="72" x2="208" y2="132" />
         </>
       ) : null}
+      {type === 'bullFlag' ? (
+        <>
+          <line className="pattern-guide" x1="88" y1="44" x2="202" y2="76" />
+          <line className="pattern-guide-accent" x1="98" y1="68" x2="210" y2="98" />
+        </>
+      ) : null}
+      {type === 'bearFlag' ? (
+        <>
+          <line className="pattern-guide" x1="88" y1="108" x2="202" y2="72" />
+          <line className="pattern-guide-accent" x1="98" y1="84" x2="210" y2="50" />
+        </>
+      ) : null}
+      {type === 'symmetricalTriangle' ? (
+        <>
+          <line className="pattern-guide" x1="26" y1="38" x2="218" y2="76" />
+          <line className="pattern-guide-accent" x1="26" y1="112" x2="218" y2="76" />
+        </>
+      ) : null}
+      {type === 'roundingBottom' ? <line className="pattern-guide" x1="28" y1="42" x2="218" y2="42" /> : null}
       <path className={isDown ? 'pattern-price-line pattern-price-caution' : 'pattern-price-line'} d={mainPath[type]} />
       <circle className="pattern-focus-point" cx="204" cy={isDown ? '98' : '42'} r="5" />
     </svg>
