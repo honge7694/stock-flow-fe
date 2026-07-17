@@ -1,6 +1,14 @@
-import { type FormEvent, useEffect, useState } from 'react';
+import {
+  type CSSProperties,
+  type FormEvent,
+  type MouseEvent as ReactMouseEvent,
+  type PointerEvent as ReactPointerEvent,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { Link } from 'react-router-dom';
-import { fetchPortfolioEducationAnalyses } from '../api/portfolioApi';
+import { deletePortfolioEducationAnalysis, fetchPortfolioEducationAnalyses } from '../api/portfolioApi';
 import { LoadingOverlay } from '../components/LoadingOverlay';
 import type {
   PortfolioEducationAnalysisListItem,
@@ -15,6 +23,8 @@ type PortfolioEducationPageProps = {
 };
 
 const pageSizeOptions: ReportPageSize[] = [5, 10, 30, 50];
+const portfolioSwipeActionWidth = 84;
+const portfolioSwipeThreshold = 42;
 
 const emptyPortfolioList: PortfolioEducationAnalysisListResponse = {
   items: [],
@@ -78,8 +88,18 @@ export function PortfolioEducationPage({ accessToken }: PortfolioEducationPagePr
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [pagination, setPagination] = useState<{ page: number; pageSize: ReportPageSize }>({ page: 1, pageSize: 10 });
   const [status, setStatus] = useState<'idle' | 'loading' | 'error'>('idle');
+  const [deletingAnalysisId, setDeletingAnalysisId] = useState<string>();
+  const [confirmingAnalysisId, setConfirmingAnalysisId] = useState<string>();
+  const [swipedAnalysisId, setSwipedAnalysisId] = useState<string>();
+  const [draggingAnalysisId, setDraggingAnalysisId] = useState<string>();
+  const [swipeOffset, setSwipeOffset] = useState(0);
   const [message, setMessage] = useState<{ tone: 'success' | 'error'; text: string }>();
+  const swipeStartRef = useRef<{ analysisId: string; x: number; y: number; initialOffset: number } | null>(null);
+  const suppressCardClickRef = useRef(false);
+  const deleteTriggerRef = useRef<HTMLButtonElement>(null);
+  const deleteCancelButtonRef = useRef<HTMLButtonElement>(null);
   const items = portfolioList.items;
+  const confirmingAnalysis = items.find((item) => item.id === confirmingAnalysisId);
   const totalPages = portfolioList.totalPages;
   const hasPagination = portfolioList.total > portfolioList.pageSize;
   const rangeStart = portfolioList.total === 0 ? 0 : (portfolioList.page - 1) * portfolioList.pageSize + 1;
@@ -112,6 +132,21 @@ export function PortfolioEducationPage({ accessToken }: PortfolioEducationPagePr
     void loadAnalyses();
   }, [accessToken, appliedFilters, pagination]);
 
+  useEffect(() => {
+    if (!confirmingAnalysisId) return;
+
+    deleteCancelButtonRef.current?.focus();
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape' && !deletingAnalysisId) {
+        closeDeleteConfirmation();
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [confirmingAnalysisId, deletingAnalysisId]);
+
   function handleFilterSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const ticker = filters.ticker?.trim().toUpperCase();
@@ -135,6 +170,108 @@ export function PortfolioEducationPage({ accessToken }: PortfolioEducationPagePr
 
   function changePageSize(pageSize: ReportPageSize) {
     setPagination({ page: 1, pageSize });
+  }
+
+  function closeSwipeAction() {
+    setSwipedAnalysisId(undefined);
+    setDraggingAnalysisId(undefined);
+    setSwipeOffset(0);
+  }
+
+  function closeDeleteConfirmation() {
+    setConfirmingAnalysisId(undefined);
+    window.requestAnimationFrame(() => deleteTriggerRef.current?.focus());
+  }
+
+  function openDeleteConfirmation(analysisId: string, trigger: HTMLButtonElement) {
+    closeSwipeAction();
+    deleteTriggerRef.current = trigger;
+    setConfirmingAnalysisId(analysisId);
+  }
+
+  function handleSwipeStart(event: ReactPointerEvent<HTMLElement>, analysisId: string) {
+    if (event.pointerType !== 'touch' || deletingAnalysisId) return;
+
+    swipeStartRef.current = {
+      analysisId,
+      x: event.clientX,
+      y: event.clientY,
+      initialOffset: swipedAnalysisId === analysisId ? -portfolioSwipeActionWidth : 0,
+    };
+    suppressCardClickRef.current = false;
+    setDraggingAnalysisId(analysisId);
+    event.currentTarget.setPointerCapture?.(event.pointerId);
+  }
+
+  function handleSwipeMove(event: ReactPointerEvent<HTMLElement>, analysisId: string) {
+    const start = swipeStartRef.current;
+    if (!start || start.analysisId !== analysisId) return;
+
+    const deltaX = event.clientX - start.x;
+    const deltaY = event.clientY - start.y;
+    if (Math.abs(deltaX) < Math.abs(deltaY) * 1.5) return;
+
+    const nextOffset = Math.max(-portfolioSwipeActionWidth, Math.min(0, start.initialOffset + deltaX));
+    if (Math.abs(deltaX) > 8) {
+      suppressCardClickRef.current = true;
+    }
+    setSwipedAnalysisId(analysisId);
+    setSwipeOffset(nextOffset);
+  }
+
+  function handleSwipeEnd(event: ReactPointerEvent<HTMLElement>, analysisId: string) {
+    const start = swipeStartRef.current;
+    if (!start || start.analysisId !== analysisId) return;
+
+    const deltaX = event.clientX - start.x;
+    const finalOffset = Math.max(-portfolioSwipeActionWidth, Math.min(0, start.initialOffset + deltaX));
+    const shouldOpen = finalOffset <= -portfolioSwipeThreshold;
+
+    setSwipedAnalysisId(shouldOpen ? analysisId : undefined);
+    setDraggingAnalysisId(undefined);
+    setSwipeOffset(shouldOpen ? -portfolioSwipeActionWidth : 0);
+    swipeStartRef.current = null;
+    window.setTimeout(() => {
+      suppressCardClickRef.current = false;
+    }, 0);
+  }
+
+  function handleAnalysisLinkClick(event: ReactMouseEvent<HTMLAnchorElement>, analysisId: string) {
+    if (deletingAnalysisId || suppressCardClickRef.current || swipedAnalysisId === analysisId) {
+      event.preventDefault();
+      closeSwipeAction();
+      suppressCardClickRef.current = false;
+    }
+  }
+
+  async function handleDeleteAnalysis(item: PortfolioEducationAnalysisListItem) {
+    setDeletingAnalysisId(item.id);
+    setMessage(undefined);
+
+    try {
+      await deletePortfolioEducationAnalysis(item.id, accessToken);
+      const nextPage = items.length === 1 && pagination.page > 1 ? pagination.page - 1 : pagination.page;
+      const nextList = await fetchPortfolioEducationAnalyses(accessToken, undefined, {
+        ...appliedFilters,
+        page: nextPage,
+        pageSize: pagination.pageSize,
+      });
+      setPortfolioList(nextList);
+      if (nextPage !== pagination.page) {
+        setPagination((current) => ({ ...current, page: nextPage }));
+      } else if (nextList.totalPages > 0 && nextPage > nextList.totalPages) {
+        setPagination((current) => ({ ...current, page: nextList.totalPages }));
+      }
+      setStatus('idle');
+      setConfirmingAnalysisId(undefined);
+      closeSwipeAction();
+      setMessage({ tone: 'success', text: '보유 분석을 삭제했습니다.' });
+    } catch (error) {
+      setMessage({ tone: 'error', text: error instanceof Error ? error.message : '보유 분석 삭제에 실패했습니다.' });
+      setStatus('error');
+    } finally {
+      setDeletingAnalysisId(undefined);
+    }
   }
 
   if (!accessToken) {
@@ -221,31 +358,147 @@ export function PortfolioEducationPage({ accessToken }: PortfolioEducationPagePr
         <div className="table-list portfolio-list">
           {items.map((item) => {
             const instrumentMeta = formatInstrumentMeta(item.instrument);
+            const isSwipeOpen = swipedAnalysisId === item.id && swipeOffset < 0;
+            const rowStyle = {
+              '--report-swipe-offset': `${swipedAnalysisId === item.id ? swipeOffset : 0}px`,
+            } as CSSProperties;
+
             return (
-              <article className="list-row portfolio-row" key={item.id}>
-                <Link className="report-row-link-body" to={`/portfolio-analyses/${item.id}`}>
-                  <div className="report-row-main">
-                    <strong>{formatInstrumentTitle(item)}</strong>
-                    {instrumentMeta ? <span className="instrument-meta">{instrumentMeta}</span> : null}
-                    <p className="report-period">
-                      {item.from} - {item.to}
-                    </p>
-                  </div>
-                  <div className="portfolio-row-metrics">
-                    <span>수량 {formatNumber(item.position.quantity, 4)}</span>
-                    <span>평균 {formatNumber(item.position.averagePrice, 2)}</span>
-                    <span>수익률 {formatPercent(item.position.unrealizedProfitRate)}</span>
-                  </div>
-                  <div className="report-row-meta">
-                    <span className={item.aiStatus === 'available' ? 'pill status-positive' : 'pill status-negative'}>
-                      AI {item.aiStatus === 'available' ? '완료' : '실패'}
-                    </span>
-                    <span className="date-cell">{formatDateTime(item.generatedAt)}</span>
-                  </div>
-                </Link>
-              </article>
+              <div
+                className={[
+                  'report-swipe-shell',
+                  isSwipeOpen ? 'is-open' : '',
+                  draggingAnalysisId === item.id ? 'is-dragging' : '',
+                ]
+                  .filter(Boolean)
+                  .join(' ')}
+                key={item.id}
+              >
+                <div className="report-swipe-action" aria-hidden={!isSwipeOpen}>
+                  <button
+                    type="button"
+                    className="report-swipe-delete-button"
+                    disabled={Boolean(deletingAnalysisId)}
+                    tabIndex={isSwipeOpen ? 0 : -1}
+                    aria-label={`보유 분석 삭제 확인 ${item.ticker}`}
+                    onClick={(event) => openDeleteConfirmation(item.id, event.currentTarget)}
+                  >
+                    <svg className="report-delete-icon" viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M4 7h16" />
+                      <path d="M10 11v6" />
+                      <path d="M14 11v6" />
+                      <path d="M6 7l1 14h10l1-14" />
+                      <path d="M9 7V4h6v3" />
+                    </svg>
+                    <span>삭제</span>
+                  </button>
+                </div>
+                <article
+                  className="list-row report-row portfolio-row"
+                  style={rowStyle}
+                  onPointerDown={(event) => handleSwipeStart(event, item.id)}
+                  onPointerMove={(event) => handleSwipeMove(event, item.id)}
+                  onPointerUp={(event) => handleSwipeEnd(event, item.id)}
+                  onPointerCancel={closeSwipeAction}
+                >
+                  <Link
+                    className="report-row-link-body"
+                    to={`/portfolio-analyses/${item.id}`}
+                    aria-disabled={Boolean(deletingAnalysisId)}
+                    onClick={(event) => handleAnalysisLinkClick(event, item.id)}
+                  >
+                    <div className="report-row-main">
+                      <strong>{formatInstrumentTitle(item)}</strong>
+                      {instrumentMeta ? <span className="instrument-meta">{instrumentMeta}</span> : null}
+                      <p className="report-period">
+                        {item.from} - {item.to}
+                      </p>
+                    </div>
+                    <div className="portfolio-row-metrics">
+                      <span>수량 {formatNumber(item.position.quantity, 4)}</span>
+                      <span>평균 {formatNumber(item.position.averagePrice, 2)}</span>
+                      <span>수익률 {formatPercent(item.position.unrealizedProfitRate)}</span>
+                    </div>
+                    <div className="report-row-meta">
+                      <span className={item.aiStatus === 'available' ? 'pill status-positive' : 'pill status-negative'}>
+                        AI {item.aiStatus === 'available' ? '완료' : '실패'}
+                      </span>
+                      <span className="date-cell">{formatDateTime(item.generatedAt)}</span>
+                    </div>
+                  </Link>
+                  <button
+                    type="button"
+                    className="report-delete-trigger report-delete-trigger-desktop"
+                    disabled={Boolean(deletingAnalysisId)}
+                    aria-label={`보유 분석 삭제 확인 ${item.ticker}`}
+                    title="보유 분석 삭제"
+                    onClick={(event) => openDeleteConfirmation(item.id, event.currentTarget)}
+                  >
+                    <svg className="report-delete-icon" viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M4 7h16" />
+                      <path d="M10 11v6" />
+                      <path d="M14 11v6" />
+                      <path d="M6 7l1 14h10l1-14" />
+                      <path d="M9 7V4h6v3" />
+                    </svg>
+                  </button>
+                </article>
+              </div>
             );
           })}
+          {confirmingAnalysis ? (
+            <div
+              className="report-delete-dialog-backdrop"
+              role="presentation"
+              onPointerDown={(event) => {
+                if (event.target === event.currentTarget && !deletingAnalysisId) {
+                  closeDeleteConfirmation();
+                }
+              }}
+            >
+              <section
+                className="report-delete-dialog"
+                role="alertdialog"
+                aria-modal="true"
+                aria-labelledby="portfolio-delete-dialog-title"
+                aria-describedby="portfolio-delete-dialog-description portfolio-delete-dialog-warning"
+              >
+                <span className="card-label">DELETE ANALYSIS</span>
+                <h2 id="portfolio-delete-dialog-title">보유 분석을 삭제할까요?</h2>
+                <p id="portfolio-delete-dialog-description">{confirmingAnalysis.ticker} 보유 분석을 삭제할까요?</p>
+                <p className="report-delete-dialog-warning" id="portfolio-delete-dialog-warning">
+                  삭제한 보유 분석은 다시 복구할 수 없습니다.
+                </p>
+                <div className="report-delete-confirm-actions">
+                  <button
+                    ref={deleteCancelButtonRef}
+                    type="button"
+                    className="secondary-button"
+                    disabled={Boolean(deletingAnalysisId)}
+                    onClick={closeDeleteConfirmation}
+                  >
+                    취소
+                  </button>
+                  <button
+                    type="button"
+                    className="danger-button report-delete-button"
+                    disabled={Boolean(deletingAnalysisId)}
+                    aria-label={`삭제 확정 ${confirmingAnalysis.ticker}`}
+                    onClick={() => void handleDeleteAnalysis(confirmingAnalysis)}
+                  >
+                    {deletingAnalysisId === confirmingAnalysis.id ? (
+                      <span className="button-loading-label">
+                        <span className="loading-spinner loading-spinner-button" aria-hidden="true" />
+                        삭제 중
+                      </span>
+                    ) : (
+                      '삭제'
+                    )}
+                  </button>
+                </div>
+              </section>
+            </div>
+          ) : null}
           {status !== 'loading' && items.length === 0 ? (
             <div className="empty-list-state">
               <p>{isFiltered ? '조건에 맞는 보유 분석이 없습니다.' : '아직 만든 보유 분석이 없습니다.'}</p>

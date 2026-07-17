@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { fetchReportById } from '../api/reportApi';
 import { AiAnalysisPanel } from '../components/AiAnalysisPanel';
+import { AnalysisV2Panel } from '../components/AnalysisV2Panel';
 import { LoadingOverlay } from '../components/LoadingOverlay';
 import { ReportCharts } from '../components/ReportCharts';
 import { ReportShareButton } from '../components/ReportShareButton';
@@ -77,6 +78,9 @@ export function ReportDetailPage({ accessToken }: ReportDetailPageProps) {
           payload={report.payload}
           action={<ReportShareButton report={report} payload={report.payload} captureTargetRef={shareCaptureRef} />}
         />
+        {report.payload.analysisV2 ? (
+          <AnalysisV2Panel analysis={report.payload.analysisV2} dataQuality={report.payload.dataQuality} />
+        ) : null}
         <AiAnalysisPanel aiAnalysis={report.payload.aiAnalysis} />
       </div>
       <ReportCharts payload={report.payload} />
