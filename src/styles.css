@@ -2574,6 +2574,10 @@ button:disabled {
   color: var(--mute);
 }
 
+.analysis-event-toggle {
+  width: 100%;
+}
+
 .analysis-comparison-list {
   display: grid;
   gap: 1px;

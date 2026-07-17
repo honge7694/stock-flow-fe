@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import type {
   AnalysisEvent,
   AnalysisV2Payload,
@@ -5,6 +6,8 @@ import type {
   MarketDataQuality,
   ReportMetricChange,
 } from '../types/report';
+
+const DEFAULT_EVENT_COUNT = 10;
 
 type AnalysisV2PanelProps = {
   analysis: AnalysisV2Payload;
@@ -79,6 +82,7 @@ function formatEventEvidence(event: AnalysisEvent) {
 }
 
 export function AnalysisV2Panel({ analysis, dataQuality, showComparison = true }: AnalysisV2PanelProps) {
+  const [showAllEvents, setShowAllEvents] = useState(false);
   const riskItems = [
     ['최대 낙폭', formatPercent(analysis.risk.maxDrawdownPercent), analysis.availability.maxDrawdown],
     ['현재 낙폭', formatPercent(analysis.risk.currentDrawdownPercent), analysis.availability.currentDrawdown],
@@ -96,6 +100,8 @@ export function AnalysisV2Panel({ analysis, dataQuality, showComparison = true }
     ? (Object.entries(dataQuality.exclusions) as [DataQualityExclusionReason, number][])
     : [];
   const limitations = [...analysis.dataLimitations, ...(comparison?.dataLimitations ?? [])];
+  const hasMoreEvents = analysis.events.length > DEFAULT_EVENT_COUNT;
+  const visibleEvents = showAllEvents ? analysis.events : analysis.events.slice(0, DEFAULT_EVENT_COUNT);
 
   return (
     <section className="content-section analysis-v2-section">
@@ -132,24 +138,37 @@ export function AnalysisV2Panel({ analysis, dataQuality, showComparison = true }
             <span className="pill">{analysis.events.length}개</span>
           </div>
           {analysis.events.length ? (
-            <ol className="analysis-event-list">
-              {analysis.events.map((event, index) => {
-                const evidence = formatEventEvidence(event);
-                return (
-                  <li key={`${event.type}-${event.time}-${index}`}>
-                    <span className={`analysis-event-marker analysis-event-${event.direction}`} aria-hidden="true" />
-                    <div>
-                      <div className="analysis-event-meta">
-                        <strong>{eventLabels[event.type]}</strong>
-                        <time dateTime={event.time}>{event.time}</time>
+            <>
+              <ol className="analysis-event-list" id="analysis-event-list">
+                {visibleEvents.map((event, index) => {
+                  const evidence = formatEventEvidence(event);
+                  return (
+                    <li key={`${event.type}-${event.time}-${index}`}>
+                      <span className={`analysis-event-marker analysis-event-${event.direction}`} aria-hidden="true" />
+                      <div>
+                        <div className="analysis-event-meta">
+                          <strong>{eventLabels[event.type]}</strong>
+                          <time dateTime={event.time}>{event.time}</time>
+                        </div>
+                        <p>{event.description}</p>
+                        {evidence ? <small>{evidence}</small> : null}
                       </div>
-                      <p>{event.description}</p>
-                      {evidence ? <small>{evidence}</small> : null}
-                    </div>
-                  </li>
-                );
-              })}
-            </ol>
+                    </li>
+                  );
+                })}
+              </ol>
+              {hasMoreEvents ? (
+                <button
+                  type="button"
+                  className="secondary-button analysis-event-toggle"
+                  aria-expanded={showAllEvents}
+                  aria-controls="analysis-event-list"
+                  onClick={() => setShowAllEvents((current) => !current)}
+                >
+                  {showAllEvents ? '접기' : `나머지 ${analysis.events.length - DEFAULT_EVENT_COUNT}개 펼치기`}
+                </button>
+              ) : null}
+            </>
           ) : (
             <p className="analysis-empty">선택 기간에 확인된 지표 전환이 없습니다.</p>
           )}
