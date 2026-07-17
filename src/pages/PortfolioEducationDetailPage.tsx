@@ -1,11 +1,11 @@
 import { type FormEvent, useEffect, useState } from 'react';
-import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
+import { Link, useLocation, useParams } from 'react-router-dom';
 import {
-  deletePortfolioEducationAnalysis,
   fetchPortfolioEducationAnalysisById,
   updatePortfolioEducationAnalysis,
 } from '../api/portfolioApi';
 import { LoadingOverlay } from '../components/LoadingOverlay';
+import { AnalysisV2Panel } from '../components/AnalysisV2Panel';
 import type { PortfolioEducationAnalysisResponse, PortfolioEducationRequest, ReportInstrument } from '../types/report';
 
 type PortfolioEducationDetailPageProps = {
@@ -89,14 +89,12 @@ function validateForm(form: EditFormState) {
 export function PortfolioEducationDetailPage({ accessToken }: PortfolioEducationDetailPageProps) {
   const { id } = useParams();
   const location = useLocation();
-  const navigate = useNavigate();
   const seededAnalysis = (location.state as LocationState | null)?.analysis;
   const [analysis, setAnalysis] = useState<PortfolioEducationAnalysisResponse | null>(seededAnalysis ?? null);
   const [editForm, setEditForm] = useState<EditFormState | null>(seededAnalysis ? toEditForm(seededAnalysis) : null);
   const [status, setStatus] = useState<'idle' | 'loading' | 'error'>(seededAnalysis ? 'idle' : 'loading');
-  const [actionStatus, setActionStatus] = useState<'idle' | 'saving' | 'deleting'>('idle');
+  const [actionStatus, setActionStatus] = useState<'idle' | 'saving'>('idle');
   const [isEditOpen, setIsEditOpen] = useState(false);
-  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const [message, setMessage] = useState<{ tone: 'success' | 'error'; text: string }>();
 
   useEffect(() => {
@@ -142,20 +140,6 @@ export function PortfolioEducationDetailPage({ accessToken }: PortfolioEducation
     } catch (error) {
       setMessage({ tone: 'error', text: error instanceof Error ? error.message : '보유 분석 수정에 실패했습니다.' });
     } finally {
-      setActionStatus('idle');
-    }
-  }
-
-  async function handleDelete() {
-    if (!id) return;
-    setActionStatus('deleting');
-    setMessage(undefined);
-
-    try {
-      await deletePortfolioEducationAnalysis(id, accessToken);
-      navigate('/portfolio-analyses', { replace: true });
-    } catch (error) {
-      setMessage({ tone: 'error', text: error instanceof Error ? error.message : '보유 분석 삭제에 실패했습니다.' });
       setActionStatus('idle');
     }
   }
@@ -317,6 +301,10 @@ export function PortfolioEducationDetailPage({ accessToken }: PortfolioEducation
         </section>
       ) : null}
 
+      {analysis.analysisV2 ? (
+        <AnalysisV2Panel analysis={analysis.analysisV2} dataQuality={analysis.dataQuality} showComparison={false} />
+      ) : null}
+
       <section className="surface-panel portfolio-ai-panel">
         <div className="card-heading">
           <span className="card-label">AI LEARNING</span>
@@ -378,29 +366,6 @@ export function PortfolioEducationDetailPage({ accessToken }: PortfolioEducation
         )}
       </section>
 
-      <section className="surface-panel portfolio-delete-panel">
-        <div>
-          <span className="card-label">MANAGE</span>
-          <h2>분석 관리</h2>
-        </div>
-        {isDeleteConfirmOpen ? (
-          <div className="report-delete-confirm portfolio-delete-confirm" role="group" aria-label="보유 분석 삭제 확인">
-            <span>이 보유 분석을 삭제할까요?</span>
-            <div className="report-delete-confirm-actions">
-              <button type="button" className="secondary-button" disabled={actionStatus === 'deleting'} onClick={() => setIsDeleteConfirmOpen(false)}>
-                취소
-              </button>
-              <button type="button" className="danger-button" disabled={actionStatus === 'deleting'} onClick={() => void handleDelete()}>
-                {actionStatus === 'deleting' ? '삭제 중' : '삭제'}
-              </button>
-            </div>
-          </div>
-        ) : (
-          <button type="button" className="danger-button report-delete-trigger" onClick={() => setIsDeleteConfirmOpen(true)}>
-            삭제
-          </button>
-        )}
-      </section>
     </section>
   );
 }
