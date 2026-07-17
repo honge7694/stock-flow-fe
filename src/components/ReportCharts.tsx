@@ -6,30 +6,54 @@ type ReportChartsProps = {
   payload: ReportPayload;
 };
 
+type ChartTheme = {
+  background: string;
+  text: string;
+  grid: string;
+  border: string;
+  primary: string;
+  secondary: string;
+};
+
 function cleanLine(points: LinePoint[]) {
   return points
     .filter((point): point is { time: string; value: number } => point.value !== null)
     .map((point) => ({ time: point.time as Time, value: point.value }));
 }
 
-function useChart(render: (chart: IChartApi) => void) {
+function getChartTheme(): ChartTheme {
+  const styles = getComputedStyle(document.documentElement);
+  const readColor = (name: string, fallback: string) => styles.getPropertyValue(name).trim() || fallback;
+
+  return {
+    background: readColor('--chart-background', '#1a1a1a'),
+    text: readColor('--chart-text', '#bdbdbd'),
+    grid: readColor('--chart-grid', '#2a2a2a'),
+    border: readColor('--chart-border', '#3d3a39'),
+    primary: readColor('--primary', '#00d992'),
+    secondary: readColor('--chart-secondary', '#8b949e'),
+  };
+}
+
+function useChart(render: (chart: IChartApi, theme: ChartTheme) => void) {
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (!containerRef.current) return;
+    const theme = getChartTheme();
 
     const chart = createChart(containerRef.current, {
       height: 300,
-      layout: { background: { color: '#1a1a1a' }, textColor: '#bdbdbd' },
+      layout: { background: { color: theme.background }, textColor: theme.text },
       grid: {
-        vertLines: { color: '#2a2a2a' },
-        horzLines: { color: '#2a2a2a' },
+        vertLines: { color: theme.grid },
+        horzLines: { color: theme.grid },
       },
-      rightPriceScale: { borderColor: '#3d3a39' },
-      timeScale: { borderColor: '#3d3a39' },
+      rightPriceScale: { borderColor: theme.border },
+      timeScale: { borderColor: theme.border },
     });
 
-    render(chart);
+    render(chart, theme);
     chart.timeScale().fitContent();
 
     return () => chart.remove();
@@ -47,41 +71,41 @@ export function ReportCharts({ payload }: ReportChartsProps) {
   const rsiGuide = guideByTitle.get('rsi') ?? guideByTitle.get('rsi14');
   const macdGuide = guideByTitle.get('macd');
   const volumeGuide = guideByTitle.get('거래량') ?? guideByTitle.get('volume');
-  const priceRef = useChart((chart) => {
+  const priceRef = useChart((chart, theme) => {
     chart.addCandlestickSeries().setData(
       payload.candles.map((candle) => ({
         ...candle,
         time: candle.time as Time,
       })),
     );
-    chart.addLineSeries({ color: '#00d992', lineWidth: 2 }).setData(cleanLine(payload.indicators.sma20));
-    chart.addLineSeries({ color: '#8b949e', lineWidth: 2 }).setData(cleanLine(payload.indicators.sma50));
+    chart.addLineSeries({ color: theme.primary, lineWidth: 2 }).setData(cleanLine(payload.indicators.sma20));
+    chart.addLineSeries({ color: theme.secondary, lineWidth: 2 }).setData(cleanLine(payload.indicators.sma50));
   });
 
-  const rsiRef = useChart((chart) => {
-    chart.addLineSeries({ color: '#00d992', lineWidth: 2 }).setData(cleanLine(payload.indicators.rsi14));
+  const rsiRef = useChart((chart, theme) => {
+    chart.addLineSeries({ color: theme.primary, lineWidth: 2 }).setData(cleanLine(payload.indicators.rsi14));
   });
 
-  const macdRef = useChart((chart) => {
-    chart.addLineSeries({ color: '#00d992', lineWidth: 2 }).setData(
+  const macdRef = useChart((chart, theme) => {
+    chart.addLineSeries({ color: theme.primary, lineWidth: 2 }).setData(
       payload.indicators.macd
         .filter((point) => point.macd !== null)
         .map((point) => ({ time: point.time as Time, value: point.macd as number })),
     );
-    chart.addLineSeries({ color: '#8b949e', lineWidth: 2 }).setData(
+    chart.addLineSeries({ color: theme.secondary, lineWidth: 2 }).setData(
       payload.indicators.macd
         .filter((point) => point.signal !== null)
         .map((point) => ({ time: point.time as Time, value: point.signal as number })),
     );
-    chart.addHistogramSeries({ color: '#10b981' }).setData(
+    chart.addHistogramSeries({ color: theme.primary }).setData(
       payload.indicators.macd
         .filter((point) => point.histogram !== null)
         .map((point) => ({ time: point.time as Time, value: point.histogram as number })),
     );
   });
 
-  const volumeRef = useChart((chart) => {
-    chart.addHistogramSeries({ color: '#00d992' }).setData(cleanLine(payload.indicators.volume));
+  const volumeRef = useChart((chart, theme) => {
+    chart.addHistogramSeries({ color: theme.primary }).setData(cleanLine(payload.indicators.volume));
   });
 
   return (

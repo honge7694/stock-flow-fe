@@ -1,4 +1,12 @@
-import { type FormEvent, useEffect, useState } from 'react';
+import {
+  type CSSProperties,
+  type FormEvent,
+  type MouseEvent as ReactMouseEvent,
+  type PointerEvent as ReactPointerEvent,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { Link } from 'react-router-dom';
 import { deleteReport, fetchReports } from '../api/reportApi';
 import { LoadingOverlay } from '../components/LoadingOverlay';
@@ -18,6 +26,8 @@ type ReportsPageProps = {
 };
 
 const pageSizeOptions: ReportPageSize[] = [5, 10, 30, 50];
+const reportSwipeActionWidth = 84;
+const reportSwipeThreshold = 42;
 
 const emptyReportList: ReportListResponse = {
   items: [],
@@ -103,8 +113,16 @@ export function ReportsPage({ accessToken }: ReportsPageProps) {
   const [status, setStatus] = useState<'idle' | 'loading' | 'error'>('idle');
   const [deletingReportId, setDeletingReportId] = useState<string>();
   const [confirmingReportId, setConfirmingReportId] = useState<string>();
+  const [swipedReportId, setSwipedReportId] = useState<string>();
+  const [draggingReportId, setDraggingReportId] = useState<string>();
+  const [swipeOffset, setSwipeOffset] = useState(0);
   const [message, setMessage] = useState<{ tone: 'success' | 'error'; text: string }>();
+  const swipeStartRef = useRef<{ reportId: string; x: number; y: number; initialOffset: number } | null>(null);
+  const suppressCardClickRef = useRef(false);
+  const deleteTriggerRef = useRef<HTMLButtonElement>(null);
+  const deleteCancelButtonRef = useRef<HTMLButtonElement>(null);
   const reports = reportList.items;
+  const confirmingReport = reports.find((report) => report.id === confirmingReportId);
   const totalPages = reportList.totalPages;
   const hasPagination = reportList.total > reportList.pageSize;
   const rangeStart = reportList.total === 0 ? 0 : (reportList.page - 1) * reportList.pageSize + 1;
@@ -137,6 +155,21 @@ export function ReportsPage({ accessToken }: ReportsPageProps) {
 
     void loadReports();
   }, [accessToken, appliedFilters, pagination]);
+
+  useEffect(() => {
+    if (!confirmingReportId) return;
+
+    deleteCancelButtonRef.current?.focus();
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape' && !deletingReportId) {
+        closeDeleteConfirmation();
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [confirmingReportId, deletingReportId]);
 
   function cleanFilters(nextFilters: ReportListQuery) {
     return Object.fromEntries(
@@ -172,6 +205,78 @@ export function ReportsPage({ accessToken }: ReportsPageProps) {
     setPagination({ page: 1, pageSize });
   }
 
+  function closeSwipeAction() {
+    setSwipedReportId(undefined);
+    setDraggingReportId(undefined);
+    setSwipeOffset(0);
+  }
+
+  function closeDeleteConfirmation() {
+    setConfirmingReportId(undefined);
+    window.requestAnimationFrame(() => deleteTriggerRef.current?.focus());
+  }
+
+  function openDeleteConfirmation(reportId: string, trigger: HTMLButtonElement) {
+    closeSwipeAction();
+    deleteTriggerRef.current = trigger;
+    setConfirmingReportId(reportId);
+  }
+
+  function handleSwipeStart(event: ReactPointerEvent<HTMLElement>, reportId: string) {
+    if (event.pointerType !== 'touch' || deletingReportId) return;
+
+    swipeStartRef.current = {
+      reportId,
+      x: event.clientX,
+      y: event.clientY,
+      initialOffset: swipedReportId === reportId ? -reportSwipeActionWidth : 0,
+    };
+    suppressCardClickRef.current = false;
+    setDraggingReportId(reportId);
+    event.currentTarget.setPointerCapture?.(event.pointerId);
+  }
+
+  function handleSwipeMove(event: ReactPointerEvent<HTMLElement>, reportId: string) {
+    const start = swipeStartRef.current;
+    if (!start || start.reportId !== reportId) return;
+
+    const deltaX = event.clientX - start.x;
+    const deltaY = event.clientY - start.y;
+    if (Math.abs(deltaX) < Math.abs(deltaY) * 1.5) return;
+
+    const nextOffset = Math.max(-reportSwipeActionWidth, Math.min(0, start.initialOffset + deltaX));
+    if (Math.abs(deltaX) > 8) {
+      suppressCardClickRef.current = true;
+    }
+    setSwipedReportId(reportId);
+    setSwipeOffset(nextOffset);
+  }
+
+  function handleSwipeEnd(event: ReactPointerEvent<HTMLElement>, reportId: string) {
+    const start = swipeStartRef.current;
+    if (!start || start.reportId !== reportId) return;
+
+    const deltaX = event.clientX - start.x;
+    const finalOffset = Math.max(-reportSwipeActionWidth, Math.min(0, start.initialOffset + deltaX));
+    const shouldOpen = finalOffset <= -reportSwipeThreshold;
+
+    setSwipedReportId(shouldOpen ? reportId : undefined);
+    setDraggingReportId(undefined);
+    setSwipeOffset(shouldOpen ? -reportSwipeActionWidth : 0);
+    swipeStartRef.current = null;
+    window.setTimeout(() => {
+      suppressCardClickRef.current = false;
+    }, 0);
+  }
+
+  function handleReportLinkClick(event: ReactMouseEvent<HTMLAnchorElement>, reportId: string) {
+    if (deletingReportId || suppressCardClickRef.current || swipedReportId === reportId) {
+      event.preventDefault();
+      closeSwipeAction();
+      suppressCardClickRef.current = false;
+    }
+  }
+
   async function handleDeleteReport(report: ReportResponse) {
     setDeletingReportId(report.id);
     setMessage(undefined);
@@ -192,6 +297,7 @@ export function ReportsPage({ accessToken }: ReportsPageProps) {
       }
       setStatus('idle');
       setConfirmingReportId(undefined);
+      closeSwipeAction();
       setMessage({ tone: 'success', text: '리포트를 삭제했습니다.' });
     } catch (error) {
       setMessage({ tone: 'error', text: error instanceof Error ? error.message : '리포트 삭제에 실패했습니다.' });
@@ -346,77 +452,147 @@ export function ReportsPage({ accessToken }: ReportsPageProps) {
         ) : null}
 
         <div className="table-list report-list">
-          {reports.map((report) => (
-            <article className="list-row report-row" key={report.id}>
-              <Link className="report-row-link-body" to={`/reports/${report.id}`}>
-                <div className="report-row-main">
-                  <strong>{formatInstrumentTitle(report)}</strong>
-                  {formatInstrumentMeta(report.instrument) ? (
-                    <span className="instrument-meta">{formatInstrumentMeta(report.instrument)}</span>
-                  ) : null}
-                  <p className="report-period">
-                    {report.from} - {report.to}
-                  </p>
+          {reports.map((report) => {
+            const isSwipeOpen = swipedReportId === report.id && swipeOffset < 0;
+            const rowStyle = {
+              '--report-swipe-offset': `${swipedReportId === report.id ? swipeOffset : 0}px`,
+            } as CSSProperties;
+
+            return (
+              <div
+                className={[
+                  'report-swipe-shell',
+                  isSwipeOpen ? 'is-open' : '',
+                  draggingReportId === report.id ? 'is-dragging' : '',
+                ]
+                  .filter(Boolean)
+                  .join(' ')}
+                key={report.id}
+              >
+                <div className="report-swipe-action" aria-hidden={!isSwipeOpen}>
+                  <button
+                    type="button"
+                    className="report-swipe-delete-button"
+                    disabled={Boolean(deletingReportId)}
+                    tabIndex={isSwipeOpen ? 0 : -1}
+                    aria-label={`리포트 삭제 확인 ${report.ticker}`}
+                    onClick={(event) => openDeleteConfirmation(report.id, event.currentTarget)}
+                  >
+                    <svg className="report-delete-icon" viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M4 7h16" />
+                      <path d="M10 11v6" />
+                      <path d="M14 11v6" />
+                      <path d="M6 7l1 14h10l1-14" />
+                      <path d="M9 7V4h6v3" />
+                    </svg>
+                    <span>삭제</span>
+                  </button>
                 </div>
-                <div className="report-row-meta">
-                  <span className={`pill status-${report.status === 'completed' ? 'positive' : 'negative'}`}>
-                    {report.status === 'completed' ? '완료' : '실패'}
-                  </span>
-                  <span className="pill">{formatSource(report.source)}</span>
-                  <span className="pill">{formatAiStatus(report.aiStatus, report.includeAi)}</span>
-                </div>
-                <span className="date-cell">{formatDateTime(report.generatedAt)}</span>
-              </Link>
-              {confirmingReportId === report.id ? (
-                <div className="report-delete-confirm" role="group" aria-label={`${report.ticker} 삭제 확인`}>
-                  <span>{report.ticker} 리포트를 삭제할까요?</span>
-                  <div className="report-delete-confirm-actions">
-                    <button
-                      type="button"
-                      className="secondary-button"
-                      disabled={Boolean(deletingReportId)}
-                      onClick={() => setConfirmingReportId(undefined)}
-                    >
-                      취소
-                    </button>
-                    <button
-                      type="button"
-                      className="danger-button report-delete-button"
-                      disabled={Boolean(deletingReportId)}
-                      aria-label={`삭제 확정 ${report.ticker}`}
-                      onClick={() => void handleDeleteReport(report)}
-                    >
-                      {deletingReportId === report.id ? (
-                        <span className="button-loading-label">
-                          <span className="loading-spinner loading-spinner-button" aria-hidden="true" />
-                          삭제 중
-                        </span>
-                      ) : (
-                        '삭제'
-                      )}
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <button
-                  type="button"
-                  className="report-delete-trigger"
-                  disabled={Boolean(deletingReportId)}
-                  aria-label={`리포트 삭제 확인 ${report.ticker}`}
-                  title="리포트 삭제"
-                  onClick={() => setConfirmingReportId(report.id)}
+                <article
+                  className="list-row report-row"
+                  style={rowStyle}
+                  onPointerDown={(event) => handleSwipeStart(event, report.id)}
+                  onPointerMove={(event) => handleSwipeMove(event, report.id)}
+                  onPointerUp={(event) => handleSwipeEnd(event, report.id)}
+                  onPointerCancel={() => closeSwipeAction()}
                 >
-                  <svg className="report-delete-icon" viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M4 7h16" />
-                    <path d="M10 11v6" />
-                    <path d="M14 11v6" />
-                    <path d="M6 7l1 14h10l1-14" />
-                    <path d="M9 7V4h6v3" />
-                  </svg>
-                </button>
-              )}
-            </article>
-          ))}
+                  <Link
+                    className="report-row-link-body"
+                    to={`/reports/${report.id}`}
+                    aria-disabled={Boolean(deletingReportId)}
+                    onClick={(event) => handleReportLinkClick(event, report.id)}
+                  >
+                    <div className="report-row-main">
+                      <strong>{formatInstrumentTitle(report)}</strong>
+                      {formatInstrumentMeta(report.instrument) ? (
+                        <span className="instrument-meta">{formatInstrumentMeta(report.instrument)}</span>
+                      ) : null}
+                      <p className="report-period">
+                        {report.from} - {report.to}
+                      </p>
+                    </div>
+                    <div className="report-row-meta">
+                      <span className={`pill status-${report.status === 'completed' ? 'positive' : 'negative'}`}>
+                        {report.status === 'completed' ? '완료' : '실패'}
+                      </span>
+                      <span className="pill">{formatSource(report.source)}</span>
+                      <span className="pill">{formatAiStatus(report.aiStatus, report.includeAi)}</span>
+                    </div>
+                    <span className="date-cell">{formatDateTime(report.generatedAt)}</span>
+                  </Link>
+                  <button
+                    type="button"
+                    className="report-delete-trigger report-delete-trigger-desktop"
+                    disabled={Boolean(deletingReportId)}
+                    aria-label={`리포트 삭제 확인 ${report.ticker}`}
+                    title="리포트 삭제"
+                    onClick={(event) => openDeleteConfirmation(report.id, event.currentTarget)}
+                  >
+                    <svg className="report-delete-icon" viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M4 7h16" />
+                      <path d="M10 11v6" />
+                      <path d="M14 11v6" />
+                      <path d="M6 7l1 14h10l1-14" />
+                      <path d="M9 7V4h6v3" />
+                    </svg>
+                  </button>
+                </article>
+              </div>
+            );
+          })}
+          {confirmingReport ? (
+            <div
+              className="report-delete-dialog-backdrop"
+              role="presentation"
+              onPointerDown={(event) => {
+                if (event.target === event.currentTarget && !deletingReportId) {
+                  closeDeleteConfirmation();
+                }
+              }}
+            >
+              <section
+                className="report-delete-dialog"
+                role="alertdialog"
+                aria-modal="true"
+                aria-labelledby="report-delete-dialog-title"
+                aria-describedby="report-delete-dialog-description report-delete-dialog-warning"
+              >
+                <span className="card-label">DELETE REPORT</span>
+                <h2 id="report-delete-dialog-title">리포트를 삭제할까요?</h2>
+                <p id="report-delete-dialog-description">{confirmingReport.ticker} 리포트를 삭제할까요?</p>
+                <p className="report-delete-dialog-warning" id="report-delete-dialog-warning">
+                  삭제한 리포트는 다시 복구할 수 없습니다.
+                </p>
+                <div className="report-delete-confirm-actions">
+                  <button
+                    ref={deleteCancelButtonRef}
+                    type="button"
+                    className="secondary-button"
+                    disabled={Boolean(deletingReportId)}
+                    onClick={closeDeleteConfirmation}
+                  >
+                    취소
+                  </button>
+                  <button
+                    type="button"
+                    className="danger-button report-delete-button"
+                    disabled={Boolean(deletingReportId)}
+                    aria-label={`삭제 확정 ${confirmingReport.ticker}`}
+                    onClick={() => void handleDeleteReport(confirmingReport)}
+                  >
+                    {deletingReportId === confirmingReport.id ? (
+                      <span className="button-loading-label">
+                        <span className="loading-spinner loading-spinner-button" aria-hidden="true" />
+                        삭제 중
+                      </span>
+                    ) : (
+                      '삭제'
+                    )}
+                  </button>
+                </div>
+              </section>
+            </div>
+          ) : null}
           {status !== 'loading' && reports.length === 0 ? (
             <div className="empty-list-state">
               <p>{isFiltered ? '조건에 맞는 리포트가 없습니다.' : '아직 생성된 리포트가 없습니다.'}</p>
