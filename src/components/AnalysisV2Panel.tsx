@@ -9,7 +9,7 @@ import type {
 } from '../types/report';
 import { formatInteger, formatNumber, formatPercent } from '../utils/numberFormat';
 
-const DEFAULT_EVENT_COUNT = 10;
+const DEFAULT_EVENT_COUNT = 5;
 
 type AnalysisV2PanelProps = {
   analysis: AnalysisV2Payload;

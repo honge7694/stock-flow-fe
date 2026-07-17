@@ -126,7 +126,7 @@ describe('AnalysisV2Panel', () => {
     expect(screen.getByText('20일 변동성은 직전 리포트보다 3.77%p 높아졌습니다.')).toBeInTheDocument();
   });
 
-  it('shows the latest ten indicator events and expands the remainder on demand', async () => {
+  it('shows the latest five indicator events and expands the remainder on demand', async () => {
     const user = userEvent.setup();
     const events = Array.from({ length: 12 }, (_, index) => ({
       ...analysis.events[0],
@@ -136,10 +136,10 @@ describe('AnalysisV2Panel', () => {
 
     render(<AnalysisV2Panel analysis={{ ...analysis, events }} />);
 
-    expect(screen.getByText('지표 전환 10')).toBeInTheDocument();
-    expect(screen.queryByText('지표 전환 11')).not.toBeInTheDocument();
+    expect(screen.getByText('지표 전환 5')).toBeInTheDocument();
+    expect(screen.queryByText('지표 전환 6')).not.toBeInTheDocument();
 
-    const expandButton = screen.getByRole('button', { name: '나머지 2개 펼치기' });
+    const expandButton = screen.getByRole('button', { name: '나머지 7개 펼치기' });
     expect(expandButton).toHaveAttribute('aria-expanded', 'false');
     await user.click(expandButton);
 
@@ -148,6 +148,6 @@ describe('AnalysisV2Panel', () => {
     expect(collapseButton).toHaveAttribute('aria-expanded', 'true');
     await user.click(collapseButton);
 
-    expect(screen.queryByText('지표 전환 11')).not.toBeInTheDocument();
+    expect(screen.queryByText('지표 전환 6')).not.toBeInTheDocument();
   });
 });
