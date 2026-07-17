@@ -4,6 +4,7 @@ import type {
   AnalysisV2Payload,
   DataQualityExclusionReason,
   MarketDataQuality,
+  ReportComparison,
   ReportMetricChange,
 } from '../types/report';
 import { formatInteger, formatNumber, formatPercent } from '../utils/numberFormat';
@@ -14,6 +15,7 @@ type AnalysisV2PanelProps = {
   analysis: AnalysisV2Payload;
   dataQuality?: MarketDataQuality;
   showComparison?: boolean;
+  currency?: string | null;
 };
 
 const exclusionLabels: Record<DataQualityExclusionReason, string> = {
@@ -35,23 +37,79 @@ const eventLabels: Record<AnalysisEvent['type'], string> = {
   'macd-histogram-sign-change': 'MACD 히스토그램 전환',
 };
 
-const comparisonLabels = {
-  latestClose: '최근 종가',
-  periodChangePercent: '기간 변화율',
-  latestRsi14: 'RSI 14',
-  recentVolumeVsAverage: '최근/평균 거래량',
-  maxDrawdownPercent: '최대 낙폭',
-  volatility20d: '20일 변동성',
-  atr14Percent: 'ATR 14 비율',
-} satisfies Record<string, string>;
+type ComparisonMetricKey = keyof ReportComparison['changes'];
 
-function formatChange(change: ReportMetricChange) {
-  if (change.direction === 'unavailable' || change.delta === null) return '비교 불가';
-  const prefix = change.delta > 0 ? '+' : '';
-  return `${prefix}${formatNumber(change.delta)}`;
+const comparisonMetrics: Record<
+  ComparisonMetricKey,
+  { label: string; observationSubject: string; unit: 'currency' | 'percentagePoint' | 'point' | 'ratio' }
+> = {
+  latestClose: { label: '최근 종가', observationSubject: '종가는', unit: 'currency' },
+  periodChangePercent: { label: '기간 변화율', observationSubject: '기간 변화율은', unit: 'percentagePoint' },
+  latestRsi14: { label: 'RSI 14', observationSubject: 'RSI 14는', unit: 'point' },
+  recentVolumeVsAverage: { label: '최근/평균 거래량', observationSubject: '최근/평균 거래량은', unit: 'ratio' },
+  maxDrawdownPercent: { label: '최대 낙폭', observationSubject: '최대 낙폭은', unit: 'percentagePoint' },
+  volatility20d: { label: '20일 변동성', observationSubject: '20일 변동성은', unit: 'percentagePoint' },
+  atr14Percent: { label: 'ATR 14 비율', observationSubject: 'ATR 14 비율은', unit: 'percentagePoint' },
+};
+
+const observationMetricMatchers: Array<[ComparisonMetricKey, RegExp]> = [
+  ['latestClose', /종가/],
+  ['periodChangePercent', /기간 변화율/],
+  ['latestRsi14', /RSI\s*14/i],
+  ['recentVolumeVsAverage', /최근\/평균 거래량|거래량 비율/],
+  ['maxDrawdownPercent', /최대 낙폭/],
+  ['volatility20d', /20일 변동성/],
+  ['atr14Percent', /ATR\s*14\s*비율/i],
+];
+
+function formatComparisonValue(
+  key: ComparisonMetricKey,
+  value: number,
+  currency?: string | null,
+  includeSign = true,
+) {
+  const prefix = includeSign && value > 0 ? '+' : '';
+  const formatted = `${prefix}${formatNumber(value)}`;
+  const unit = comparisonMetrics[key].unit;
+
+  if (unit === 'currency') return currency ? `${formatted} ${currency}` : formatted;
+  if (unit === 'percentagePoint') return `${formatted}%p`;
+  if (unit === 'point') return `${formatted}포인트`;
+  return `${formatted}배`;
 }
 
-function changeTone(change: ReportMetricChange) {
+function formatChange(key: ComparisonMetricKey, change: ReportMetricChange, currency?: string | null) {
+  if (change.direction === 'unavailable' || change.delta === null) return '비교 불가';
+  return formatComparisonValue(key, change.delta, currency);
+}
+
+function formatComparisonObservation(
+  observation: string,
+  comparison: ReportComparison,
+  currency?: string | null,
+) {
+  const metricKey = observationMetricMatchers.find(([, pattern]) => pattern.test(observation))?.[0];
+  if (!metricKey) return observation;
+
+  const change = comparison.changes[metricKey];
+  const subject = comparisonMetrics[metricKey].observationSubject;
+  if (change.direction === 'unavailable' || change.delta === null) {
+    return `${subject} 직전 리포트와 비교할 수 없습니다.`;
+  }
+  if (change.direction === 'unchanged' || change.delta === 0) {
+    return `${subject} 직전 리포트와 같습니다.`;
+  }
+
+  const directionLabel = change.direction === 'increased' ? '높아졌습니다.' : '낮아졌습니다.';
+  return `${subject} 직전 리포트보다 ${formatComparisonValue(metricKey, Math.abs(change.delta), currency, false)} ${directionLabel}`;
+}
+
+function changeTone(key: ComparisonMetricKey, change: ReportMetricChange) {
+  if (key === 'volatility20d' || key === 'atr14Percent') {
+    if (change.direction === 'increased') return 'comparison-decreased';
+    if (change.direction === 'decreased') return 'comparison-increased';
+    return '';
+  }
   if (change.direction === 'increased') return 'comparison-increased';
   if (change.direction === 'decreased') return 'comparison-decreased';
   return '';
@@ -72,7 +130,12 @@ function formatEventEvidence(event: AnalysisEvent) {
   return evidence.join(' · ');
 }
 
-export function AnalysisV2Panel({ analysis, dataQuality, showComparison = true }: AnalysisV2PanelProps) {
+export function AnalysisV2Panel({
+  analysis,
+  dataQuality,
+  showComparison = true,
+  currency,
+}: AnalysisV2PanelProps) {
   const [showAllEvents, setShowAllEvents] = useState(false);
   const riskItems = [
     ['최대 낙폭', formatPercent(analysis.risk.maxDrawdownPercent), analysis.availability.maxDrawdown],
@@ -177,17 +240,17 @@ export function AnalysisV2Panel({ analysis, dataQuality, showComparison = true }
               </p>
             </div>
             <div className="analysis-comparison-list">
-              {Object.entries(comparison.changes).map(([key, change]) => (
+              {(Object.entries(comparison.changes) as [ComparisonMetricKey, ReportMetricChange][]).map(([key, change]) => (
                 <div key={key}>
-                  <span>{comparisonLabels[key as keyof typeof comparisonLabels]}</span>
-                  <strong className={changeTone(change)}>{formatChange(change)}</strong>
+                  <span>{comparisonMetrics[key].label}</span>
+                  <strong className={changeTone(key, change)}>{formatChange(key, change, currency)}</strong>
                 </div>
               ))}
             </div>
             {comparison.observations.length ? (
               <ul className="analysis-observation-list">
                 {comparison.observations.map((observation) => (
-                  <li key={observation}>{observation}</li>
+                  <li key={observation}>{formatComparisonObservation(observation, comparison, currency)}</li>
                 ))}
               </ul>
             ) : null}

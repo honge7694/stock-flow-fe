@@ -79,7 +79,11 @@ export function ReportDetailPage({ accessToken }: ReportDetailPageProps) {
           action={<ReportShareButton report={report} payload={report.payload} captureTargetRef={shareCaptureRef} />}
         />
         {report.payload.analysisV2 ? (
-          <AnalysisV2Panel analysis={report.payload.analysisV2} dataQuality={report.payload.dataQuality} />
+          <AnalysisV2Panel
+            analysis={report.payload.analysisV2}
+            dataQuality={report.payload.dataQuality}
+            currency={report.instrument?.currency ?? report.payload.instrument?.currency}
+          />
         ) : null}
         <AiAnalysisPanel aiAnalysis={report.payload.aiAnalysis} />
       </div>
