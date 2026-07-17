@@ -53,20 +53,38 @@ export function AuthPanel({ isLoading, user, errorMessage, onLogin, onSignup, on
           <h2>계정 연결</h2>
           <label>
             <span>이메일 또는 ID</span>
-            <input type="text" value={email} onChange={(event) => setEmail(event.target.value)} />
+            <input
+              type="text"
+              value={email}
+              disabled={isLoading}
+              onChange={(event) => setEmail(event.target.value)}
+            />
           </label>
           <label>
             <span>비밀번호</span>
             <input
               type="password"
               value={password}
+              disabled={isLoading}
               onChange={(event) => setPassword(event.target.value)}
               required
             />
           </label>
           <div className="button-row">
-            <button type="submit" disabled={isLoading}>
-              {isLoading ? '처리 중...' : '로그인'}
+            <button
+              type="submit"
+              className={isLoading ? 'auth-submit-button auth-submit-button-loading' : 'auth-submit-button'}
+              disabled={isLoading}
+              aria-busy={isLoading}
+            >
+              {isLoading ? (
+                <span className="button-loading-label" role="status" aria-live="polite">
+                  <span className="loading-spinner loading-spinner-button" aria-hidden="true" />
+                  로그인 중...
+                </span>
+              ) : (
+                '로그인'
+              )}
             </button>
             <button
               type="button"
@@ -77,7 +95,11 @@ export function AuthPanel({ isLoading, user, errorMessage, onLogin, onSignup, on
               회원가입
             </button>
           </div>
-          {signupErrorMessage || errorMessage ? <p className="form-error">{signupErrorMessage ?? errorMessage}</p> : null}
+          {signupErrorMessage || errorMessage ? (
+            <p className="form-error" role="alert">
+              {signupErrorMessage ?? errorMessage}
+            </p>
+          ) : null}
         </form>
       )}
     </section>

@@ -67,4 +67,24 @@ describe('AuthPanel', () => {
 
     expect(onSignup).not.toHaveBeenCalled();
   });
+
+  it('shows a clear login loading state and locks the form', () => {
+    render(
+      <AuthPanel
+        isLoading
+        user={null}
+        onLogin={vi.fn()}
+        onSignup={vi.fn()}
+        onLogout={vi.fn()}
+      />,
+    );
+
+    const loginButton = screen.getByRole('button', { name: '로그인 중...' });
+
+    expect(loginButton).toBeDisabled();
+    expect(loginButton).toHaveAttribute('aria-busy', 'true');
+    expect(screen.getByLabelText('이메일 또는 ID')).toBeDisabled();
+    expect(screen.getByLabelText('비밀번호')).toBeDisabled();
+    expect(screen.getByRole('status')).toHaveTextContent('로그인 중...');
+  });
 });

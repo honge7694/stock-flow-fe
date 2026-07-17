@@ -1266,6 +1266,10 @@ button:disabled {
   opacity: 0.55;
 }
 
+.auth-submit-button-loading:disabled {
+  opacity: 1;
+}
+
 .button-loading-label {
   display: inline-flex;
   align-items: center;
@@ -1293,6 +1297,12 @@ button:disabled {
 @keyframes loading-spin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loading-spinner {
+    animation: none;
   }
 }
 
