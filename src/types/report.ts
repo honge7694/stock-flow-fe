@@ -361,6 +361,53 @@ export type PortfolioEducationChartSummary = {
   candleCount: number;
 };
 
+export type PortfolioCalculationBasis = {
+  priceAsOf: string;
+  priceType: 'historical-daily-close';
+  requestedRange: { from: string; to: string };
+  actualDataRange: { from: string; to: string };
+  currency: {
+    positionCurrency: string;
+    marketCurrency: string;
+    status: 'matched' | 'mismatched' | 'unknown';
+  };
+  includesFees: boolean;
+  includesTaxes: boolean;
+  includesDividends: boolean;
+};
+
+export type PortfolioSensitivityItem = {
+  hypotheticalChangePercent: number;
+  assumedPrice: number;
+  positionValue: number;
+  unrealizedProfit: number;
+  unrealizedProfitRate: number;
+};
+
+export type PortfolioPositionInsights = {
+  priceDifferenceFromAverage: number | null;
+  priceDifferenceFromAveragePercent: number | null;
+  priceChangeToBreakEvenPercent: number | null;
+  periodRange: {
+    low: number | null;
+    high: number | null;
+    currentPricePositionPercent: number | null;
+    averagePricePositionPercent: number | null;
+  };
+  trendDistance: {
+    fromSma20Percent: number | null;
+    fromSma50Percent: number | null;
+  };
+  rollingReturns: {
+    fiveTradingDaysPercent: number | null;
+    twentyTradingDaysPercent: number | null;
+    sixtyTradingDaysPercent: number | null;
+  };
+  latestVolumeVsAveragePercent: number | null;
+  atrEstimatedPositionValueMovement: number | null;
+  sensitivity: PortfolioSensitivityItem[];
+};
+
 export type PortfolioEducationAiAnalysis = {
   beginnerSummary: string;
   positionExplanation: string;
@@ -377,6 +424,7 @@ export type PortfolioEducationAiAnalysis = {
 
 export type PortfolioEducationAnalysisResponse = {
   id: string;
+  schemaVersion?: 2;
   ticker: string;
   instrument?: ReportInstrument;
   from: string;
@@ -384,6 +432,8 @@ export type PortfolioEducationAnalysisResponse = {
   generatedAt: string;
   position: PortfolioEducationPosition;
   chartSummary?: PortfolioEducationChartSummary;
+  calculationBasis?: PortfolioCalculationBasis;
+  positionInsights?: PortfolioPositionInsights;
   dataQuality?: MarketDataQuality;
   analysisV2?: AnalysisV2Payload;
   aiStatus: PortfolioEducationAiStatus;
