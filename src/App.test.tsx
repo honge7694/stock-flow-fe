@@ -28,6 +28,8 @@ describe('App routing', () => {
   afterEach(() => {
     vi.unstubAllGlobals();
     localStorage.clear();
+    delete document.documentElement.dataset.theme;
+    document.documentElement.style.colorScheme = '';
     window.history.pushState({}, '', '/');
   });
 
@@ -40,6 +42,23 @@ describe('App routing', () => {
     expect(screen.queryByRole('heading', { name: '교육용 주식 차트 분석' })).not.toBeInTheDocument();
     expect(screen.queryByRole('link', { name: '관심 종목' })).not.toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: '관심 종목' })).not.toBeInTheDocument();
+  });
+
+  it('switches themes and restores the saved preference', async () => {
+    const user = userEvent.setup();
+    const { unmount } = render(<App />);
+
+    await user.click(screen.getByRole('button', { name: '밝은 테마로 전환' }));
+
+    expect(document.documentElement).toHaveAttribute('data-theme', 'light');
+    expect(localStorage.getItem('stock-flow-theme')).toBe('light');
+    expect(screen.getByRole('button', { name: '어두운 테마로 전환' })).toBeInTheDocument();
+
+    unmount();
+    render(<App />);
+
+    expect(document.documentElement).toHaveAttribute('data-theme', 'light');
+    expect(screen.getByRole('button', { name: '어두운 테마로 전환' })).toBeInTheDocument();
   });
 
   it('creates a report and navigates to its detail route', async () => {
