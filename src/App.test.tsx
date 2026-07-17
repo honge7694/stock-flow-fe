@@ -115,9 +115,12 @@ describe('App routing', () => {
     expect(screen.getByRole('heading', { name: '주식 용어집' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: '보조 지표' })).toBeInTheDocument();
     expect(screen.getByText(/20일 이동평균선이 50일 이동평균선 아래에 있다가 위로 올라서면/)).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'ATR' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: '최대 낙폭(MDD)' })).toBeInTheDocument();
   });
 
-  it('shows the trading skills learning route', () => {
+  it('searches the expanded trading skills learning route', async () => {
+    const user = userEvent.setup();
     storeSession();
     window.history.pushState({}, '', '/trading-skills');
 
@@ -126,7 +129,12 @@ describe('App routing', () => {
     expect(screen.getByRole('heading', { name: '트레이딩 스킬 학습' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: '스킬 학습' })).toHaveAttribute('aria-current', 'page');
     expect(screen.getByText('추세와 눌림 구분하기')).toBeInTheDocument();
-    expect(screen.getByText('지지선 이탈 확인하기')).toBeInTheDocument();
+    expect(screen.getByText('가격과 지표의 엇갈림 관찰하기')).toBeInTheDocument();
+
+    await user.type(screen.getByRole('searchbox', { name: '스킬 검색' }), '다이버전스');
+
+    expect(screen.getByText('가격과 지표의 엇갈림 관찰하기')).toBeInTheDocument();
+    expect(screen.queryByText('지지선 이탈 확인하기')).not.toBeInTheDocument();
   });
 
   it('shows the chart pattern map route', () => {
@@ -139,6 +147,8 @@ describe('App routing', () => {
     expect(screen.getByRole('link', { name: '차트 흐름도' })).toHaveAttribute('aria-current', 'page');
     expect(screen.getByText('이중 천장')).toBeInTheDocument();
     expect(screen.getByText('상승 삼각형')).toBeInTheDocument();
+    expect(screen.getByText('상승 깃발형')).toBeInTheDocument();
+    expect(screen.getByText('대칭 삼각형')).toBeInTheDocument();
     expect(screen.getAllByText('긍정 관찰').length).toBeGreaterThan(0);
     expect(screen.getAllByText('주의 관찰').length).toBeGreaterThan(0);
   });

@@ -150,6 +150,86 @@ const glossaryItems: GlossaryItem[] = [
     watchPoints: ['돌파나 이탈 뒤에 다시 기준 구간으로 돌아오는지 확인합니다.', '거래량이 함께 늘었는지 보면 움직임의 강도를 이해하는 데 도움이 됩니다.'],
     visualType: 'supportResistance',
   },
+  {
+    term: 'ATR',
+    category: 'risk',
+    plainDefinition:
+      'ATR은 일정 기간의 실제 가격 변동 범위를 평균한 지표입니다. 방향을 알려주는 값이 아니라 최근 가격이 얼마나 크게 흔들렸는지 보여줍니다.',
+    example:
+      '현재가가 50,000원이고 ATR(14)이 1,500원이라면 최근 14기간의 하루 변동 범위가 평균적으로 약 1,500원이었다는 뜻입니다.',
+    watchPoints: ['ATR이 커지면 최근 가격 흔들림이 확대된 상태입니다.', '종목별 가격 단위가 다르므로 ATR 비율도 함께 비교합니다.'],
+    visualType: 'volatility',
+  },
+  {
+    term: '최대 낙폭(MDD)',
+    category: 'risk',
+    plainDefinition:
+      '선택 기간의 고점에서 이후 저점까지 가장 크게 내려간 비율입니다. 수익률과 별도로 과거에 경험한 하락 깊이를 이해하는 지표입니다.',
+    example:
+      '기간 중 100,000원까지 올랐다가 75,000원까지 내려갔다면 해당 구간의 낙폭은 -25%입니다.',
+    watchPoints: ['계산을 시작한 기간에 따라 값이 달라집니다.', '현재 낙폭과 최대 낙폭을 구분해 봅니다.'],
+    visualType: 'volatility',
+  },
+  {
+    term: '연율화 변동성',
+    category: 'risk',
+    plainDefinition:
+      '일별 수익률의 흔들림을 1년 기준으로 환산한 값입니다. 값이 높을수록 과거 수익률 변화 폭이 컸다는 뜻입니다.',
+    example:
+      '20일 연율화 변동성이 35%라면 최근 20거래일의 흔들림을 연간 단위로 환산했을 때 변동성이 크게 나타난 상태입니다.',
+    watchPoints: ['예상 수익률이 아니라 과거 흔들림의 크기입니다.', '계산 기간이 달라지면 값도 달라질 수 있습니다.'],
+    visualType: 'volatility',
+  },
+  {
+    term: '다이버전스',
+    category: 'indicator',
+    plainDefinition:
+      '가격의 고점이나 저점 방향과 RSI·MACD 같은 지표의 방향이 서로 다르게 움직이는 현상입니다.',
+    example:
+      '가격은 이전보다 높은 고점을 만들었지만 RSI 고점은 낮아졌다면 상승 속도가 둔해지는지 추가로 관찰하는 장면입니다.',
+    watchPoints: ['다이버전스만으로 방향 전환이 확정되지는 않습니다.', '가격 기준선과 거래량 변화를 함께 확인합니다.'],
+    visualType: 'macd',
+  },
+  {
+    term: '갭',
+    category: 'chart',
+    plainDefinition:
+      '이전 기간의 가격 범위와 다음 기간의 가격 범위 사이에 거래 흔적이 비어 있는 구간입니다.',
+    example:
+      '전날 고가가 50,000원이었는데 다음 날 저가가 52,000원에서 시작하면 50,000원과 52,000원 사이에 상승 갭이 생긴 것입니다.',
+    watchPoints: ['실적 발표나 시장 뉴스 뒤에 나타날 수 있습니다.', '갭이 유지되는지 다시 채워지는지 시간 흐름으로 관찰합니다.'],
+    visualType: 'candles',
+  },
+  {
+    term: '리테스트',
+    category: 'pattern',
+    plainDefinition:
+      '가격이 기준선을 돌파하거나 이탈한 뒤 다시 같은 구간으로 돌아와 지지 또는 저항 반응을 확인하는 과정입니다.',
+    example:
+      '60,000원 저항선을 넘어선 뒤 다시 60,000원 근처로 내려왔지만 종가가 그 위에서 유지되면 돌파 구간을 재확인한 장면으로 볼 수 있습니다.',
+    watchPoints: ['기준선을 정확한 한 가격보다 구간으로 봅니다.', '재확인 뒤 종가와 거래량이 어떻게 변하는지 확인합니다.'],
+    visualType: 'supportResistance',
+  },
+  {
+    term: '손익비',
+    category: 'risk',
+    plainDefinition:
+      '관찰 시나리오에서 감수할 수 있는 하락 범위와 확인하려는 상승 범위를 비교한 비율입니다.',
+    example:
+      '하락 관찰 범위를 1,000원, 상승 관찰 범위를 2,000원으로 정했다면 손실 범위 대비 상승 범위는 1대 2입니다.',
+    watchPoints: ['실제 결과를 보장하는 비율이 아닙니다.', '변동성이 커지면 기준 가격 사이의 간격도 다시 검토합니다.'],
+    visualType: 'supportResistance',
+  },
+  {
+    term: '포지션 사이징',
+    category: 'risk',
+    plainDefinition:
+      '전체 자금과 감수 가능한 변동 범위를 고려해 한 종목에 배정할 수량을 계산하는 과정입니다.',
+    example:
+      '같은 금액을 사용하더라도 하루 변동 폭이 큰 종목은 작은 종목보다 수량을 줄여 전체 평가금액의 흔들림을 조절할 수 있습니다.',
+    watchPoints: ['종목 가격뿐 아니라 수량과 변동 폭을 함께 계산합니다.', 'ATR은 과거 변동 폭 참고값이며 미래 손실 한도가 아닙니다.'],
+    visualType: 'volume',
+  },
 ];
 
 function GlossaryVisual({ type }: { type: GlossaryVisualType }) {
