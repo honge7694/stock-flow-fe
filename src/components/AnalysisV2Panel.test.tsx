@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import type { AnalysisV2Payload, MarketDataQuality } from '../types/report';
 import { AnalysisV2Panel } from './AnalysisV2Panel';
@@ -82,5 +83,30 @@ describe('AnalysisV2Panel', () => {
     render(<AnalysisV2Panel analysis={withComparison} showComparison={false} />);
 
     expect(screen.queryByRole('heading', { name: '직전 리포트와 비교' })).not.toBeInTheDocument();
+  });
+
+  it('shows the latest ten indicator events and expands the remainder on demand', async () => {
+    const user = userEvent.setup();
+    const events = Array.from({ length: 12 }, (_, index) => ({
+      ...analysis.events[0],
+      time: `2026-07-${String(12 - index).padStart(2, '0')}`,
+      description: `지표 전환 ${index + 1}`,
+    }));
+
+    render(<AnalysisV2Panel analysis={{ ...analysis, events }} />);
+
+    expect(screen.getByText('지표 전환 10')).toBeInTheDocument();
+    expect(screen.queryByText('지표 전환 11')).not.toBeInTheDocument();
+
+    const expandButton = screen.getByRole('button', { name: '나머지 2개 펼치기' });
+    expect(expandButton).toHaveAttribute('aria-expanded', 'false');
+    await user.click(expandButton);
+
+    expect(screen.getByText('지표 전환 12')).toBeInTheDocument();
+    const collapseButton = screen.getByRole('button', { name: '접기' });
+    expect(collapseButton).toHaveAttribute('aria-expanded', 'true');
+    await user.click(collapseButton);
+
+    expect(screen.queryByText('지표 전환 11')).not.toBeInTheDocument();
   });
 });
